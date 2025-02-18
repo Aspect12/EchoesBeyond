@@ -1,5 +1,12 @@
 
--- Save notes, player positions, and player intro info, play ambient music, improve note creation popup
+-- save player positions
+-- save player intro info
+-- play ambient music
+-- decorate note creation popup
+-- play sound on note creation
+-- play sound on note activation
+-- save note 'check' state (unchecked = blue, checked = white)
+-- give notes ids (curTime)
 
 AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("shared.lua")
@@ -9,6 +16,13 @@ include("shared.lua")
 util.AddNetworkString("CreateNote")
 util.AddNetworkString("FetchNotes")
 util.AddNetworkString("RegisterNote")
+
+-- Add saved notes
+function GM:Initialize()
+	if (!file.Exists("echoesbeyond/notes.txt", "DATA")) then return end
+
+	notes = util.JSONToTable(file.Read("echoesbeyond/notes.txt", "DATA"))
+end
 
 -- Set speed & gravity
 function GM:PlayerSpawn(client)
@@ -40,6 +54,7 @@ function GM:CanPlayerSuicide(client)
 	return false
 end
 
+-- Create notes
 net.Receive("CreateNote", function(_, client)
 	local position = net.ReadVector()
 	local text = net.ReadString()
@@ -51,9 +66,12 @@ net.Receive("CreateNote", function(_, client)
 
 	notes[#notes + 1] = {
 		pos = position,
-		ply = client,
+		ply = client:SteamID(),
 		text = text
 	}
+
+	file.CreateDir("echoesbeyond")
+	file.Write("echoesbeyond/notes.txt", util.TableToJSON(notes))
 
 	net.Start("RegisterNote")
 		net.WriteVector(position)

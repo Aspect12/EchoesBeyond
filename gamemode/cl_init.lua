@@ -123,6 +123,12 @@ end
 
 net.Receive("FetchNotes", function()
 	notes = net.ReadTable()
+
+	for i = 1, #notes do
+		notes[i].drawPos = notes[i].pos
+		notes[i].active = 0
+		notes[i].init = 1
+	end
 end)
 
 -- Create notes
@@ -134,6 +140,7 @@ net.Receive("RegisterNote", function()
 	notes[#notes + 1] = {
 		pos = position,
 		drawPos = position,
+		ply = client:SteamID(),
 		text = text,
 		active = 0,
 		init = 0
