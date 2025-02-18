@@ -34,18 +34,20 @@ end)
 -- Render notes
 local noteMat = Material("echoesbeyond/note.png", "mips")
 
--- turn to 3d2d
 function GM:PostDrawTranslucentRenderables(bDrawingDepth, bDrawingSkybox)
 	if (bDrawingDepth or bDrawingSkybox) then return end
 
 	for k, v in ipairs(notes) do
-		local position = v.pos:ToScreen()
-		local angle = (LocalPlayer():EyePos() - v.pos):Angle()
-		angle:RotateAroundAxis(angle:Forward(), 90)
-		angle:RotateAroundAxis(angle:Right(), 90)
+		local clientPos = LocalPlayer():GetShootPos()
+		local notePos = v.pos
 
-		cam.Start3D2D(v.pos, -angle, 0.1)
+		local angle = (clientPos - notePos):Angle()
+		angle:RotateAroundAxis(angle:Forward(), 90)
+		angle:RotateAroundAxis(angle:Right(), -90)
+		angle = Angle(angle.p, angle.y, 90) -- Fix rotation
+
 			surface.SetDrawColor(color_white)
+		cam.Start3D2D(notePos, angle, 0.1)
 			surface.SetMaterial(noteMat)
 			surface.DrawTexturedRect(-128, -128, 256, 256)
 
