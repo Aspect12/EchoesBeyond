@@ -27,22 +27,26 @@ net.Receive("CreateNote", function()
 
 	notes[#notes + 1] = {
 		pos = position,
-		text = ""
+		drawPos = position,
+		text = "",
+		active = 0
 	}
 end)
 
 -- Render notes
+local noteFadeDist = 1000
 local noteMat = Material("echoesbeyond/note.png", "mips")
 
 function GM:PostDrawTranslucentRenderables(bDrawingDepth, bDrawingSkybox)
 	if (bDrawingDepth or bDrawingSkybox) then return end
 
-	for k, v in ipairs(notes) do
+	for i = 1, #notes do
+		local note = notes[i]
 		local clientPos = LocalPlayer():GetShootPos()
-		local notePos = v.pos
+		local notePos = note.drawPos
 
 		-- Fade out if the player gets too close
-		local alpha = math.Clamp((clientPos:DistToSqr(notePos) - 500) / 1000, 0, 1) * 255
+		local alpha = math.Clamp((clientPos:DistToSqr(notePos) - noteFadeDist / 2) / noteFadeDist, 0, 1) * 255
 
 		local angle = (clientPos - notePos):Angle()
 		angle:RotateAroundAxis(angle:Forward(), 90)
@@ -50,12 +54,48 @@ function GM:PostDrawTranslucentRenderables(bDrawingDepth, bDrawingSkybox)
 		angle = Angle(angle.p, angle.y, 90) -- Fix rotation
 
 		cam.Start3D2D(notePos, angle, 0.1)
-			surface.SetDrawColor(255, 255, 255, alpha)
+			surface.SetDrawColor(150 + 105 * note.active, 255, 255, alpha)
 			surface.SetMaterial(noteMat)
 			surface.DrawTexturedRect(-96, -96, 192, 192)
 
-			draw.SimpleText("shoii", "DebugFixed", 0, -150, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			-- wrap the text eventually
+			draw.SimpleText("NOTE TEXT HERE", "CenterPrintText", 0, -150, Color(255, 255, 255, math.min(note.active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 		cam.End3D2D()
+	end
+end
+
+local activationDist = 5000
+local lightRenderDist = 1000000
+
+-- Activate notes when getting close & render DLights
+function GM:Think()
+	local breatheLayer = math.sin(CurTime() * 1.5) * 0.5
+
+	for i = 1, #notes do
+		local note = notes[i]
+		local clientPos = LocalPlayer():GetShootPos()
+		local notePos = note.pos
+		local distance = clientPos:DistToSqr(notePos)
+
+		if (distance < activationDist) then
+			notes[i].active = math.min(note.active + FrameTime() * 3, 1)
+			notes[i].drawPos = LerpVector(FrameTime() * 3, note.drawPos, note.pos + Vector(0, 0, 24 + breatheLayer))
+		else
+			notes[i].active = math.max(note.active - FrameTime() * 3, 0)
+			notes[i].drawPos = LerpVector(FrameTime() * 3, note.drawPos, note.pos)
+		end
+
+		if (distance > lightRenderDist) then continue end -- Don't render DLights if too far away
+
+		local dLight = DynamicLight(i)
+		dLight.Pos = note.drawPos
+		dLight.r = 150 + 105 * note.active
+		dLight.g = 255
+		dLight.b = 255
+		dLight.Brightness = 3
+		dLight.Size = 256 * ((distance - lightRenderDist) / lightRenderDist * -1) -- Fadeout
+		dLight.Decay = 1000
+		dLight.DieTime = CurTime() + 0.1
 	end
 end
 
