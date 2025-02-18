@@ -77,7 +77,7 @@ function GM:PostDrawTranslucentRenderables(bDrawingDepth, bDrawingSkybox)
 end
 
 local activationDist = 5000
-local lightRenderDist = 1000000
+local lightRenderDist = 3000000
 
 -- Activate notes when getting close & render DLights
 function GM:Think()
