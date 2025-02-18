@@ -16,6 +16,7 @@ include("shared.lua")
 util.AddNetworkString("CreateNote")
 util.AddNetworkString("FetchNotes")
 util.AddNetworkString("RegisterNote")
+util.AddNetworkString("PlayPlayerSound")
 
 -- Add saved notes
 function GM:Initialize()
@@ -23,6 +24,20 @@ function GM:Initialize()
 
 	notes = util.JSONToTable(file.Read("echoesbeyond/notes.txt", "DATA"))
 end
+
+-- Play join/leave sound
+function GM:PlayerInitialSpawn(client)
+	net.Start("PlayPlayerSound")
+		net.WriteBool(true)
+	net.Broadcast()
+end
+
+function GM:PlayerDisconnected(client)
+	net.Start("PlayPlayerSound")
+		net.WriteBool(false)
+	net.Broadcast()
+end
+
 
 -- Set speed & gravity
 function GM:PlayerSpawn(client)

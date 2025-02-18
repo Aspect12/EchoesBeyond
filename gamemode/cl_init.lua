@@ -146,3 +146,10 @@ net.Receive("RegisterNote", function()
 		init = 0
 	}
 end)
+
+-- Play player join/leave sound
+net.Receive("PlayPlayerSound", function()
+	local bJoin = net.ReadBool()
+
+	surface.PlaySound("echoesbeyond/player_" .. (bJoin and "join" or "leave") .. ".wav")
+end)
