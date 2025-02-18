@@ -41,17 +41,20 @@ function GM:PostDrawTranslucentRenderables(bDrawingDepth, bDrawingSkybox)
 		local clientPos = LocalPlayer():GetShootPos()
 		local notePos = v.pos
 
+		-- Fade out if the player gets too close
+		local alpha = math.Clamp((clientPos:DistToSqr(notePos) - 500) / 1000, 0, 1) * 255
+
 		local angle = (clientPos - notePos):Angle()
 		angle:RotateAroundAxis(angle:Forward(), 90)
 		angle:RotateAroundAxis(angle:Right(), -90)
 		angle = Angle(angle.p, angle.y, 90) -- Fix rotation
 
-			surface.SetDrawColor(color_white)
 		cam.Start3D2D(notePos, angle, 0.1)
+			surface.SetDrawColor(255, 255, 255, alpha)
 			surface.SetMaterial(noteMat)
-			surface.DrawTexturedRect(-128, -128, 256, 256)
+			surface.DrawTexturedRect(-96, -96, 192, 192)
 
-			draw.SimpleText("shoii", "DebugFixed", 0, 0, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			draw.SimpleText("shoii", "DebugFixed", 0, -150, color_white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 		cam.End3D2D()
 	end
 end
