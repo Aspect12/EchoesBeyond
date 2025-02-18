@@ -25,12 +25,12 @@ end
 net.Receive("CreateNote", function()
 	local position = net.ReadVector()
 
-	notes[#notes + 1] = {
-		pos = position,
-		drawPos = position,
-		text = "",
-		active = 0
-	}
+	Derma_StringRequest("Create Echo", "Write your echo below (255 char limit)...", nil, function(message)
+		net.Start("CreateNote")
+			net.WriteVector(position)
+			net.WriteString(message)
+		net.SendToServer()
+	end, nil, "Echo")
 end)
 
 -- Render notes
@@ -46,7 +46,7 @@ function GM:PostDrawTranslucentRenderables(bDrawingDepth, bDrawingSkybox)
 		local notePos = note.drawPos
 
 		-- Fade out if the player gets too close
-		local alpha = math.Clamp((clientPos:DistToSqr(notePos) - noteFadeDist / 2) / noteFadeDist, 0, 1) * 255
+		local alpha = (math.Clamp((clientPos:DistToSqr(notePos) - noteFadeDist / 2) / noteFadeDist, 0, 1) * 255) * note.init
 
 		local angle = (clientPos - notePos):Angle()
 		angle:RotateAroundAxis(angle:Forward(), 90)
@@ -59,7 +59,7 @@ function GM:PostDrawTranslucentRenderables(bDrawingDepth, bDrawingSkybox)
 			surface.DrawTexturedRect(-96, -96, 192, 192)
 
 			-- wrap the text eventually
-			draw.SimpleText("NOTE TEXT HERE", "CenterPrintText", 0, -150, Color(255, 255, 255, math.min(note.active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			draw.SimpleText(note.text, "CenterPrintText", 0, -150, Color(255, 255, 255, math.min(note.active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 		cam.End3D2D()
 	end
 end
@@ -77,6 +77,10 @@ function GM:Think()
 		local notePos = note.pos
 		local distance = clientPos:DistToSqr(notePos)
 
+		if (note.init < 1) then
+			note.init = math.min(note.init + FrameTime(), 1)
+		end
+
 		if (distance < activationDist) then
 			notes[i].active = math.min(note.active + FrameTime() * 3, 1)
 			notes[i].drawPos = LerpVector(FrameTime() * 3, note.drawPos, note.pos + Vector(0, 0, 24 + breatheLayer))
@@ -93,7 +97,7 @@ function GM:Think()
 		dLight.g = 255
 		dLight.b = 255
 		dLight.Brightness = 3
-		dLight.Size = 256 * ((distance - lightRenderDist) / lightRenderDist * -1) -- Fadeout
+		dLight.Size = (256 * ((distance - lightRenderDist) / lightRenderDist * -1)) * note.init -- Fadeout
 		dLight.Decay = 1000
 		dLight.DieTime = CurTime() + 0.1
 	end
@@ -107,4 +111,19 @@ end
 
 net.Receive("FetchNotes", function()
 	notes = net.ReadTable()
+end)
+
+-- Create notes
+net.Receive("RegisterNote", function()
+	local position = net.ReadVector()
+	local client = net.ReadPlayer()
+	local text = net.ReadString()
+
+	notes[#notes + 1] = {
+		pos = position,
+		drawPos = position,
+		text = text,
+		active = 0,
+		init = 0
+	}
 end)
