@@ -1,6 +1,5 @@
 
 -- decorate note creation popup
--- create notification system
 -- prevent creating notes too close to each other
 -- prevent creating notes too close to spawnpoints
 -- make notes shared between servers

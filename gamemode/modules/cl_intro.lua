@@ -3,7 +3,7 @@
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
 
 hook.Add("InitPostEntity", "intro_InitPostEntity", function()
-	if (!file.Exists("echoesbeyond/expirednotes.txt", "DATA")) then return end
+	if (file.Exists("echoesbeyond/expirednotes.txt", "DATA")) then return end
 
 	local intro = vgui.Create("DPanel")
 	intro:SetSize(ScrW(), ScrH())

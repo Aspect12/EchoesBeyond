@@ -137,7 +137,7 @@ hook.Add("Think", "notes_render_Think", function()
 			notes[noteID].drawPos = LerpVector(FrameTime() * 1.5, sortedNote.drawPos, sortedNote.pos - (notes[noteID].expired and Vector(0, 0, 20) or Vector(0, 0, 0)))
 
 			if (sortedNote.soundActive) then
-				sortedNote.soundActive = false
+				notes[noteID].soundActive = false
 			end
 		end
 
