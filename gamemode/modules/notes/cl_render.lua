@@ -108,8 +108,8 @@ hook.Add("Think", "notes_render_Think", function()
 				file.Write("echoesbeyond/expirednotes.txt", util.TableToJSON(savedData))
 			end
 		else
-			notes[i].active = math.max(note.active - FrameTime() * 3, 0)
-			notes[i].drawPos = LerpVector(FrameTime() * 3, note.drawPos, note.pos - (notes[i].expired and Vector(0, 0, 20) or Vector(0, 0, 0)))
+			notes[i].active = math.max(note.active - FrameTime() * 0.5, 0)
+			notes[i].drawPos = LerpVector(FrameTime() * 1.5, note.drawPos, note.pos - (notes[i].expired and Vector(0, 0, 20) or Vector(0, 0, 0)))
 
 			if (note.soundActive) then
 				note.soundActive = false
