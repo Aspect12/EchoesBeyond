@@ -4,12 +4,12 @@ if (SERVER) then
 	util.AddNetworkString("CreateNote")
 	util.AddNetworkString("RegisterNote")
 
-	function GM:KeyPress(client, key)
+	hook.Add("KeyPress", "notes_create_KeyPress", function(client, key)
 		if (key != IN_USE) then return end
 
 		net.Start("CreateNote")
 		net.Send(client)
-	end
+	end)
 
 	net.Receive("CreateNote", function(_, client)
 		local text = net.ReadString()

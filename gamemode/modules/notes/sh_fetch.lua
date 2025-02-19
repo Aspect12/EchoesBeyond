@@ -4,11 +4,11 @@ if (SERVER) then
 	util.AddNetworkString("FetchNotes")
 
 	-- Add saved notes
-	function GM:Initialize()
+	hook.Add("Initialize", "notes_fetch_Initialize", function()
 		if (!file.Exists("echoesbeyond/notes.txt", "DATA")) then return end
 
 		notes = util.JSONToTable(file.Read("echoesbeyond/notes.txt", "DATA"))
-	end
+	end)
 
 	-- Send notes to client on join
 	net.Receive("FetchNotes", function(_, client)
@@ -18,10 +18,10 @@ if (SERVER) then
 	end)
 else
 	-- Fetch notes on join
-	function GM:InitPostEntity()
+	hook.Add("InitPostEntity", "notes_fetch_InitPostEntity", function()
 		net.Start("FetchNotes")
 		net.SendToServer()
-	end
+	end)
 
 	net.Receive("FetchNotes", function()
 		notes = net.ReadTable()

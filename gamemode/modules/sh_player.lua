@@ -2,7 +2,7 @@
 -- Generic player setup
 if (SERVER) then
 	-- Set player attributes
-	function GM:PlayerSpawn(client)
+	hook.Add("PlayerSpawn", "player_PlayerSpawn", function(client)
 		client:SetGravity(0.85)
 		client:SetWalkSpeed(100)
 		client:SetRunSpeed(client:GetWalkSpeed() * 1.5)
@@ -19,14 +19,14 @@ if (SERVER) then
 			client:SetPos(posData.position)
 			client:SetAngles(posData.angles)
 		end
-	end
+	end)
 
-	function GM:CanPlayerSuicide(client)
+	hook.Add("PlayerDeath", "player_PlayerDeath", function(client)
 		return false
-	end
+	end)
 
 	-- Save position data locally. Only works on servers
-	function GM:PlayerDisconnected(client)
+	hook.Add("PlayerDisconnected", "player_PlayerDisconnected", function(client)
 		local posData = {
 			position = client:GetPos(),
 			angles = client:GetAngles()
@@ -40,10 +40,10 @@ if (SERVER) then
 
 		file.CreateDir("echoesbeyond/playerpos")
 		file.Write("echoesbeyond/playerpos/" .. mapName .. ".txt", util.TableToJSON(mapData))
-	end
+	end)
 else
 	-- Don't render other players
-	function GM:PrePlayerDraw(client, flags)
+	hook.Add("PrePlayerDraw", "player_PrePlayerDraw", function(client)
 		return true
-	end
+	end)
 end

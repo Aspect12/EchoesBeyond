@@ -3,7 +3,7 @@
 local noteFadeDist = 1000
 local noteMat = Material("echoesbeyond/note.png", "mips")
 
-function GM:PostDrawTranslucentRenderables(bDrawingDepth, bDrawingSkybox)
+hook.Add("PostDrawTranslucentRenderables", "notes_render_PostDrawTranslucentRenderables", function(bDrawingDepth, bDrawingSkybox)
 	if (bDrawingDepth or bDrawingSkybox) then return end
 
 	surface.SetFont("CenterPrintText")
@@ -62,13 +62,13 @@ function GM:PostDrawTranslucentRenderables(bDrawingDepth, bDrawingSkybox)
 			end
 		cam.End3D2D()
 	end
-end
+end)
 
 local activationDist = 5000
 local lightRenderDist = 3000000
 
 -- Activate notes when getting close & render DLights
-function GM:Think()
+hook.Add("Think", "notes_render_Think", function()
 	local breatheLayer = math.sin(CurTime() * 1.5) * 0.5
 
 	for i = 1, #notes do
@@ -130,4 +130,4 @@ function GM:Think()
 		dLight.Decay = 1000
 		dLight.DieTime = CurTime() + 0.1
 	end
-end
+end)

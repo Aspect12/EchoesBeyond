@@ -1,8 +1,8 @@
 
 -- Hide HUD
-function GM:HUDShouldDraw(name)
+hook.Add("HUDShouldDraw", "interface_HUDShouldDraw", function(name)
 	return name == "CHudGMod"
-end
+end)
 
 -- Block chat binds
 local binds = {
@@ -10,8 +10,8 @@ local binds = {
 	["messagemode2"] = true
 }
 
-function GM:PlayerBindPress(client, bind)
+hook.Add("PlayerBindPress", "interface_PlayerBindPress", function(client, bind, pressed)
 	if (!binds[bind]) then return end
 
 	return true
-end
+end)
