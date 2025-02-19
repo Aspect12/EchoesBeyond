@@ -94,12 +94,20 @@ function GM:Think()
 				surface.PlaySound("echoesbeyond/note_activate.wav")
 			end
 
-			if (active == 1 and !bOwner) then
+			if (active == 1 and !bOwner and !notes[i].expired) then
 				notes[i].expired = true
+
+				-- Save note as checked
+				local savedData = file.Read("echoesbeyond/expirednotes.txt", "DATA")
+				savedData = util.JSONToTable(savedData and savedData != "" and savedData or "[]")
+				savedData[#savedData + 1] = notes[i].id
+
+				file.CreateDir("echoesbeyond")
+				file.Write("echoesbeyond/expirednotes.txt", util.TableToJSON(savedData))
 			end
 		else
 			notes[i].active = math.max(note.active - FrameTime() * 3, 0)
-			notes[i].drawPos = LerpVector(FrameTime() * 3, note.drawPos, note.pos - (notes[i].expired and Vector(0, 0, 24) or Vector(0, 0, 0)))
+			notes[i].drawPos = LerpVector(FrameTime() * 3, note.drawPos, note.pos - (notes[i].expired and Vector(0, 0, 20) or Vector(0, 0, 0)))
 
 			if (note.soundActive) then
 				note.soundActive = false
@@ -108,9 +116,9 @@ function GM:Think()
 
 		if (distance > lightRenderDist) then continue end -- Don't render DLights if too far away
 
-		local r = !note.expired and (bOwner and 255 or (100 + 155 * note.active)) or (50 + 205 * note.active)
-		local g = !note.expired and 255 or (50 + 205 * note.active)
-		local b = !note.expired and (bOwner and (255 * note.active) or 255) or (50 + 205 * note.active)
+		local r = !note.expired and (bOwner and 255 or (100 + 155 * note.active)) or (25 + 230 * note.active)
+		local g = !note.expired and 255 or (25 + 230 * note.active)
+		local b = !note.expired and (bOwner and (255 * note.active) or 255) or (25 + 230 * note.active)
 
 		local dLight = DynamicLight(i)
 		dLight.Pos = note.drawPos

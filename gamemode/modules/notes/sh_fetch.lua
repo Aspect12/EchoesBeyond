@@ -26,10 +26,14 @@ else
 	net.Receive("FetchNotes", function()
 		notes = net.ReadTable()
 
+		local savedData = file.Read("echoesbeyond/expirednotes.txt", "DATA")
+		savedData = util.JSONToTable(savedData and savedData != "" and savedData or "[]")
+
 		for i = 1, #notes do
 			notes[i].drawPos = notes[i].pos
 			notes[i].active = 0
 			notes[i].init = 1
+			notes[i].expired = table.HasValue(savedData, notes[i].id)
 		end
 	end)
 end
