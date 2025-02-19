@@ -55,10 +55,14 @@ hook.Add("PostDrawTranslucentRenderables", "notes_render_PostDrawTranslucentRend
 			text[#text - i + 1] = temp
 		end
 
+		local expired = note.expired
+		local active = note.active
+		local explicit = note.explicit
+
 		cam.Start3D2D(notePos, angle, 0.1)
-			local r = !note.expired and (bOwner and 255 or (150 + 105 * note.active)) or (100 + 155 * note.active)
-			local g = !note.expired and 255 or (100 + 155 * note.active)
-			local b = !note.expired and (bOwner and (255 * note.active) or 255) or (100 + 155 * note.active)
+			local r = !expired and ((explicit or bOwner) and 255 or (150 + 105 * active)) or (100 + 155 * active)
+			local g = !expired and (explicit and (75 + 180 * active) or 255) or (100 + 155 * active)
+			local b = !expired and ((explicit and (75 + 180 * active)) or (bOwner and (255 * active) or 255)) or (100 + 155 * active)
 
 			surface.SetDrawColor(r, g, b, alpha)
 			surface.SetMaterial(noteMat)
@@ -143,9 +147,13 @@ hook.Add("Think", "notes_render_Think", function()
 
 		if (distance > lightRenderDist) then continue end -- Don't render DLights if too far away
 
-		local r = !sortedNote.expired and (bOwner and 255 or (100 + 155 * sortedNote.active)) or (25 + 230 * sortedNote.active)
-		local g = !sortedNote.expired and 255 or (25 + 230 * sortedNote.active)
-		local b = !sortedNote.expired and (bOwner and (255 * sortedNote.active) or 255) or (25 + 230 * sortedNote.active)
+		local expired = sortedNote.expired
+		local active = sortedNote.active
+		local explicit = sortedNote.explicit
+
+		local r = !expired and ((explicit or bOwner) and 255 or (100 + 155 * active)) or (25 + 230 * active)
+		local g = !expired and (explicit and (25 + 230 * active) or 255) or (25 + 230 * active)
+		local b = !expired and ((explicit and (25 + 230 * active)) or (bOwner and (255 * active) or 255)) or (25 + 230 * active)
 
 		local dLight = DynamicLight(i)
 		dLight.Pos = sortedNote.drawPos

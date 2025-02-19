@@ -21,9 +21,9 @@ else
 	end
 
 	function PANEL:Setup(text)
-		self:AlphaTo(255, 1)
+		self:AlphaTo(255, 0.5)
 		self:MoveTo(self:GetX(), 25, 0.5, 0, 0.5, function()
-			self:AlphaTo(0, 1, 5)
+			self:AlphaTo(0, 0.5, 5)
 			self:SlideOut(5)
 		end)
 

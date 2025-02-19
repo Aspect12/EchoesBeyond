@@ -56,8 +56,11 @@ if (SERVER) then
 		local position = client:GetPos() + Vector(0, 0, 32)
 		text = text:sub(1, 512) -- Limit text length
 
+		local explicit = IsOffensive(text)
+
 		notes[#notes + 1] = {
 			ply = client:SteamID(),
+			explicit = explicit,
 			id  = os.time(),
 			pos = position,
 			text = text
@@ -70,6 +73,7 @@ if (SERVER) then
 			net.WriteUInt(notes[#notes].id, 31)
 			net.WriteVector(position)
 			net.WritePlayer(client)
+			net.WriteBool(explicit)
 			net.WriteString(text)
 		net.Broadcast()
 	end)
@@ -86,11 +90,13 @@ else
 		local id = net.ReadUInt(31)
 		local position = net.ReadVector()
 		local client = net.ReadPlayer()
+		local explicit = net.ReadBool()
 		local text = net.ReadString()
 
 		notes[#notes + 1] = {
 			ply = client:SteamID(),
 			soundActive = false,
+			explicit = explicit,
 			drawPos = position,
 			pos = position,
 			text = text,
