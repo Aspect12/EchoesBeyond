@@ -9,8 +9,14 @@ hook.Add("PostDrawTranslucentRenderables", "notes_render_PostDrawTranslucentRend
 	surface.SetFont("CenterPrintText")
 	local client = LocalPlayer()
 
-	for i = 1, #notes do
-		local note = notes[i]
+	-- Sort notes by distance
+	local sortedNotes = table.Copy(notes)
+	table.sort(sortedNotes, function(a, b)
+		return client:GetShootPos():DistToSqr(a.pos) > client:GetShootPos():DistToSqr(b.pos)
+	end)
+
+	for i = 1, #sortedNotes do
+		local note = sortedNotes[i]
 		local clientPos = client:GetShootPos()
 		local notePos = note.drawPos
 		local bOwner = note.ply == client:SteamID()
@@ -73,62 +79,81 @@ hook.Add("Think", "notes_render_Think", function()
 	local breatheLayer = math.sin(CurTime() * 1.5) * 0.5
 	local client = LocalPlayer()
 
-	for i = 1, #notes do
-		local note = notes[i]
-		local clientPos = client:GetShootPos()
-		local notePos = note.pos
-		local distance = clientPos:DistToSqr(notePos)
-		local bOwner = note.ply == client:SteamID()
+	-- Sort notes by distance
+	local sortedNotes = table.Copy(notes)
+	table.sort(sortedNotes, function(a, b)
+		return client:GetShootPos():DistToSqr(a.pos) > client:GetShootPos():DistToSqr(b.pos)
+	end)
 
-		if (note.init < 1) then
-			note.init = math.min(note.init + FrameTime(), 1)
+	for i = 1, #sortedNotes do
+		local sortedNote = sortedNotes[i]
+		local noteID
+
+		-- Get the note from the normal notes table by its id member value
+		for id, note in pairs(notes) do
+			if (note.id == sortedNote.id) then
+				noteID = id
+
+				break
+			end
+		end
+
+		if (!noteID) then continue end
+
+		local clientPos = client:GetShootPos()
+		local notePos = sortedNote.pos
+		local distance = clientPos:DistToSqr(notePos)
+		local bOwner = sortedNote.ply == client:SteamID()
+
+		if (sortedNote.init < 1) then
+			notes[noteID].init = math.min(sortedNote.init + FrameTime(), 1)
 		end
 
 		if (distance < activationDist) then
-			local active = math.min(note.active + FrameTime() * 3, 1)
+			local active = math.min(sortedNote.active + FrameTime() * 3, 1)
 
-			notes[i].active = active
-			notes[i].drawPos = LerpVector(FrameTime() * 3, note.drawPos, note.pos + Vector(0, 0, 24 + breatheLayer))
+			notes[noteID].active = active
+			notes[noteID].drawPos = LerpVector(FrameTime() * 3, sortedNote.drawPos, sortedNote.pos + Vector(0, 0, 24 + breatheLayer))
 
-			if (!note.soundActive) then
-				note.soundActive = true
+			if (!sortedNote.soundActive) then
+				notes[noteID].soundActive = true
 
 				client:EmitSound("echoesbeyond/note_activate.wav", 75, math.random(95, 105))
 			end
 
-			if (active == 1 and !bOwner and !notes[i].expired) then
-				notes[i].expired = true
+			if (active == 1 and !bOwner and !notes[noteID].expired) then
+				notes[noteID].expired = true
 
-				-- Save note as checked
+				-- Mark note as expired
 				local savedData = file.Read("echoesbeyond/expirednotes.txt", "DATA")
 				savedData = util.JSONToTable(savedData and savedData != "" and savedData or "[]")
-				savedData[#savedData + 1] = notes[i].id
+				savedData[#savedData + 1] = notes[noteID].id
 
 				file.CreateDir("echoesbeyond")
 				file.Write("echoesbeyond/expirednotes.txt", util.TableToJSON(savedData))
 			end
 		else
-			notes[i].active = math.max(note.active - FrameTime() * 0.5, 0)
-			notes[i].drawPos = LerpVector(FrameTime() * 1.5, note.drawPos, note.pos - (notes[i].expired and Vector(0, 0, 20) or Vector(0, 0, 0)))
+			notes[noteID].active = math.max(sortedNote.active - FrameTime() * 0.5, 0)
+			notes[noteID].drawPos = LerpVector(FrameTime() * 1.5, sortedNote.drawPos, sortedNote.pos - (notes[noteID].expired and Vector(0, 0, 20) or Vector(0, 0, 0)))
 
-			if (note.soundActive) then
-				note.soundActive = false
+			if (sortedNote.soundActive) then
+				sortedNote.soundActive = false
 			end
 		end
 
 		if (distance > lightRenderDist) then continue end -- Don't render DLights if too far away
 
-		local r = !note.expired and (bOwner and 255 or (100 + 155 * note.active)) or (25 + 230 * note.active)
-		local g = !note.expired and 255 or (25 + 230 * note.active)
-		local b = !note.expired and (bOwner and (255 * note.active) or 255) or (25 + 230 * note.active)
+		local r = !sortedNote.expired and (bOwner and 255 or (100 + 155 * sortedNote.active)) or (25 + 230 * sortedNote.active)
+		local g = !sortedNote.expired and 255 or (25 + 230 * sortedNote.active)
+		local b = !sortedNote.expired and (bOwner and (255 * sortedNote.active) or 255) or (25 + 230 * sortedNote.active)
 
 		local dLight = DynamicLight(i)
-		dLight.Pos = note.drawPos
+		dLight.Pos = sortedNote.drawPos
 		dLight.r = r
 		dLight.g = g
 		dLight.b = b
 		dLight.Brightness = 3
-		dLight.Size = (256 * ((distance - lightRenderDist) / lightRenderDist * -1)) * note.init -- Fadeout
+		dLight.Size = (256 * ((distance - lightRenderDist) / lightRenderDist * -1)) * sortedNote.init -- Fadeout
 		dLight.Decay = 1000
 		dLight.DieTime = CurTime() + 0.1
 	end
