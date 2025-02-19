@@ -38,7 +38,6 @@ function GM:PlayerDisconnected(client)
 	net.Broadcast()
 end
 
-
 -- Set speed & gravity
 function GM:PlayerSpawn(client)
 	client:SetGravity(0.85)
@@ -77,7 +76,7 @@ net.Receive("CreateNote", function(_, client)
 	text = text:Trim()
 	if (text == "") then return end
 
-	text = text:sub(1, 255) -- Limit text length
+	text = text:sub(1, 512) -- Limit text length
 
 	notes[#notes + 1] = {
 		pos = position,

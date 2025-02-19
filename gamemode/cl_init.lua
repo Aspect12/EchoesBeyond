@@ -37,7 +37,7 @@ end
 net.Receive("CreateNote", function()
 	local position = net.ReadVector()
 
-	Derma_StringRequest("Create Echo", "Write your echo below (255 char limit)...", nil, function(message)
+	Derma_StringRequest("Create Echo", "Write your echo below (512 char limit)...", nil, function(message)
 		net.Start("CreateNote")
 			net.WriteVector(position)
 			net.WriteString(message)
@@ -65,13 +65,38 @@ function GM:PostDrawTranslucentRenderables(bDrawingDepth, bDrawingSkybox)
 		angle:RotateAroundAxis(angle:Right(), -90)
 		angle = Angle(angle.p, angle.y, 90) -- Fix rotation
 
+		-- Wrap the text
+		local text = {}
+		local line = ""
+		local words = string.Explode(" ", note.text)
+
+		for i = 1, #words do
+			local word = words[i]
+
+			if (surface.GetTextSize(line .. " " .. word) > 512) then
+				table.insert(text, line)
+				line = word
+			else
+				line = line .. " " .. word
+			end
+		end
+
+		-- Flip the table
+		for i = 1, #text / 2 do
+			local temp = text[i]
+
+			text[i] = text[#text - i + 1]
+			text[#text - i + 1] = temp
+		end
+
 		cam.Start3D2D(notePos, angle, 0.1)
 			surface.SetDrawColor(150 + 105 * note.active, 255, 255, alpha)
 			surface.SetMaterial(noteMat)
 			surface.DrawTexturedRect(-96, -96, 192, 192)
 
-			-- wrap the text eventually
-			draw.SimpleText(note.text, "CenterPrintText", 0, -150, Color(255, 255, 255, math.min(note.active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			for i = 1, #text do
+				draw.SimpleText(text[i], "CenterPrintText", 0, -(150 + i * 15), Color(255, 255, 255, math.min(note.active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			end
 		cam.End3D2D()
 	end
 end
