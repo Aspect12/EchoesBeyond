@@ -31,31 +31,36 @@ local substitutions = {
   z = "[zZ2žźз]"			-- Latin z, 2, accented z's, Cyrillic ze
 }
 
--- Builds a pattern from a target word
-local function CreateFuzzyPattern(target)
-	local pattern = ""
-
-	for i = 1, #target do
-		local c = target:sub(i, i)
-		local lower_c = c:lower()
-		local sub = substitutions[lower_c] or c-- use substitution if available
-
-		pattern = pattern .. sub
-
-		if (i < #target) then
-			pattern = pattern .. ".-"-- allow for any characters in-between
-		end
-	end
-
-	return pattern
-end
+local maxGap = 5
 
 -- Check if the pattern exists in the given string
 local function FuzzyMatch(text, target)
-	local pattern = CreateFuzzyPattern(target)
-	local start, finish = string.find(text, pattern)
+	local pos = 1
 
-	return start, finish, pattern
+	for i = 1, #target do
+		local char = target:sub(i, i)
+		local lower_char = char:lower()
+		local pattern = substitutions[lower_char] or char
+
+		-- Find the next occurrence of the current letter's pattern
+		local s, e = string.find(text, pattern, pos)
+
+		if (!s) then
+			return false  -- Current letter not found
+		end
+
+		if (i > 1) then
+			local gapLength = s - pos  -- Gap between previous match end and current match start
+
+			if gapLength > maxGap then
+				return false  -- Gap is too large, abort
+			end
+		end
+
+		pos = e + 1  -- Advance past the current match
+	end
+
+	return true  -- All characters matched with acceptable gaps
 end
 
 -- Bleach your eyes
