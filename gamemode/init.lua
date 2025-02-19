@@ -5,7 +5,7 @@
 -- decorate note creation popup
 -- play sound on note creation
 -- play sound on note activation
--- save note 'check' state (unchecked = blue, checked = white)
+-- save note 'check' state
 
 AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("shared.lua")

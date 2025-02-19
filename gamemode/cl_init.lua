@@ -53,6 +53,7 @@ function GM:PostDrawTranslucentRenderables(bDrawingDepth, bDrawingSkybox)
 		local note = notes[i]
 		local clientPos = LocalPlayer():GetShootPos()
 		local notePos = note.drawPos
+		local bOwner = note.ply == LocalPlayer():SteamID()
 
 		-- Fade out if the player gets too close
 		local alpha = (math.Clamp((clientPos:DistToSqr(notePos) - noteFadeDist / 2) / noteFadeDist, 0, 1) * 255) * note.init
@@ -89,7 +90,11 @@ function GM:PostDrawTranslucentRenderables(bDrawingDepth, bDrawingSkybox)
 		end
 
 		cam.Start3D2D(notePos, angle, 0.1)
-			surface.SetDrawColor(150 + 105 * note.active, 255, 255, alpha)
+			local r = !note.expired and (bOwner and 255 or (150 + 105 * note.active)) or (100 + 155 * note.active)
+			local g = !note.expired and 255 or (100 + 155 * note.active)
+			local b = !note.expired and (bOwner and (255 * note.active) or 255) or (100 + 155 * note.active)		
+
+			surface.SetDrawColor(r, g, b, alpha)
 			surface.SetMaterial(noteMat)
 			surface.DrawTexturedRect(-96, -96, 192, 192)
 
@@ -112,26 +117,37 @@ function GM:Think()
 		local clientPos = LocalPlayer():GetShootPos()
 		local notePos = note.pos
 		local distance = clientPos:DistToSqr(notePos)
+		local bOwner = note.ply == LocalPlayer():SteamID()
 
 		if (note.init < 1) then
 			note.init = math.min(note.init + FrameTime(), 1)
 		end
 
 		if (distance < activationDist) then
-			notes[i].active = math.min(note.active + FrameTime() * 3, 1)
+			local active = math.min(note.active + FrameTime() * 3, 1)
+
+			notes[i].active = active
 			notes[i].drawPos = LerpVector(FrameTime() * 3, note.drawPos, note.pos + Vector(0, 0, 24 + breatheLayer))
+
+			if (active == 1 and !bOwner) then
+				notes[i].expired = true
+			end
 		else
 			notes[i].active = math.max(note.active - FrameTime() * 3, 0)
-			notes[i].drawPos = LerpVector(FrameTime() * 3, note.drawPos, note.pos)
+			notes[i].drawPos = LerpVector(FrameTime() * 3, note.drawPos, note.pos - (notes[i].expired and Vector(0, 0, 24) or Vector(0, 0, 0)))
 		end
 
 		if (distance > lightRenderDist) then continue end -- Don't render DLights if too far away
 
+		local r = !note.expired and (bOwner and 255 or (100 + 155 * note.active)) or (50 + 205 * note.active)
+		local g = !note.expired and 255 or (50 + 205 * note.active)
+		local b = !note.expired and (bOwner and (255 * note.active) or 255) or (50 + 205 * note.active)		
+
 		local dLight = DynamicLight(i)
 		dLight.Pos = note.drawPos
-		dLight.r = 150 + 105 * note.active
-		dLight.g = 255
-		dLight.b = 255
+		dLight.r = r
+		dLight.g = g
+		dLight.b = b
 		dLight.Brightness = 3
 		dLight.Size = (256 * ((distance - lightRenderDist) / lightRenderDist * -1)) * note.init -- Fadeout
 		dLight.Decay = 1000
