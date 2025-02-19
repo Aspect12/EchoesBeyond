@@ -1,7 +1,5 @@
 
 -- decorate note creation popup
--- prevent creating notes too close to each other
--- prevent creating notes too close to spawnpoints
 -- make notes shared between servers
 -- prevent hateful comments (profanity filter, use regex or something?)
 	-- or maybe mark them as red and have a tab menu that allows you to show them? could be cooler

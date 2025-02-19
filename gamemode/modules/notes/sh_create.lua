@@ -7,6 +7,24 @@ if (SERVER) then
 	hook.Add("KeyPress", "notes_create_KeyPress", function(client, key)
 		if (key != IN_RELOAD) then return end
 
+		-- Prevent creating notes too close to other notes
+		for _, note in ipairs(notes) do
+			if (client:GetShootPos():DistToSqr(note.pos) < 1500) then
+				EchoNotify(client, "A good message needs an identity of its own. You are too close to another echo.")
+
+				return
+			end
+		end
+
+		-- Prevent creating notes too close to any spawn points
+		for _, spawn in ipairs(ents.FindByClass("info_player_start")) do
+			if (client:GetShootPos():DistToSqr(spawn:GetPos()) < 10000) then
+				EchoNotify(client, "A good message gives breathing room to those beyond. You are too close to a spawn point.")
+
+				return
+			end
+		end
+
 		net.Start("CreateNote")
 		net.Send(client)
 	end)
@@ -16,6 +34,24 @@ if (SERVER) then
 
 		text = text:Trim()
 		if (text == "") then return end
+
+		-- Prevent creating notes too close to other notes. Also here in case of net manipulation
+		for _, note in ipairs(notes) do
+			if (client:GetShootPos():DistToSqr(note.pos) < 1500) then
+				EchoNotify(client, "A good message marks its own origin. You are too close to another echo.")
+
+				return
+			end
+		end
+
+		-- Prevent creating notes too close to any spawn points. Also here in case of net manipulation
+		for _, spawn in ipairs(ents.FindByClass("info_player_start")) do
+			if (client:GetShootPos():DistToSqr(spawn:GetPos()) < 10000) then
+				EchoNotify(client, "A good message gives breathing room to those beyond. You are too close to a spawn point.")
+
+				return
+			end
+		end
 
 		local position = client:GetPos() + Vector(0, 0, 32)
 		text = text:sub(1, 512) -- Limit text length
