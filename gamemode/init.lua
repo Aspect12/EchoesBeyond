@@ -1,5 +1,4 @@
 
--- save player positions
 -- save player intro info
 -- play ambient music
 -- decorate note creation popup
