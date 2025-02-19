@@ -3,9 +3,11 @@
 if (SERVER) then
 	-- Set player attributes
 	hook.Add("PlayerSpawn", "player_PlayerSpawn", function(client)
-		client:SetGravity(0.85)
-		client:SetWalkSpeed(100)
+		client:SetGravity(0.5)
+		client:SetWalkSpeed(75)
+		client:SetJumpPower(100)
 		client:SetRunSpeed(client:GetWalkSpeed() * 1.5)
+		client:SetFriction(0.5)
 		client:GodEnable()
 
 		-- Load position data. Only works on servers
@@ -47,3 +49,8 @@ else
 		return true
 	end)
 end
+
+-- Disable footstep sounds
+hook.Add("PlayerFootstep", "player_PlayerFootstep", function(client, position, foot, sound, volume, filter)
+	return true
+end)
