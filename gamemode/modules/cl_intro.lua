@@ -1,7 +1,9 @@
 
 -- Small intro sequence
+local vignette = Material("echoesbeyond/vignette.png", "smooth")
+
 hook.Add("InitPostEntity", "intro_InitPostEntity", function()
-	if (file.Exists("echoesbeyond/expirednotes.txt", "DATA")) then return end
+	if (!file.Exists("echoesbeyond/expirednotes.txt", "DATA")) then return end
 
 	local intro = vgui.Create("DPanel")
 	intro:SetSize(ScrW(), ScrH())
@@ -11,6 +13,10 @@ hook.Add("InitPostEntity", "intro_InitPostEntity", function()
 	intro.Paint = function(self, width, height)
 		surface.SetDrawColor(25, 25, 25)
 		surface.DrawRect(0, 0, width, height)
+
+		surface.SetDrawColor(color_black)
+		surface.SetMaterial(vignette)
+		surface.DrawTexturedRect(0, 0, width, height)
 	end
 
 	timer.Simple(3, function()

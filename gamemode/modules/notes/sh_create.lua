@@ -5,7 +5,7 @@ if (SERVER) then
 	util.AddNetworkString("RegisterNote")
 
 	hook.Add("KeyPress", "notes_create_KeyPress", function(client, key)
-		if (key != IN_USE) then return end
+		if (key != IN_RELOAD) then return end
 
 		net.Start("CreateNote")
 		net.Send(client)
