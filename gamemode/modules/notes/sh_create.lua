@@ -54,6 +54,7 @@ else
 
 		notes[#notes + 1] = {
 			ply = client:SteamID(),
+			soundActive = false,
 			drawPos = position,
 			pos = position,
 			text = text,
@@ -61,5 +62,7 @@ else
 			init = 0,
 			id = id
 		}
+
+		surface.PlaySound("echoesbeyond/note_create.wav")
 	end)
 end

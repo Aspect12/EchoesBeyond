@@ -88,12 +88,22 @@ function GM:Think()
 			notes[i].active = active
 			notes[i].drawPos = LerpVector(FrameTime() * 3, note.drawPos, note.pos + Vector(0, 0, 24 + breatheLayer))
 
+			if (!note.soundActive) then
+				note.soundActive = true
+
+				surface.PlaySound("echoesbeyond/note_activate.wav")
+			end
+
 			if (active == 1 and !bOwner) then
 				notes[i].expired = true
 			end
 		else
 			notes[i].active = math.max(note.active - FrameTime() * 3, 0)
 			notes[i].drawPos = LerpVector(FrameTime() * 3, note.drawPos, note.pos - (notes[i].expired and Vector(0, 0, 24) or Vector(0, 0, 0)))
+
+			if (note.soundActive) then
+				note.soundActive = false
+			end
 		end
 
 		if (distance > lightRenderDist) then continue end -- Don't render DLights if too far away
