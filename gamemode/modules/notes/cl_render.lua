@@ -7,12 +7,13 @@ hook.Add("PostDrawTranslucentRenderables", "notes_render_PostDrawTranslucentRend
 	if (bDrawingDepth or bDrawingSkybox) then return end
 
 	surface.SetFont("CenterPrintText")
+	local client = LocalPlayer()
 
 	for i = 1, #notes do
 		local note = notes[i]
-		local clientPos = LocalPlayer():GetShootPos()
+		local clientPos = client:GetShootPos()
 		local notePos = note.drawPos
-		local bOwner = note.ply == LocalPlayer():SteamID()
+		local bOwner = note.ply == client:SteamID()
 
 		-- Fade out if the player gets too close
 		local alpha = (math.Clamp((clientPos:DistToSqr(notePos) - noteFadeDist / 2) / noteFadeDist, 0, 1) * 255) * note.init
@@ -70,13 +71,14 @@ local lightRenderDist = 3000000
 -- Activate notes when getting close & render DLights
 hook.Add("Think", "notes_render_Think", function()
 	local breatheLayer = math.sin(CurTime() * 1.5) * 0.5
+	local client = LocalPlayer()
 
 	for i = 1, #notes do
 		local note = notes[i]
-		local clientPos = LocalPlayer():GetShootPos()
+		local clientPos = client:GetShootPos()
 		local notePos = note.pos
 		local distance = clientPos:DistToSqr(notePos)
-		local bOwner = note.ply == LocalPlayer():SteamID()
+		local bOwner = note.ply == client:SteamID()
 
 		if (note.init < 1) then
 			note.init = math.min(note.init + FrameTime(), 1)
@@ -91,7 +93,7 @@ hook.Add("Think", "notes_render_Think", function()
 			if (!note.soundActive) then
 				note.soundActive = true
 
-				surface.PlaySound("echoesbeyond/note_activate.wav")
+				client:EmitSound("echoesbeyond/note_activate.wav", 75, math.random(95, 105))
 			end
 
 			if (active == 1 and !bOwner and !notes[i].expired) then

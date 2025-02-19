@@ -63,6 +63,6 @@ else
 			id = id
 		}
 
-		surface.PlaySound("echoesbeyond/note_create.wav")
+		LocalPlayer():EmitSound("echoesbeyond/note_create.wav", 75, math.random(95, 105))
 	end)
 end
