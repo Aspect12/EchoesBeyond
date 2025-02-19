@@ -35,11 +35,8 @@ function GM:PrePlayerDraw(client, flags)
 end
 
 net.Receive("CreateNote", function()
-	local position = net.ReadVector()
-
 	Derma_StringRequest("Create Echo", "Write your echo below (512 char limit)...", nil, function(message)
 		net.Start("CreateNote")
-			net.WriteVector(position)
 			net.WriteString(message)
 		net.SendToServer()
 	end, nil, "Echo")
@@ -80,6 +77,8 @@ function GM:PostDrawTranslucentRenderables(bDrawingDepth, bDrawingSkybox)
 				line = line .. " " .. word
 			end
 		end
+
+		table.insert(text, line)
 
 		-- Flip the table
 		for i = 1, #text / 2 do
@@ -158,17 +157,19 @@ end)
 
 -- Create notes
 net.Receive("RegisterNote", function()
+	local id = net.ReadUInt(31)
 	local position = net.ReadVector()
 	local client = net.ReadPlayer()
 	local text = net.ReadString()
 
 	notes[#notes + 1] = {
-		pos = position,
-		drawPos = position,
 		ply = client:SteamID(),
+		drawPos = position,
+		pos = position,
 		text = text,
 		active = 0,
-		init = 0
+		init = 0,
+		id = id
 	}
 end)
 

@@ -6,7 +6,6 @@
 -- play sound on note creation
 -- play sound on note activation
 -- save note 'check' state (unchecked = blue, checked = white)
--- give notes ids (curTime)
 
 AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("shared.lua")
@@ -50,10 +49,7 @@ end
 function GM:KeyPress(client, key)
 	if (key != IN_USE) then return end
 
-	local position = client:GetPos() + Vector(0, 0, 32)
-
 	net.Start("CreateNote")
-		net.WriteVector(position)
 	net.Send(client)
 end
 
@@ -70,17 +66,18 @@ end
 
 -- Create notes
 net.Receive("CreateNote", function(_, client)
-	local position = net.ReadVector()
 	local text = net.ReadString()
-
+	
 	text = text:Trim()
 	if (text == "") then return end
 
+	local position = client:GetPos() + Vector(0, 0, 32)
 	text = text:sub(1, 512) -- Limit text length
 
 	notes[#notes + 1] = {
-		pos = position,
 		ply = client:SteamID(),
+		id  = os.time(),
+		pos = position,
 		text = text
 	}
 
@@ -88,6 +85,7 @@ net.Receive("CreateNote", function(_, client)
 	file.Write("echoesbeyond/notes.txt", util.TableToJSON(notes))
 
 	net.Start("RegisterNote")
+		net.WriteUInt(notes[#notes].id, 31)
 		net.WriteVector(position)
 		net.WritePlayer(client)
 		net.WriteString(text)
