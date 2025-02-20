@@ -1,7 +1,9 @@
 
 -- Plays ambient music
+CreateClientConVar("echoes_music", "1")
+
 local songs = {
-	"echoesbeyond/music/eo_all_around us.mp3",
+	"echoesbey`ond/music/eo_all_around us.mp3",
 	"echoesbeyond/music/eo_a_sunset.mp3",
 	"echoesbeyond/music/eo_below_the clouds.mp3",
 	"echoesbeyond/music/eo_dead_metal.mp3",
@@ -19,7 +21,7 @@ local songs = {
 
 local currentSong
 
-local function PlayMusic()
+function PlayMusic()
 	local soundPath = songs[math.random(#songs)]
 	local soundDuration = SoundDuration(soundPath) + 10
 
@@ -39,6 +41,14 @@ local function PlayMusic()
 
 		currentSong = station
 	end)
+end
+
+function StopMusic()
+	if (IsValid(currentSong)) then
+		currentSong:Stop()
+	end
+
+	timer.Remove("echoes_music")
 end
 
 hook.Add("InitPostEntity", "music_InitPostEntity", function()

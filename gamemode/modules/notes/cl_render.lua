@@ -82,6 +82,7 @@ local lightRenderDist = 3000000
 hook.Add("Think", "notes_render_Think", function()
 	local breatheLayer = math.sin(CurTime() * 1.5) * 0.5
 	local client = LocalPlayer()
+	local profanity = GetConVar("echoes_profanity"):GetBool()
 
 	-- Sort notes by distance
 	local sortedNotes = table.Copy(notes)
@@ -109,39 +110,45 @@ hook.Add("Think", "notes_render_Think", function()
 		local distance = clientPos:DistToSqr(notePos)
 		local bOwner = sortedNote.ply == client:SteamID()
 
-		if (sortedNote.init < 1) then
-			notes[noteID].init = math.min(sortedNote.init + FrameTime(), 1)
+		if (sortedNote.explicit and !profanity) then
+			notes[noteID].init = math.max(sortedNote.init - FrameTime(), 0)
+		elseif (sortedNote.init < 1) then
+			if (sortedNote.explicit and profanity) or (!sortedNote.explicit) then
+				notes[noteID].init = math.min(sortedNote.init + FrameTime(), 1)
+			end
 		end
 
-		if (distance < activationDist) then
-			local active = math.min(sortedNote.active + FrameTime() * 3, 1)
+		if (notes[noteID].explicit and profanity or !notes[noteID].explicit) then
+			if (distance < activationDist) then
+				local active = math.min(sortedNote.active + FrameTime() * 3, 1)
 
-			notes[noteID].active = active
-			notes[noteID].drawPos = LerpVector(FrameTime() * 3, sortedNote.drawPos, sortedNote.pos + Vector(0, 0, 24 + breatheLayer))
+				notes[noteID].active = active
+				notes[noteID].drawPos = LerpVector(FrameTime() * 3, sortedNote.drawPos, sortedNote.pos + Vector(0, 0, 24 + breatheLayer))
 
-			if (!sortedNote.soundActive) then
-				notes[noteID].soundActive = true
+				if (!sortedNote.soundActive) then
+					notes[noteID].soundActive = true
 
-				client:EmitSound("echoesbeyond/note_activate.wav", 75, math.random(95, 105))
-			end
+					client:EmitSound("echoesbeyond/note_activate.wav", 75, math.random(95, 105))
+				end
 
-			if (active == 1 and !bOwner and !notes[noteID].expired) then
-				notes[noteID].expired = true
+				if (active == 1 and !bOwner and !notes[noteID].expired) then
+					notes[noteID].expired = true
 
-				-- Mark note as expired
-				local savedData = file.Read("echoesbeyond/expirednotes.txt", "DATA")
-				savedData = util.JSONToTable(savedData and savedData != "" and savedData or "[]")
-				savedData[#savedData + 1] = notes[noteID].id
+					-- Mark note as expired
+					local savedData = file.Read("echoesbeyond/expirednotes.txt", "DATA")
+					savedData = util.JSONToTable(savedData and savedData != "" and savedData or "[]")
+					savedData[#savedData + 1] = notes[noteID].id
 
-				file.CreateDir("echoesbeyond")
-				file.Write("echoesbeyond/expirednotes.txt", util.TableToJSON(savedData))
-			end
-		else
-			notes[noteID].active = math.max(sortedNote.active - FrameTime() * 0.5, 0)
-			notes[noteID].drawPos = LerpVector(FrameTime() * 1.5, sortedNote.drawPos, sortedNote.pos - (notes[noteID].expired and Vector(0, 0, 20) or Vector(0, 0, 0)))
+					file.CreateDir("echoesbeyond")
+					file.Write("echoesbeyond/expirednotes.txt", util.TableToJSON(savedData))
+				end
+			else
+				notes[noteID].active = math.max(sortedNote.active - FrameTime() * 0.5, 0)
+				notes[noteID].drawPos = LerpVector(FrameTime() * 1.5, sortedNote.drawPos, sortedNote.pos - (notes[noteID].expired and Vector(0, 0, 20) or Vector(0, 0, 0)))
 
-			if (sortedNote.soundActive) then
-				notes[noteID].soundActive = false
+				if (sortedNote.soundActive) then
+					notes[noteID].soundActive = false
+				end
 			end
 		end
 

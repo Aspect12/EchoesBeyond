@@ -1,5 +1,19 @@
 
 -- Recognizes offensive language in text
+if (CLIENT) then
+	CreateClientConVar("echoes_profanity", "0")
+
+	cvars.AddChangeCallback("echoes_profanity", function(name, old, new)
+		if (new == "0") then return end
+
+		for i = 1, #notes do
+			local note = notes[i]
+			if (!note.explicit) then continue end
+
+			note.init = 0
+		end
+	end, "echoes_profanity")
+end
 
 -- Common letter substitutions
 local substitutions = {

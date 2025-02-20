@@ -20,6 +20,8 @@ function PANEL:Init()
 
 	self:AlphaTo(255, 0.25)
 
+	LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 100, 0.75)
+
 	local title = vgui.Create("DLabel", self)
 	title:SetFont("DermaLarge")
 	title:SetText("Create Echo")
@@ -62,8 +64,8 @@ function PANEL:Init()
 			self:ToggleSize(true)
 
 		elseif (length <= maxSmallLength and self.large) then
-			self.large = false
 			self:ToggleSize(false)
+			self.large = false
 		end
 	end
 	self.entry.OnKeyCodePressed = function(this, key)
@@ -98,6 +100,8 @@ function PANEL:Init()
 		net.SendToServer()
 
 		self:Close()
+
+		LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
 	end
 
 	self.cancel = vgui.Create("DButton", self)
@@ -113,6 +117,8 @@ function PANEL:Init()
 	end
 	self.cancel.DoClick = function()
 		self:Close()
+
+		LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
 	end
 end
 
@@ -161,6 +167,10 @@ function PANEL:ToggleSize(bEnlarge)
 			extra = extra + 20
 		end
 
+		if (bLarge) then
+			LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 100, 0.75)
+		end
+
 		self:SizeTo(self:GetWide(), (bLarge and 415 or 210) + extra, 0.5)
 		self:MoveTo(self:GetX(), ScrH() / 2 - ((bLarge and 207 or 100) + extra / 2), 0.5)
 
@@ -181,6 +191,10 @@ function PANEL:ToggleSize(bEnlarge)
 			extra = extra + 20
 		end
 
+		if (self.large) then
+			LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 90, 0.75)
+		end
+
 		self:SizeTo(self:GetWide(), 210 + extra, 0.5)
 		self:MoveTo(self:GetX(), ScrH() / 2 - 100 + extra / 2, 0.5)
 
@@ -198,10 +212,12 @@ function PANEL:Close()
 	self:AlphaTo(0, 0.25, 0, function()
 		self:Remove()
 	end)
+
+	LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 90, 0.75)
 end
 
 function PANEL:OnKeyCodePressed(key)
-	if (key != KEY_R and key != KEY_ESCAPE) then return end
+	if (key != KEY_R) then return end
 
 	self:Close()
 end
@@ -220,3 +236,12 @@ function PANEL:Paint(width, height)
 end
 
 vgui.Register("echoEntry", PANEL, "EditablePanel")
+
+-- Close when pressing escape
+hook.Add("OnPauseMenuShow", "entry_OnPauseMenuShow", function()
+	if (!IsValid(noteEntry)) then return end
+
+	noteEntry:Close()
+
+	return false
+end)

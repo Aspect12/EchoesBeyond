@@ -108,9 +108,16 @@ else
 		-- Save own notes
 		if (client != LocalPlayer()) then return end
 
+		-- If we wrote something explicit, turn off the profanity filter
+		if (explicit) then
+			local profanity = GetConVar("echoes_profanity")
+
+			profanity:SetBool(true)
+		end
+
 		local savedNotes = file.Read("echoesbeyond/writtennotes.txt", "DATA")
 		savedNotes = util.JSONToTable(savedNotes and savedNotes != "" and savedNotes or "[]")
-		
+
 		savedNotes[#savedNotes + 1] = {
 			explicit = explicit,
 			map = game.GetMap(),

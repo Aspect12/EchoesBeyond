@@ -32,7 +32,7 @@ else
 		for i = 1, #notes do
 			notes[i].drawPos = notes[i].pos
 			notes[i].active = 0
-			notes[i].init = 1
+			notes[i].init = 0
 			notes[i].expired = table.HasValue(savedData, notes[i].id)
 		end
 	end)
