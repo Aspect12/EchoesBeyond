@@ -31,10 +31,28 @@ local substitutions = {
 	z = "[zZ2žźз]"			-- Latin z, 2, accented z's, Cyrillic ze
 }
 
+-- Helper function to remove duplicate characters from a string
+local function RemoveDupeChars(text)
+	local result = ""
+	local prev = ""
+
+	for i = 1, #text do
+		local char = text:sub(i, i)
+		if (char == prev) then continue end
+
+		result = result .. char
+		prev = char
+	end
+
+	return result
+end
+
 local maxGap = 5
 
 -- Check if the pattern exists in the given string
 local function FuzzyMatch(text, target)
+	text = RemoveDupeChars(text)
+
 	local pos = 1
 
 	for i = 1, #target do
@@ -52,7 +70,7 @@ local function FuzzyMatch(text, target)
 		if (i > 1) then
 			local gapLength = s - pos  -- Gap between previous match end and current match start
 
-			if gapLength > maxGap then
+			if (gapLength > maxGap) then
 				return false  -- Gap is too large, abort
 			end
 		end
@@ -70,6 +88,10 @@ local wordList = {
 	"faggot",
 	"nigger",
 	"retard",
+	"fagot",
+	"nigga",
+	"negro",
+	"niger",
 	"chink",
 	"honky",
 	"sissy",
