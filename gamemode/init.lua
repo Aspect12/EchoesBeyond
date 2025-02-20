@@ -7,7 +7,6 @@
 	-- Credits
 	-- "There are currently X notes across X different maps."
 	-- Personal note count/view & note limit
--- Disable collisions between players
 
 AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("shared.lua")

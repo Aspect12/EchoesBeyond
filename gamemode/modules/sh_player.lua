@@ -7,6 +7,7 @@ if (SERVER) then
 		client:SetWalkSpeed(75)
 		client:SetJumpPower(100)
 		client:SetRunSpeed(client:GetWalkSpeed() * 1.5)
+		client:SetCustomCollisionCheck(true)
 		client:SetFriction(0.5)
 		client:GodEnable()
 
@@ -42,6 +43,13 @@ if (SERVER) then
 
 		file.CreateDir("echoesbeyond/playerpos")
 		file.Write("echoesbeyond/playerpos/" .. mapName .. ".txt", util.TableToJSON(mapData))
+	end)
+
+	-- Disable player collisions
+	hook.Add("ShouldCollide", "player_ShouldCollide", function(entity1, entity2)
+		if (entity1:IsPlayer() and entity2:IsPlayer()) then
+			return false
+		end
 	end)
 else
 	-- Don't render other players

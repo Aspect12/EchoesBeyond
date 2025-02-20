@@ -31,8 +31,8 @@ local substitutions = {
 	z = "[zZ2žźз]"			-- Latin z, 2, accented z's, Cyrillic ze
 }
 
--- Helper function to remove duplicate characters from a string
-local function RemoveDupeChars(text)
+-- Helper function to remove repeated characters from a string
+local function RemoveRepeatedChars(text)
 	local result = ""
 	local prev = ""
 
@@ -51,7 +51,7 @@ local maxGap = 5
 
 -- Check if the pattern exists in the given string
 local function FuzzyMatch(text, target)
-	text = RemoveDupeChars(text)
+	text = RemoveRepeatedChars(text)
 
 	local pos = 1
 
