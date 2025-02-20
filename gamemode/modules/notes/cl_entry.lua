@@ -1,6 +1,9 @@
 
 local PANEL = {}
 
+local maxSmallLength = 49 -- Max text length before the text field expands
+local maxBigSize = 512 -- Max text length
+
 function PANEL:Init()
 	if (IsValid(noteEntry)) then
 		noteEntry:Remove()
@@ -8,7 +11,7 @@ function PANEL:Init()
 
 	noteEntry = self
 
-	self:SetSize(600, 200)
+	self:SetSize(600, 210)
 	self:Center()
 	self:MakePopup()
 	self:SetAlpha(0)
@@ -19,34 +22,48 @@ function PANEL:Init()
 
 	local title = vgui.Create("DLabel", self)
 	title:SetFont("DermaLarge")
-	title:SetText("Echo")
+	title:SetText("Create Echo")
 	title:SizeToContents()
 	title:CenterHorizontal()
 	title:SetY(10)
 
 	local subTitle = vgui.Create("DLabel", self)
-	subTitle:SetFont("DermaDefault")
 	subTitle:SetText("Echo your thoughts into the text field below.")
 	subTitle:SizeToContents()
 	subTitle:CenterHorizontal()
 	subTitle:SetY(60)
 
 	self.entry = vgui.Create("DTextEntry", self)
-	self.entry:SetWide(self:GetWide() - 40)
-	self.entry:Center()
-	self.entry:SetY(80)
-	self.entry.large = false
+	self.entry:SetSize(self:GetWide() - 40, 30)
+	self.entry:CenterHorizontal()
+	self.entry:SetFont("HudDefault")
+	self.entry:SetY(85)
 	self.entry.OnTextChanged = function(this) -- Add length & profanity warnings
 		local text = this:GetValue()
+		local length = text:len()
 
-		if (text:len() > 2 and !this.large) then
-			self:ToggleSize(true)			
+		if (length > maxBigSize) then
+			this:SetText(text:sub(1, maxBigSize))
+			this:SetCaretPos(maxBigSize)
 
-			this.large = true
-		elseif (text:len() <= 2 and this.large) then
+			self:ToggleWarning(true, false)
+		else
+			self:ToggleWarning(false, false)
+		end
+
+		if (IsOffensive(text)) then
+			self:ToggleWarning(true, true)
+		else
+			self:ToggleWarning(false, true)
+		end
+
+		if (length > maxSmallLength and !self.large) then
+			self.large = true
+			self:ToggleSize(true)
+
+		elseif (length <= maxSmallLength and self.large) then
+			self.large = false
 			self:ToggleSize(false)
-
-			this.large = false
 		end
 	end
 	self.entry.OnKeyCodePressed = function(this, key)
@@ -54,14 +71,25 @@ function PANEL:Init()
 
 		self:Close()
 	end
+	self.entry.Paint = function(this, width, height)
+		surface.SetDrawColor(50, 50, 50)
+		surface.DrawRect(0, 0, width, height)
+
+		this:DrawTextEntryText(Color(175, 175, 175), Color(255, 255, 255), Color(175, 175, 175))
+	end
 	self.entry:RequestFocus()
 
 	self.submit = vgui.Create("DButton", self)
-	self.submit:SetSize(100, 30)
+	self.submit:SetSize(self:GetWide() * 0.3, 30)
 	self.submit:SetText("Submit")
-	self.submit:SizeToContents()
+	self.submit:SetFont("CreditsText")
+	self.submit:SetColor(Color(175, 175, 175))
 	self.submit:CenterHorizontal()
-	self.submit:SetY(110)
+	self.submit:SetY(125)
+	self.submit.Paint = function(this, width, height)
+		surface.SetDrawColor(this:IsDown() and Color(100, 100, 100) or this:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
+		surface.DrawRect(0, 0, width, height)
+	end
 	self.submit.DoClick = function()
 		local message = self.entry:GetValue()
 
@@ -73,36 +101,96 @@ function PANEL:Init()
 	end
 
 	self.cancel = vgui.Create("DButton", self)
-	self.cancel:SetSize(100, 30)
+	self.cancel:SetSize(self:GetWide() * 0.3, 30)
 	self.cancel:SetText("Cancel")
-	self.cancel:SizeToContents()
+	self.cancel:SetFont("CreditsText")
+	self.cancel:SetColor(Color(175, 175, 175))
 	self.cancel:CenterHorizontal()
-	self.cancel:SetY(155)
+	self.cancel:SetY(165)
+	self.cancel.Paint = function(this, width, height)
+		surface.SetDrawColor(this:IsDown() and Color(100, 100, 100) or this:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
+		surface.DrawRect(0, 0, width, height)
+	end
 	self.cancel.DoClick = function()
 		self:Close()
 	end
 end
 
+local warningTypes = {
+	[true] = "A wise message avoids profanity and hate speech.",
+	[false] = "A wise message is concise and to the point."
+}
+
+function PANEL:ToggleWarning(bState, bAlt)
+	if (bState) then
+		if (IsValid(self["warning" .. (bAlt and "Offensive" or "Length")])) then return end
+
+		local warning = vgui.Create("DLabel", self)
+		warning:SetText(warningTypes[bAlt])
+		warning:SetColor(bAlt and Color(255, 50, 50) or Color(255, 255, 75))
+		warning:SizeToContents()
+		warning:CenterHorizontal()
+		warning:SetY(((IsValid(self.warningOffensive) or IsValid(self.warningLength)) and 100) or 80)
+		warning:SetAlpha(0)
+		warning:AlphaTo(255, 0.25)
+
+		self["warning" .. (bAlt and "Offensive" or "Length")] = warning
+		self:ToggleSize(true)
+	elseif (IsValid(self["warning" .. (bAlt and "Offensive" or "Length")])) then
+		local warning = self["warning" .. (bAlt and "Offensive" or "Length")]
+		warning.removing = true
+
+		warning:AlphaTo(0, 0.25, 0, function()
+			warning:Remove()
+		end)
+
+		self:ToggleSize(true)
+	end
+end
+
 function PANEL:ToggleSize(bEnlarge)
 	if (bEnlarge) then
-		self:SizeTo(self:GetWide(), 400, 0.5)
-		self:MoveTo(self:GetX(), ScrH() / 2 - 200, 0.5)
-		
-		self.entry:SizeTo(self.entry:GetWide(), 220, 0.5)
+		local extra = 0
+		local bLarge = self.large
+
+		if (IsValid(self.warningLength) and !self.warningLength.removing) then
+			extra = extra + 20
+		end
+
+		if (IsValid(self.warningOffensive) and !self.warningOffensive.removing) then
+			extra = extra + 20
+		end
+
+		self:SizeTo(self:GetWide(), (bLarge and 415 or 210) + extra, 0.5)
+		self:MoveTo(self:GetX(), ScrH() / 2 - ((bLarge and 207 or 100) + extra / 2), 0.5)
+
+		self.entry:MoveTo(self.entry:GetX(), 85 + extra, 0.5)
+		self.entry:SizeTo(self.entry:GetWide(), bLarge and 235 or 30, 0.5)
 		self.entry:SetMultiline(true)
 
-		self.submit:MoveTo(self.submit:GetX(), 310, 0.5)
-		self.cancel:MoveTo(self.cancel:GetX(), 355, 0.5)			
+		self.submit:MoveTo(self.submit:GetX(), (bLarge and 330 or 125) + extra, 0.5)
+		self.cancel:MoveTo(self.cancel:GetX(), (bLarge and 370 or 165) + extra, 0.5)
 	else
-		self:SizeTo(self:GetWide(), 200, 0.5)
-		self:MoveTo(self:GetX(), ScrH() / 2 - 100, 0.5)
+		local extra = 0
 
-		self.entry:SizeTo(self.entry:GetWide(), 20, 0.5, nil, nil, function(animData, targetPanel)
+		if (IsValid(self.warningLength) and !self.warningLength.removing) then
+			extra = extra + 20
+		end
+
+		if (IsValid(self.warningOffensive) and !self.warningOffensive.removing) then
+			extra = extra + 20
+		end
+
+		self:SizeTo(self:GetWide(), 210 + extra, 0.5)
+		self:MoveTo(self:GetX(), ScrH() / 2 - 100 + extra / 2, 0.5)
+
+		self.entry:MoveTo(self.entry:GetX(), 85 + extra, 0.5)
+		self.entry:SizeTo(self.entry:GetWide(), 30, 0.5, nil, nil, function(animData, targetPanel)
 			targetPanel:SetMultiline(false)
 		end)
 
-		self.submit:MoveTo(self.submit:GetX(), 110, 0.5)
-		self.cancel:MoveTo(self.cancel:GetX(), 155, 0.5)
+		self.submit:MoveTo(self.submit:GetX(), 125 + extra, 0.5)
+		self.cancel:MoveTo(self.cancel:GetX(), 165 + extra, 0.5)
 	end
 end
 
@@ -122,7 +210,7 @@ local notif = Material("echoesbeyond/notification.png")
 
 function PANEL:Paint(width, height)
 	Derma_DrawBackgroundBlur(self, self.startTime)
-	
+
 	surface.SetDrawColor(25, 25, 25)
 	surface.DrawRect(0, 0, width, height)
 

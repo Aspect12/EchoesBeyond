@@ -1,6 +1,4 @@
 
--- Show a warning in note menu if there's profanity in the note
--- Show a warning in note menu if you reach the character limit
 -- make notes shared between servers
 -- make a menu with TAB
 	-- Option to toggle music on/off
