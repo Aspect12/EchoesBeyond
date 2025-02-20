@@ -79,11 +79,7 @@ if (SERVER) then
 	end)
 else
 	net.Receive("CreateNote", function()
-		Derma_StringRequest("Create Echo", "Write your echo below (512 char limit)...", nil, function(message)
-			net.Start("CreateNote")
-				net.WriteString(message)
-			net.SendToServer()
-		end, nil, "Echo")
+		vgui.Create("echoEntry")
 	end)
 
 	net.Receive("RegisterNote", function()
