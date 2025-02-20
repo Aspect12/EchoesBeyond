@@ -4,6 +4,7 @@ local vignette = Material("echoesbeyond/vignette.png", "smooth")
 
 hook.Add("InitPostEntity", "intro_InitPostEntity", function()
 	if (file.Exists("echoesbeyond/expirednotes.txt", "DATA")) then return end
+	if (file.Exists("echoesbeyond/writtennotes.txt", "DATA")) then return end
 
 	local intro = vgui.Create("DPanel")
 	intro:SetSize(ScrW(), ScrH())
@@ -22,7 +23,7 @@ hook.Add("InitPostEntity", "intro_InitPostEntity", function()
 	timer.Simple(3, function()
 		local text = vgui.Create("DLabel", intro)
 		text:SetFont("DermaLarge")
-		text:SetText("This game is connected to the internet, and all echoes are shared across all players.")
+		text:SetText("This game is connected to the internet. All echoes are shared across all players.")
 		text:SizeToContents()
 		text:Center()
 		text:SetAlpha(0)

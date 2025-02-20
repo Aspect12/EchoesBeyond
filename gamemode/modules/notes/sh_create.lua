@@ -54,6 +54,8 @@ if (SERVER) then
 		end
 
 		local position = client:GetPos() + Vector(0, 0, 32)
+
+		text = text:gsub("\n", " ") -- Remove newlines
 		text = text:sub(1, 512) -- Limit text length
 
 		local explicit = IsOffensive(text)
@@ -102,5 +104,22 @@ else
 		}
 
 		LocalPlayer():EmitSound("echoesbeyond/note_create.wav", 75, math.random(95, 105))
+
+		-- Save own notes
+		if (client != LocalPlayer()) then return end
+
+		local savedNotes = file.Read("echoesbeyond/writtennotes.txt", "DATA")
+		savedNotes = util.JSONToTable(savedNotes and savedNotes != "" and savedNotes or "[]")
+		
+		savedNotes[#savedNotes + 1] = {
+			explicit = explicit,
+			map = game.GetMap(),
+			pos = position,
+			text = text,
+			id = id
+		}
+
+		file.CreateDir("echoesbeyond")
+		file.Write("echoesbeyond/writtennotes.txt", util.TableToJSON(savedNotes))
 	end)
 end
