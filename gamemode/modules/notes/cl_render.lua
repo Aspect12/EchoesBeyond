@@ -133,7 +133,7 @@ hook.Add("Think", "notes_render_Think", function()
 				if (!sortedNote.soundActive) then
 					note.soundActive = true
 
-					client:EmitSound("echoesbeyond/note_activate.wav", 75, math.random(95, 105))
+					client:EmitSound("echoesbeyond/note_activate.wav", 75, note.special and math.random(115, 125) or note.explicit and math.random(65, 75) or math.random(95, 105))
 				end
 
 				if (active == 1 and !bOwner and !note.expired and !note.special) then

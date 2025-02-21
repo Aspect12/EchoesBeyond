@@ -62,3 +62,10 @@ end
 hook.Add("PlayerFootstep", "player_PlayerFootstep", function(client, position, foot, sound, volume, filter)
 	return true
 end)
+
+-- Disable damage sounds
+hook.Add("EntityEmitSound", "player_EntityEmitSound", function(soundData)
+	if (!string.find(soundData.SoundName, "fallpain")) then return end
+
+	return false -- Block the sound
+end)
