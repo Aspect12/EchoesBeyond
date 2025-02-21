@@ -93,11 +93,7 @@ function PANEL:Init()
 		surface.DrawRect(0, 0, width, height)
 	end
 	self.submit.DoClick = function()
-		local message = self.entry:GetValue()
-
-		net.Start("CreateNote")
-			net.WriteString(message)
-		net.SendToServer()
+		CreateNote(self.entry:GetValue())
 
 		self:Close()
 
