@@ -143,7 +143,7 @@ hook.Add("ScoreboardShow", "menu_ScoreboardShow", function()
 	currCountLabel:SetY(height - 70)
 
 	local personalCountLabel = vgui.Create("DLabel", mainMenu)
-	personalCountLabel:SetText("You have written " .. #writtenNotes .. " echo" .. (#writtenNotes > 1 and "es" or "") .. " across " .. ownMapCount .. (ownMapCount > 1 and " different maps." or " map."))
+	personalCountLabel:SetText("You have written " .. #writtenNotes .. " echo" .. (#writtenNotes == 1 and "" or "es") .. " across " .. ownMapCount .. (ownMapCount == 1 and " map" or " different maps."))
 	personalCountLabel:SizeToContents()
 	personalCountLabel:CenterHorizontal()
 	personalCountLabel:SetY(height - 50)
