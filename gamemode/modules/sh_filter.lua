@@ -22,7 +22,7 @@ local substitutions = {
 	c = "[cCçćčс]",			-- Latin c, cedilla/accents, Cyrillic es
 	d = "[dDđ]",				-- Latin d, with đ (a common variant)
 	e = "[eE3€εєе]",			-- Latin e, 3, euro sign, Greek epsilon, Ukrainian IE, Cyrillic е
-	f = "[fFƒ]",				-- Latin f, plus the function symbol ƒ
+	f = "[fFƒ4]",				-- Latin f, plus the function symbol ƒ
 	g = "[gG69]",				-- Latin g, 6, 9 (often used)
 	h = "[hH]",				-- Latin h (no common homoglyphs added)
 	i = "[iI1!|íìîïιі]",		-- Latin i, 1, exclamation, vertical bar, accented forms, Greek iota, Ukrainian i
@@ -98,7 +98,6 @@ end
 -- Bleach your eyes
 local wordList = {
 	"kil yourself",
-	"redskin",
 	"fagot",
 	"retard",
 	"fagot",

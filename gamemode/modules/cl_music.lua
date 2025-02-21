@@ -19,7 +19,7 @@ local songs = {
 	"echoesbeyond/music/eo_yesterdays.mp3"
 }
 
-local currentSong
+currentSong = currentSong or nil
 
 function PlayMusic()
 	local soundPath = songs[math.random(#songs)]
