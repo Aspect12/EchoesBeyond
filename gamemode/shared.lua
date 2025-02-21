@@ -1,6 +1,4 @@
 
-notes = notes or {}
-
 -- File inclusion functions
 local realms = {}
 realms["cl"] = function(path)
