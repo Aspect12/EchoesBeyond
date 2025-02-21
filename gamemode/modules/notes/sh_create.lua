@@ -6,22 +6,13 @@ if (SERVER) then
 	hook.Add("KeyPress", "notes_create_KeyPress", function(client, key)
 		if (key != IN_RELOAD) then return end
 
-		-- Prevent creating notes too close to other notes
-		for _, note in ipairs(notes) do
-			if (client:GetShootPos():DistToSqr(note.pos) < 1500) then
-				EchoNotify(client, "A good message needs an identity of its own. You are too close to another echo.")
-
-				return
-			end
-		end
-
 		-- Prevent creating notes too close to any spawn points
 		for _, spawn in ipairs(ents.FindByClass("info_player_start")) do
-			if (client:GetShootPos():DistToSqr(spawn:GetPos()) < 10000) then
-				EchoNotify(client, "A good message gives breathing room to those beyond. You are too close to a spawn point.")
+			if (client:GetShootPos():DistToSqr(spawn:GetPos()) >= 10000) then continue end
 
-				return
-			end
+			EchoNotify(client, "A good message gives breathing room to those beyond. You are too close to a spawn point.")
+
+			return
 		end
 
 		net.Start("CreateNote")
@@ -49,6 +40,18 @@ else
 	end
 
 	net.Receive("CreateNote", function()
+		local client = LocalPlayer()
+
+		-- Prevent creating notes too close to other notes
+		for _, note in ipairs(notes) do
+			if (note.explicit) then continue end
+			if (client:GetShootPos():DistToSqr(note.pos) >= 1500) then continue end
+
+			EchoNotify("A good message needs an identity of its own. You are too close to another echo.")
+
+			return
+		end
+
 		vgui.Create("echoEntry")
 	end)
 end
