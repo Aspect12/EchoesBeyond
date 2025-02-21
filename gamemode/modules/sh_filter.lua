@@ -97,18 +97,17 @@ end
 
 -- Bleach your eyes
 local wordList = {
-	"kill yourself",
+	"kil yourself",
 	"redskin",
-	"faggot",
-	"nigger",
+	"fagot",
 	"retard",
 	"fagot",
-	"nigga",
+	"niga",
 	"negro",
 	"niger",
 	"chink",
 	"honky",
-	"sissy",
+	"sisy",
 	"spic",
 	"paki",
 	"gook",
