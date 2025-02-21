@@ -1,6 +1,4 @@
 
--- Ratelimit system
-
 AddCSLuaFile("cl_init.lua")
 AddCSLuaFile("shared.lua")
 

@@ -23,6 +23,15 @@
 
 	$response["notes"] = $notes;
 
+	$ip = $_SERVER["REMOTE_ADDR"];
+	$ratelimit = [];
+
+	if (file_exists("ratelimit.json")) {
+		$ratelimit = json_decode(file_get_contents("ratelimit.json"), true);
+	}
+
+	$response["ratelimit"] = $ratelimit[$ip] ?? 0;
+
 	// Respond
 	echo json_encode($response);
 ?>

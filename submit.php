@@ -1,10 +1,28 @@
 
 <?php
+	$ip = $_SERVER["REMOTE_ADDR"];
+
+	// Create a json file for the rate limit if it doesn't exist
+	if (!file_exists("ratelimit.json")) {
+		file_put_contents("ratelimit.json", "[]");
+	}
+
+	$ratelimit = json_decode(file_get_contents("ratelimit.json"), true);
+	$time = time();
+
+	// Rate limit: 1 note per minute per IP
+	if (isset($ratelimit[$ip]) && $ratelimit[$ip] > $time) {
+		echo "Rate Limited.";
+
+		exit();
+	}
+
 	$ply = trim($_POST["ply"]);
 	$map = trim($_POST["map"]);
 	$pos = trim($_POST["pos"]);
 	$text = trim($_POST["text"]);
 	$explicit = isset($_POST["explicit"]) ? $_POST["explicit"] : null;
+
 
 	if ($ply == "" || $map == "" || $pos == "" || $text == "") {
 		echo "Invalid input";
@@ -75,10 +93,14 @@
 		"explicit" => $explicit,
 	);
 
-	// Write the json file
+	// Save the map file
 	file_put_contents("stored/$map.json", json_encode($notes));
 
+	// Save the stats file
 	$stats["notes"]++;
-
 	file_put_contents("stats.json", json_encode($stats));
+
+	// Save the rate limit file
+	$ratelimit[$ip] = $time + 60;
+	file_put_contents("ratelimit.json", json_encode($ratelimit));
 ?>

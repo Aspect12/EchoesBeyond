@@ -2,6 +2,7 @@
 -- Fetch notes and send them to the client
 mapCount = mapCount or 0 -- Total amount of maps with notes, used in the main menu
 globalNoteCount = globalNoteCount or 0 -- Total amount of notes, ditto
+nextNote = nextNote or 0 -- Time a new note can be made
 
 function FetchNotes(bNoSound)
 	local map = game.GetMap()
@@ -12,6 +13,10 @@ function FetchNotes(bNoSound)
 
 		mapCount = data.stats.maps
 		globalNoteCount = data.stats.notes
+
+		if (data.ratelimit) then
+			nextNote = data.ratelimit
+		end
 
 		if (!data.notes) then return end
 

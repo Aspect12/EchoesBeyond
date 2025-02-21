@@ -41,6 +41,12 @@ else
 	end
 
 	net.Receive("CreateNote", function()
+		if (nextNote > os.time()) then
+			EchoNotify("A good message bides its time. You must wait another " .. (nextNote - os.time()) .. " seconds before creating another echo.")
+
+			return
+		end
+
 		local client = LocalPlayer()
 
 		-- Prevent creating notes too close to other notes
