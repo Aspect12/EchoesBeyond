@@ -49,6 +49,7 @@ function FetchNotes(bNoSound)
 				ply = data.notes[i].ply,
 				pos = position,
 				id = data.notes[i].id,
+				special = data.notes[i].special or false,
 				active = 0,
 				init = 0,
 			}

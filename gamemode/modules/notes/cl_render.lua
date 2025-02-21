@@ -55,14 +55,15 @@ hook.Add("PostDrawTranslucentRenderables", "notes_render_PostDrawTranslucentRend
 			text[#text - i + 1] = temp
 		end
 
+		local special = note.special
 		local expired = note.expired
 		local active = note.active
 		local explicit = note.explicit
 
 		cam.Start3D2D(notePos, angle, 0.1)
-			local r = !expired and ((explicit or bOwner) and 255 or (150 + 105 * active)) or (100 + 155 * active)
-			local g = !expired and (explicit and (75 + 180 * active) or 255) or (100 + 155 * active)
-			local b = !expired and ((explicit and (75 + 180 * active)) or (bOwner and (255 * active) or 255)) or (100 + 155 * active)
+			local r = !expired and (special and (200 + 55 * active) or explicit and 255 or bOwner and 255 or (150 + 105 * active)) or (100 + 155 * active)
+			local g = !expired and (special and (255 * active) or explicit and (50 + 205 * active) or bOwner and 255 or 255) or (100 + 155 * active)
+			local b = !expired and (special and (200 + 55 * active) or explicit and (50 + 205 * active) or bOwner and (255 * active) or 255) or (100 + 155 * active)
 
 			surface.SetDrawColor(r, g, b, alpha)
 			surface.SetMaterial(noteMat)
@@ -131,7 +132,7 @@ hook.Add("Think", "notes_render_Think", function()
 					client:EmitSound("echoesbeyond/note_activate.wav", 75, math.random(95, 105))
 				end
 
-				if (active == 1 and !bOwner and !notes[noteID].expired) then
+				if (active == 1 and !bOwner and !notes[noteID].expired and !notes[noteID].special) then
 					notes[noteID].expired = true
 
 					-- Mark note as expired
@@ -154,13 +155,14 @@ hook.Add("Think", "notes_render_Think", function()
 
 		if (distance > lightRenderDist) then continue end -- Don't render DLights if too far away
 
+		local special = sortedNote.special
 		local expired = sortedNote.expired
 		local active = sortedNote.active
 		local explicit = sortedNote.explicit
 
-		local r = !expired and ((explicit or bOwner) and 255 or (100 + 155 * active)) or (25 + 230 * active)
-		local g = !expired and (explicit and (25 + 230 * active) or 255) or (25 + 230 * active)
-		local b = !expired and ((explicit and (25 + 230 * active)) or (bOwner and (255 * active) or 255)) or (25 + 230 * active)
+		local r = !expired and (special and 255 or explicit and 255 or bOwner and 255 or (100 + 155 * active)) or (25 + 230 * active)
+		local g = !expired and (special and (255 * active) or explicit and (25 + 230 * active) or bOwner and 255 or 255) or (25 + 230 * active)
+		local b = !expired and (special and 255 or explicit and (25 + 230 * active) or bOwner and (255 * active) or 255) or (25 + 230 * active)
 
 		local dLight = DynamicLight(i)
 		dLight.Pos = sortedNote.drawPos
