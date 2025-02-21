@@ -1,6 +1,5 @@
 
 -- Ratelimit system
--- Re-implement note distance limit in PHP
 -- Make notes visually lag behind
 
 AddCSLuaFile("cl_init.lua")

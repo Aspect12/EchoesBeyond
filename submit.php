@@ -1,9 +1,10 @@
 
 <?php
-	$ply = trim($_POST['ply']);
-	$map = trim($_POST['map']);
-	$pos = trim($_POST['pos']);
-	$text = trim($_POST['text']);
+	$ply = trim($_POST["ply"]);
+	$map = trim($_POST["map"]);
+	$pos = trim($_POST["pos"]);
+	$text = trim($_POST["text"]);
+	$explicit = isset($_POST["explicit"]) ? $_POST["explicit"] : null;
 
 	if ($ply == "" || $map == "" || $pos == "" || $text == "") {
 		echo "Invalid input";
@@ -17,27 +18,45 @@
 	}
 
 	$stats = json_decode(file_get_contents("stats.json"), true);
-	$stats['notes'] = $stats['notes'] ?? 0;
-	$stats['maps'] = $stats['maps'] ?? 0;
+	$stats["notes"] = $stats["notes"] ?? 0;
+	$stats["maps"] = $stats["maps"] ?? 0;
 
 	// Create a json file by the map name if it doesn't exist
 	if (!file_exists("stored/$map.json")) {
 		file_put_contents("stored/$map.json", "[]");
 
-		$stats['maps']++;
+		$stats["maps"]++;
 	}
 
 	// Read the json file
 	$notes = json_decode(file_get_contents("stored/$map.json"), true);
 
-	// Prevent creating notes too close to other notes
-/* 	foreach ($notes as $note) {
-		if (abs($note['pos'] - $pos) < 10) {
-			echo "Too close to another note";
+	// Convert a comma-separated string to a vector (an array of numbers)
+	function parseVector($str) {
+		return array_map("floatval", explode(",", $str));
+	}
 
-			exit();
+	// Calculate the squared distance between two vectors
+	function distToSqr($vec1, $vec2) {
+		return pow($vec1[0] - $vec2[0], 2) +
+			pow($vec1[1] - $vec2[1], 2) +
+			pow($vec1[2] - $vec2[2], 2);
+	}
+
+	// Convert the client's position string into a vector
+	$clientPos = parseVector($pos);
+
+	foreach ($notes as $note) {
+		if ($note["explicit"] == "1") {
+			// Convert the note's position string into a vector
+			$notePos = parseVector($note["pos"]);
+
+			// Check the squared distance; skip if it's 1000 or more
+			if (distToSqr($clientPos, $notePos) < 1000) {
+				exit();
+			}
 		}
-	} */
+	}
 
 	$id = time();
 
@@ -52,13 +71,14 @@
 		"id" => $id,
 		"ply" => $ply,
 		"pos" => $pos,
-		"text" => $text
+		"text" => $text,
+		"explicit" => $explicit,
 	);
 
 	// Write the json file
 	file_put_contents("stored/$map.json", json_encode($notes));
 
-	$stats['notes']++;
+	$stats["notes"]++;
 
 	file_put_contents("stats.json", json_encode($stats));
 ?>

@@ -33,7 +33,8 @@ else
 			ply = client:SteamID(),
 			map = game.GetMap(),
 			pos = position.x .. "," .. position.y .. "," .. position.z,
-			text = message
+			explicit = IsOffensive(message) and "1" or "0",
+			text = message,
 		}, function(body, size, headers, code)
 			FetchNotes()
 		end)
@@ -45,7 +46,7 @@ else
 		-- Prevent creating notes too close to other notes
 		for _, note in ipairs(notes) do
 			if (note.explicit) then continue end
-			if (client:GetShootPos():DistToSqr(note.pos) >= 1500) then continue end
+			if ((client:GetPos() + Vector(0, 0, 32)):DistToSqr(note.pos) >= 1000) then continue end
 
 			EchoNotify("A good message needs an identity of its own. You are too close to another echo.")
 
