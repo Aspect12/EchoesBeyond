@@ -1,23 +1,31 @@
 
 -- Fetch notes and send them to the client
+mapCount = mapCount or 0 -- Total amount of maps with notes, used in the main menu
+globalNoteCount = globalNoteCount or 0 -- Total amount of notes, ditto
+
 function FetchNotes(bNoSound)
 	local map = game.GetMap()
 
-	http.Fetch("https://hl2rp.net/echoes/stored/" .. map .. ".json", function(body)
+	http.Fetch("https://hl2rp.net/echoes/fetch.php?map=" .. map, function(body)
 		local data = util.JSONToTable(body)
 		if (!data) then return end
+
+		mapCount = data.stats.maps
+		globalNoteCount = data.stats.notes
+
+		if (!data.notes) then return end
 
 		local savedData = file.Read("echoesbeyond/expirednotes.txt", "DATA")
 		savedData = util.JSONToTable(savedData and savedData != "" and savedData or "[]")
 
 		local noteCount = #notes
 
-		for i = 1, #data do
+		for i = 1, #data.notes do
 			local exists = false
 
 			for k = 1, #notes do
-				if (notes[k].id != data[i].id) then continue end
-				
+				if (notes[k].id != data.notes[i].id) then continue end
+
 				exists = true
 
 				break
@@ -27,20 +35,20 @@ function FetchNotes(bNoSound)
 			if (exists) then continue end
 
 			-- Convert the position string to a vector
-			local position = string.Explode(",", data[i].pos)
+			local position = string.Explode(",", data.notes[i].pos)
 			position = Vector(tonumber(position[1]), tonumber(position[2]), tonumber(position[3]))
 
-			local text = data[i].text
-			
+			local text = data.notes[i].text
+
 			notes[#notes + 1] = {
-				expired = table.HasValue(savedData, data[i].id),
+				expired = table.HasValue(savedData, data.notes[i].id),
 				explicit = IsOffensive(text),
 				drawPos = position,
 				text = text,
 				soundActive = false,
-				ply = data[i].ply,
+				ply = data.notes[i].ply,
 				pos = position,
-				id = data[i].id,
+				id = data.notes[i].id,
 				active = 0,
 				init = 0,
 			}

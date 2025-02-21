@@ -124,7 +124,7 @@ hook.Add("ScoreboardShow", "menu_ScoreboardShow", function()
 	local ownMapCount = 0
 	local writtenNotes = file.Read("echoesbeyond/writtennotes.txt", "DATA")
 	writtenNotes = util.JSONToTable(writtenNotes and writtenNotes != "" and writtenNotes or "[]")
-	
+
 	for i = 1, #writtenNotes do
 		local map = writtenNotes[i].map
 		if (maps[map]) then continue end
@@ -135,22 +135,21 @@ hook.Add("ScoreboardShow", "menu_ScoreboardShow", function()
 	ownMapCount = table.Count(maps)
 
 	local noteCount = #notes
-	local mapCount = 0	
 
 	local currCountLabel = vgui.Create("DLabel", mainMenu)
-	currCountLabel:SetText("There " .. (noteCount == 1 and "is" or "are") .. " currently " .. noteCount .. " note" .. (noteCount == 1 and "" or "s") .. " on this map.")
+	currCountLabel:SetText("There " .. (noteCount == 1 and "is" or "are") .. " currently " .. noteCount .. " echo" .. (noteCount == 1 and "" or "es") .. " on this map.")
 	currCountLabel:SizeToContents()
 	currCountLabel:CenterHorizontal()
-	currCountLabel:SetY(height - 90)
+	currCountLabel:SetY(height - 70)
 
 	local personalCountLabel = vgui.Create("DLabel", mainMenu)
-	personalCountLabel:SetText("You have written " .. #writtenNotes .. " note" .. (#writtenNotes > 1 and "s" or "") .. " across " .. ownMapCount .. (ownMapCount > 1 and " different maps." or " map."))
+	personalCountLabel:SetText("You have written " .. #writtenNotes .. " echo" .. (#writtenNotes > 1 and "es" or "") .. " across " .. ownMapCount .. (ownMapCount > 1 and " different maps." or " map."))
 	personalCountLabel:SizeToContents()
 	personalCountLabel:CenterHorizontal()
-	personalCountLabel:SetY(height - 60)
+	personalCountLabel:SetY(height - 50)
 
 	local totalCountLabel = vgui.Create("DLabel", mainMenu)
-	totalCountLabel:SetText("There are currently " .. noteCount .. " total notes across " .. mapCount .. " different maps.")
+	totalCountLabel:SetText("There are currently " .. globalNoteCount .. " total echoes across " .. mapCount .. " different maps.")
 	totalCountLabel:SizeToContents()
 	totalCountLabel:CenterHorizontal()
 	totalCountLabel:SetY(height - 30)

@@ -10,23 +10,34 @@
 
 		exit();
 	}
-	
+
+	// Create a json file for stats if it doesn't exist
+	if (!file_exists("stats.json")) {
+		file_put_contents("stats.json", "[]");
+	}
+
+	$stats = json_decode(file_get_contents("stats.json"), true);
+	$stats['notes'] = $stats['notes'] ?? 0;
+	$stats['maps'] = $stats['maps'] ?? 0;
+
 	// Create a json file by the map name if it doesn't exist
 	if (!file_exists("stored/$map.json")) {
 		file_put_contents("stored/$map.json", "[]");
+
+		$stats['maps']++;
 	}
-	
+
 	// Read the json file
 	$notes = json_decode(file_get_contents("stored/$map.json"), true);
 
 	// Prevent creating notes too close to other notes
-	foreach ($notes as $note) {
+/* 	foreach ($notes as $note) {
 		if (abs($note['pos'] - $pos) < 10) {
 			echo "Too close to another note";
 
 			exit();
 		}
-	}
+	} */
 
 	$id = time();
 
@@ -46,4 +57,8 @@
 
 	// Write the json file
 	file_put_contents("stored/$map.json", json_encode($notes));
+
+	$stats['notes']++;
+
+	file_put_contents("stats.json", json_encode($stats));
 ?>
