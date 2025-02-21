@@ -2,6 +2,7 @@
 local noteMat = Material("echoesbeyond/note_simple.png", "smooth")
 local musicOn, musicOff = Material("echoesbeyond/music_on.png", "smooth"), Material("echoesbeyond/music_off.png", "smooth")
 local profanityOn, profanityOff = Material("echoesbeyond/profanity_on.png", "smooth"), Material("echoesbeyond/profanity_off.png", "smooth")
+local vignette = Material("echoesbeyond/vignette.png", "smooth")
 
 local function ToggleMusic(bEnabled)
 	local music = GetConVar("echoes_music")
@@ -48,6 +49,9 @@ hook.Add("ScoreboardShow", "menu_ScoreboardShow", function()
 
 		surface.SetDrawColor(25, 25, 25)
 		surface.DrawRect(0, 0, width, height)
+
+		surface.SetMaterial(vignette)
+		surface.DrawTexturedRect(0, 0, width, height)
 
 		local breatheLayer = math.sin(CurTime() * 1.5)
 
@@ -143,7 +147,7 @@ hook.Add("ScoreboardShow", "menu_ScoreboardShow", function()
 	currCountLabel:SetY(height - 70)
 
 	local personalCountLabel = vgui.Create("DLabel", mainMenu)
-	personalCountLabel:SetText("You have written " .. #writtenNotes .. " echo" .. (#writtenNotes == 1 and "" or "es") .. " across " .. ownMapCount .. (ownMapCount == 1 and " map" or " different maps."))
+	personalCountLabel:SetText("You have written " .. #writtenNotes .. " echo" .. (#writtenNotes == 1 and "" or "es") .. " across " .. ownMapCount .. (ownMapCount == 1 and " map." or " different maps."))
 	personalCountLabel:SizeToContents()
 	personalCountLabel:CenterHorizontal()
 	personalCountLabel:SetY(height - 50)

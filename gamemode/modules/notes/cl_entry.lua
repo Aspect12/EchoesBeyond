@@ -213,18 +213,22 @@ function PANEL:Close()
 end
 
 function PANEL:OnKeyCodePressed(key)
-	if (key != KEY_R) then return end
+	if (key != KEY_R and key != KEY_TAB) then return end
 
 	self:Close()
 end
 
 local notif = Material("echoesbeyond/notification.png")
+local vignette = Material("echoesbeyond/vignette.png")
 
 function PANEL:Paint(width, height)
 	Derma_DrawBackgroundBlur(self, self.startTime)
 
 	surface.SetDrawColor(25, 25, 25)
 	surface.DrawRect(0, 0, width, height)
+
+	surface.SetMaterial(vignette)
+	surface.DrawTexturedRect(0, 0, width, height)
 
 	surface.SetDrawColor(200, 200, 200)
 	surface.SetMaterial(notif)
