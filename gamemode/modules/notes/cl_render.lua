@@ -24,11 +24,6 @@ hook.Add("PostDrawTranslucentRenderables", "notes_render_PostDrawTranslucentRend
 		-- Fade out if the player gets too close
 		local alpha = (math.Clamp((clientPos:DistToSqr(notePos) - noteFadeDist / 2) / noteFadeDist, 0, 1) * 255) * note.init
 
-		local angle = (clientPos - notePos):Angle()
-		angle:RotateAroundAxis(angle:Forward(), 90)
-		angle:RotateAroundAxis(angle:Right(), -90)
-		angle = Angle(angle.p, angle.y, 90) -- Fix rotation
-
 		-- Wrap the text
 		local text = {}
 		local line = ""
@@ -60,7 +55,7 @@ hook.Add("PostDrawTranslucentRenderables", "notes_render_PostDrawTranslucentRend
 		local active = note.active
 		local explicit = note.explicit
 
-		cam.Start3D2D(notePos, angle, 0.1)
+		cam.Start3D2D(notePos, sortedNotes[i].angle, 0.1)
 			local r = !expired and (special and (200 + 55 * active) or explicit and 255 or bOwner and 255 or (150 + 105 * active)) or (100 + 155 * active)
 			local g = !expired and (special and (255 * active) or explicit and (50 + 205 * active) or bOwner and 255 or 255) or (100 + 155 * active)
 			local b = !expired and (special and (200 + 55 * active) or explicit and (50 + 205 * active) or bOwner and (255 * active) or 255) or (100 + 155 * active)
@@ -106,49 +101,58 @@ hook.Add("Think", "notes_render_Think", function()
 
 		if (!noteID) then continue end
 
+		local note = notes[noteID]
 		local clientPos = client:GetShootPos()
 		local notePos = sortedNote.pos
+
+		local angle = (clientPos - notePos):Angle()
+		angle:RotateAroundAxis(angle:Forward(), 90)
+		angle:RotateAroundAxis(angle:Right(), -90)
+		angle = Angle(angle.p, angle.y, 90) -- Fix rotation
+
+		note.angle = LerpAngle(math.Clamp(FrameTime() * 5, 0, 1), note.angle, angle) -- Make the angle smooth
+
 		local distance = clientPos:DistToSqr(notePos)
 		local bOwner = sortedNote.ply == client:SteamID()
 
 		if (sortedNote.explicit and !profanity) then
-			notes[noteID].init = math.max(sortedNote.init - FrameTime(), 0)
+			note.init = math.max(sortedNote.init - FrameTime(), 0)
 		elseif (sortedNote.init < 1) then
 			if (sortedNote.explicit and profanity) or (!sortedNote.explicit) then
-				notes[noteID].init = math.min(sortedNote.init + FrameTime(), 1)
+				note.init = math.min(sortedNote.init + FrameTime(), 1)
 			end
 		end
 
-		if (notes[noteID].explicit and profanity or !notes[noteID].explicit) then
+		if (note.explicit and profanity or !note.explicit) then
 			if (distance < activationDist) then
 				local active = math.min(sortedNote.active + FrameTime() * 3, 1)
 
-				notes[noteID].active = active
-				notes[noteID].drawPos = LerpVector(FrameTime() * 3, sortedNote.drawPos, sortedNote.pos + Vector(0, 0, 24 + breatheLayer))
+				note.active = active
+				note.drawPos = LerpVector(FrameTime() * 3, sortedNote.drawPos, sortedNote.pos + Vector(0, 0, 24 + breatheLayer))
 
 				if (!sortedNote.soundActive) then
-					notes[noteID].soundActive = true
+					note.soundActive = true
 
 					client:EmitSound("echoesbeyond/note_activate.wav", 75, math.random(95, 105))
 				end
 
-				if (active == 1 and !bOwner and !notes[noteID].expired and !notes[noteID].special) then
-					notes[noteID].expired = true
+				if (active == 1 and !bOwner and !note.expired and !note.special) then
+					note.expired = true
 
 					-- Mark note as expired
 					local savedData = file.Read("echoesbeyond/expirednotes.txt", "DATA")
 					savedData = util.JSONToTable(savedData and savedData != "" and savedData or "[]")
-					savedData[#savedData + 1] = notes[noteID].id
+					savedData[#savedData + 1] = note.id
 
 					file.CreateDir("echoesbeyond")
 					file.Write("echoesbeyond/expirednotes.txt", util.TableToJSON(savedData))
 				end
 			else
-				notes[noteID].active = math.max(sortedNote.active - FrameTime() * 0.5, 0)
-				notes[noteID].drawPos = LerpVector(FrameTime() * 1.5, sortedNote.drawPos, sortedNote.pos - (notes[noteID].expired and Vector(0, 0, 20) or Vector(0, 0, 0)))
+				note.active = math.max(sortedNote.active - FrameTime() * 0.5, 0)
+				note.drawPos = LerpVector(FrameTime() * 1.5, sortedNote.drawPos, sortedNote.pos - (note.expired and Vector(0, 0, 20) or Vector(0, 0, 0)))
 
 				if (sortedNote.soundActive) then
-					notes[noteID].soundActive = false
+					note.soundActive = false
 				end
 			end
 		end

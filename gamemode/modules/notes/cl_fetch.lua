@@ -50,6 +50,7 @@ function FetchNotes(bNoSound)
 				pos = position,
 				id = data.notes[i].id,
 				special = data.notes[i].special,
+				angle = Angle(0, 0, 0),
 				active = 0,
 				init = 0,
 			}
