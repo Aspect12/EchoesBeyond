@@ -134,4 +134,6 @@ end
 
 hook.Add("InitPostEntity", "notes_fetch_InitPostEntity", function()
 	FetchNotes(true)
+
+	timer.Create("notes_fetch_timer", 60, 0, FetchNotes) -- Fetch notes every minute
 end)
