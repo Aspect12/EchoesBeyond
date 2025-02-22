@@ -136,6 +136,8 @@ function FetchNotes(bNoSound)
 
 		file.CreateDir("echoesbeyond")
 		file.Write("echoesbeyond/writtennotes.txt", util.TableToJSON(savedNotes))
+	end, function(error)
+		EchoNotify(error)
 	end)
 end
 
