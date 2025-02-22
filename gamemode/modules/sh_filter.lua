@@ -61,7 +61,7 @@ local function RemoveRepeatedChars(text)
 	return result
 end
 
-local maxGap = 5
+local maxGap = 3
 
 -- Check if the pattern exists in the given string
 local function FuzzyMatch(text, target)
