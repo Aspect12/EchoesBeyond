@@ -42,7 +42,7 @@ else
 
 	net.Receive("CreateNote", function()
 		if (nextNote > os.time()) then
-			EchoNotify("A good message bides its time. You must wait another " .. (nextNote - os.time()) .. " seconds before creating another echo.")
+			EchoNotify("A good message bides its time. You must wait another " .. (string.NiceTime(nextNote - os.time())) .. " before creating a new Echo.")
 
 			return
 		end
@@ -54,7 +54,7 @@ else
 			if (note.explicit) then continue end
 			if ((client:GetPos() + Vector(0, 0, 32)):DistToSqr(note.pos) >= 1000) then continue end
 
-			EchoNotify("A good message needs an identity of its own. You are too close to another echo.")
+			EchoNotify("A good message needs an identity of its own. You are too close to another Echo.")
 
 			return
 		end

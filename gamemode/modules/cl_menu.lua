@@ -1,5 +1,6 @@
 
 local noteMat = Material("echoesbeyond/note_simple.png", "smooth")
+local mapMat = Material("echoesbeyond/map.png", "smooth")
 local musicOn, musicOff = Material("echoesbeyond/music_on.png", "smooth"), Material("echoesbeyond/music_off.png", "smooth")
 local profanityOn, profanityOff = Material("echoesbeyond/profanity_on.png", "smooth"), Material("echoesbeyond/profanity_off.png", "smooth")
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
@@ -89,6 +90,21 @@ hook.Add("ScoreboardShow", "menu_ScoreboardShow", function()
 	subTitle:SizeToContents()
 	subTitle:CenterHorizontal()
 	subTitle:SetY(55)
+
+	local mapOption = vgui.Create("DButton", mainMenu)
+	mapOption:SetSize(48, 48)
+	mapOption:SetPos(10, 10)
+	mapOption:SetText("")
+	mapOption.Paint = function(self, width, height)
+		surface.SetDrawColor(self:IsDown() and Color(100, 100, 100) or self:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
+		surface.SetMaterial(mapMat)
+		surface.DrawTexturedRect(0, 0, width, height)
+	end
+	mapOption.DoClick = function()
+		LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
+
+		vgui.Create("echoMapMenu")
+	end
 
 	local music = GetConVar("echoes_music"):GetBool()
 

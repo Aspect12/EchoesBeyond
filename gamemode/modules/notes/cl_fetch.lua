@@ -18,6 +18,10 @@ function FetchNotes(bNoSound)
 			nextNote = data.ratelimit
 		end
 
+		if (data.mapList) then
+			mapList = data.mapList
+		end
+
 		if (!data.notes) then return end
 
 		local savedData = file.Read("echoesbeyond/expirednotes.txt", "DATA")
