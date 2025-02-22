@@ -90,7 +90,7 @@ hook.Add("ScoreboardShow", "menu_ScoreboardShow", function()
 	subTitle:CenterHorizontal()
 	subTitle:SetY(55)
 
-	local music = GetConVar("echoes_music")
+	local music = GetConVar("echoes_music"):GetBool()
 
 	local musicOption = vgui.Create("DButton", mainMenu)
 	musicOption:SetSize(48, 48)
@@ -98,11 +98,11 @@ hook.Add("ScoreboardShow", "menu_ScoreboardShow", function()
 	musicOption:SetText("")
 	musicOption.Paint = function(self, width, height)
 		surface.SetDrawColor(self:IsDown() and Color(100, 100, 100) or self:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
-		surface.SetMaterial(music:GetBool() and musicOn or musicOff)
+		surface.SetMaterial(music and musicOn or musicOff)
 		surface.DrawTexturedRect(0, 0, width, height)
 	end
 	musicOption.DoClick = function()
-		ToggleMusic(!music:GetBool())
+		ToggleMusic(!music)
 
 		LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
 	end

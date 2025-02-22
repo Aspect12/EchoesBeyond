@@ -52,5 +52,7 @@ function StopMusic()
 end
 
 hook.Add("InitPostEntity", "music_InitPostEntity", function()
+	if (!GetConVar("echoes_music"):GetBool()) then return end
+
 	PlayMusic()
 end)
