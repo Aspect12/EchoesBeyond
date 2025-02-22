@@ -15,6 +15,13 @@ if (SERVER) then
 			return
 		end
 
+		-- Prevent creating notes outside the world
+		if (!util.IsInWorld(client:GetPos())) then
+			EchoNotify(client, "A good message is grounded in reality. You are outside the world.")
+
+			return
+		end
+
 		net.Start("CreateNote")
 		net.Send(client)
 	end)
