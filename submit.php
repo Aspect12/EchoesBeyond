@@ -101,6 +101,6 @@
 	file_put_contents("stats.json", json_encode($stats));
 
 	// Save the rate limit file
-	$ratelimit[$ip] = $time + 60;
+	$ratelimit[$ip] = $time + 600;
 	file_put_contents("ratelimit.json", json_encode($ratelimit));
 ?>
