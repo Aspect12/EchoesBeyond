@@ -1,6 +1,7 @@
 
 -- Render notes
 local noteFadeDist = 1000
+local noteCutoffDist = 25000000
 local noteMat = Material("echoesbeyond/note.png", "mips")
 
 hook.Add("PostDrawTranslucentRenderables", "notes_render_PostDrawTranslucentRenderables", function(bDrawingDepth, bDrawingSkybox)
@@ -19,10 +20,14 @@ hook.Add("PostDrawTranslucentRenderables", "notes_render_PostDrawTranslucentRend
 		local note = sortedNotes[i]
 		local clientPos = client:GetShootPos()
 		local notePos = note.drawPos
+
+		local distance = clientPos:DistToSqr(notePos)
+		if (distance > noteCutoffDist) then continue end -- Don't render notes if too far away
+
 		local bOwner = note.ply == client:SteamID()
 
 		-- Fade out if the player gets too close
-		local alpha = (math.Clamp((clientPos:DistToSqr(notePos) - noteFadeDist / 2) / noteFadeDist, 0, 1) * 255) * note.init
+		local alpha = (math.Clamp((distance - noteFadeDist / 2) / noteFadeDist, 0, 1) * 255) * note.init
 
 		-- Wrap the text
 		local text = {}
