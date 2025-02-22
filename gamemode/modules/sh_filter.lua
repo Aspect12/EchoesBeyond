@@ -61,7 +61,7 @@ local function RemoveRepeatedChars(text)
 	return result
 end
 
-local maxGap = 3
+local maxGap = 1 -- Gotta figure out a better way to do this...
 
 -- Check if the pattern exists in the given string
 local function FuzzyMatch(text, target)
@@ -98,16 +98,18 @@ end
 -- Bleach your eyes
 local wordList = {
 	"kil yourself",
-	"fagot",
 	"retard",
 	"fagot",
-	"niga",
+	"fagot",
+	"trany",
 	"negro",
 	"niger",
 	"chink",
 	"honky",
+	"tranies",
 	"sisy",
 	"spic",
+	"niga",
 	"paki",
 	"gook",
 	"kike",
