@@ -24,7 +24,7 @@ if (SERVER) then
 		end
 	end)
 
-	hook.Add("PlayerDeath", "player_PlayerDeath", function(client)
+	hook.Add("CanPlayerSuicide", "player_CanPlayerSuicide", function(client)
 		return false
 	end)
 
