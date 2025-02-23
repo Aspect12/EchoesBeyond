@@ -14,29 +14,27 @@
 		file_put_contents("mapratelimit.json", "[]");
 	}
 
-	$mapratelimitFile = json_decode(file_get_contents("mapratelimit.json"), true);
-	$mapratelimit = isset($mapratelimitFile[$ip]) ? $mapratelimitFile[$ip] : 0;
-
-	if ($mapratelimit > $time) {
-		echo "Rate Limited.";
-
-		exit();
-	}
-
-	// 24 hours
-	$mapratelimit = $time + 86400;
-	$mapratelimitFile[$ip] = $mapratelimit;
-
-	file_put_contents("mapratelimit.json", json_encode($mapratelimitFile));
-
-	// Read the json file
 	$map = trim($_POST["map"]);
-	$notes = [];
 
 	if (!file_exists("stored/$map.json")) {
+		$mapratelimitFile = json_decode(file_get_contents("mapratelimit.json"), true);
+		$mapratelimit = isset($mapratelimitFile[$ip]) ? $mapratelimitFile[$ip] : 0;
+
+		if ($mapratelimit > $time) {
+			echo "Rate Limited.";
+
+			exit();
+		}
+
+		// 24 hours
+		$mapratelimit = $time + 86400;
+		$mapratelimitFile[$ip] = $mapratelimit;
+
+		file_put_contents("mapratelimit.json", json_encode($mapratelimitFile));
 		file_put_contents("stored/$map.json", "[]");
 	}
 
+	// Read the json file
 	$notes = json_decode(file_get_contents("stored/$map.json"), true);
 
 	// Rate limit: 1 note per minute per IP multiplied by the number of notes
