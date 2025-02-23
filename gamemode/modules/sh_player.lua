@@ -10,6 +10,7 @@ if (SERVER) then
 		client:SetCustomCollisionCheck(true)
 		client:SetFriction(0.5)
 		client:GodEnable()
+		client:AllowFlashlight(true)
 
 		-- Load position data. Only works on servers
 		local mapName = game.GetMap()
