@@ -1,5 +1,4 @@
 
-local noteMat = Material("echoesbeyond/note_simple.png", "smooth")
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
 
 -- The map menu
@@ -14,8 +13,8 @@ function PANEL:Init()
 
 	self:SetSize(ScrW() / 4, ScrH() / 1.5)
 	self:Center()
+	self:SetX(mainMenu:GetX() - self:GetWide() - 10)
 	self:MakePopup()
-	self.startTime = SysTime()
 	self:SetAlpha(0)
 
 	self:AlphaTo(255, 0.5)
@@ -75,19 +74,11 @@ function PANEL:Init()
 end
 
 function PANEL:Paint(width, height)
-	Derma_DrawBackgroundBlur(self, self.startTime)
-
 	surface.SetDrawColor(25, 25, 25)
 	surface.DrawRect(0, 0, width, height)
 
 	surface.SetMaterial(vignette)
 	surface.DrawTexturedRect(0, 0, width, height)
-
-	local breatheLayer = math.sin(CurTime() * 1.5)
-
-	surface.SetDrawColor(255, 255, 255, 5)
-	surface.SetMaterial(noteMat)
-	surface.DrawTexturedRectRotated(width / 2, height / 2 + 5 * breatheLayer, height / 1.5, height / 1.5, 0)
 end
 
 function PANEL:OnKeyCodePressed(key)
@@ -96,11 +87,12 @@ function PANEL:OnKeyCodePressed(key)
 	self:Close()
 end
 
-function PANEL:Close()
+function PANEL:Close(bNoSound)
 	self:AlphaTo(0, 0.25, 0, function()
 		self:Remove()
 	end)
 
+	if (bNoSound) then return end
 	LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 90, 0.75)
 end
 

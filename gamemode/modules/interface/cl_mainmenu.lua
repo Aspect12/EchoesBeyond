@@ -1,8 +1,7 @@
 
 local noteMat = Material("echoesbeyond/note_simple.png", "smooth")
 local mapMat = Material("echoesbeyond/map.png", "smooth")
-local musicOn, musicOff = Material("echoesbeyond/music_on.png", "smooth"), Material("echoesbeyond/music_off.png", "smooth")
-local profanityOn, profanityOff = Material("echoesbeyond/profanity_on.png", "smooth"), Material("echoesbeyond/profanity_off.png", "smooth")
+local settingsMat = Material("echoesbeyond/settings.png", "smooth")
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
 
 local function ToggleMusic(bEnabled)
@@ -28,26 +27,23 @@ local function ToggleProfanity(bEnabled)
 end
 
 -- The main menu
-hook.Add("ScoreboardShow", "menu_ScoreboardShow", function()
+hook.Add("ScoreboardShow", "mainmenu_ScoreboardShow", function()
 	if (IsValid(mainMenu)) then
 		mainMenu:Remove()
 	end
 
-	local width, height = ScrW() / 2, ScrH() / 2
+	local width, height = ScrW() / 2.5, ScrH() / 2
 
 	mainMenu = vgui.Create("DPanel")
 	mainMenu:SetSize(width, height)
 	mainMenu:Center()
 	mainMenu:MakePopup()
-	mainMenu.startTime = SysTime()
 	mainMenu:SetAlpha(0)
 	mainMenu:AlphaTo(255, 0.5)
 
 	LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 100, 0.75)
 
 	mainMenu.Paint = function(self, width, height)
-		Derma_DrawBackgroundBlur(self, self.startTime)
-
 		surface.SetDrawColor(25, 25, 25)
 		surface.DrawRect(0, 0, width, height)
 
@@ -71,6 +67,14 @@ hook.Add("ScoreboardShow", "menu_ScoreboardShow", function()
 		self:AlphaTo(0, 0.25, 0, function()
 			self:Remove()
 		end)
+
+		if (IsValid(mapMenu)) then
+			mapMenu:Close(true)
+		end
+
+		if (IsValid(settingsMenu)) then
+			settingsMenu:Close(true)
+		end
 
 		LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 90, 0.75)
 
@@ -103,41 +107,30 @@ hook.Add("ScoreboardShow", "menu_ScoreboardShow", function()
 	mapOption.DoClick = function()
 		LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
 
-		vgui.Create("echoMapMenu")
+		if (IsValid(mapMenu)) then
+			mapMenu:Close()
+		else
+			vgui.Create("echoMapMenu")
+		end
 	end
 
-	local music = GetConVar("echoes_music"):GetBool()
-
-	local musicOption = vgui.Create("DButton", mainMenu)
-	musicOption:SetSize(48, 48)
-	musicOption:SetPos(width - 48 - 20, 10)
-	musicOption:SetText("")
-	musicOption.Paint = function(self, width, height)
+	local settingsOption = vgui.Create("DButton", mainMenu)
+	settingsOption:SetSize(48, 48)
+	settingsOption:SetPos(width - 48 - 10, 10)
+	settingsOption:SetText("")
+	settingsOption.Paint = function(self, width, height)
 		surface.SetDrawColor(self:IsDown() and Color(100, 100, 100) or self:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
-		surface.SetMaterial(music and musicOn or musicOff)
+		surface.SetMaterial(settingsMat)
 		surface.DrawTexturedRect(0, 0, width, height)
 	end
-	musicOption.DoClick = function()
-		ToggleMusic(!music)
-
+	settingsOption.DoClick = function()
 		LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
-	end
 
-	local profanity = GetConVar("echoes_profanity")
-
-	local profanityOption = vgui.Create("DButton", mainMenu)
-	profanityOption:SetSize(48, 48)
-	profanityOption:SetPos(width - 48 - 20, 10 + 48 + 10)
-	profanityOption:SetText("")
-	profanityOption.Paint = function(self, width, height)
-		surface.SetDrawColor(self:IsDown() and Color(100, 100, 100) or self:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
-		surface.SetMaterial(profanity:GetBool() and profanityOn or profanityOff)
-		surface.DrawTexturedRect(0, 0, width, height)
-	end
-	profanityOption.DoClick = function()
-		ToggleProfanity(!profanity:GetBool())
-
-		LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
+		if (IsValid(settingsMenu)) then
+			settingsMenu:Close()
+		else
+			vgui.Create("echoSettingsMenu")
+		end
 	end
 
 	local maps = {}
@@ -176,10 +169,18 @@ hook.Add("ScoreboardShow", "menu_ScoreboardShow", function()
 end)
 
 -- Close when pressing escape
-hook.Add("OnPauseMenuShow", "menu_OnPauseMenuShow", function()
+hook.Add("OnPauseMenuShow", "mainmenu_OnPauseMenuShow", function()
 	if (!IsValid(mainMenu)) then return end
 
 	mainMenu:Close()
 
 	return false
+end)
+
+hook.Add("HUDPaint", "mainmenu_HUDPaint", function()
+	if (!IsValid(mainMenu)) then return end
+	local alpha = mainMenu:GetAlpha()
+
+	surface.SetDrawColor(25, 25, 25, 200 * (alpha / 255))
+	surface.DrawRect(0, 0, ScrW(), ScrH())
 end)

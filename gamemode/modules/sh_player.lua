@@ -1,12 +1,14 @@
 
 -- Generic player setup
 if (SERVER) then
+	util.AddNetworkString("echoSetSpeed")
+
 	-- Set player attributes
 	hook.Add("PlayerSpawn", "player_PlayerSpawn", function(client)
 		client:SetGravity(0.5)
-		client:SetWalkSpeed(75)
-		client:SetJumpPower(100)
-		client:SetRunSpeed(client:GetWalkSpeed() * 1.5)
+		client:SetWalkSpeed(100)
+		client:SetJumpPower(125)
+		client:SetRunSpeed(client:GetWalkSpeed() * 2)
 		client:SetCustomCollisionCheck(true)
 		client:SetFriction(0.5)
 		client:GodEnable()
@@ -52,7 +54,22 @@ if (SERVER) then
 			return false
 		end
 	end)
+
+	net.Receive("echoSetSpeed", function(_, client)
+		local speed = net.ReadFloat()
+
+		client:SetWalkSpeed(speed)
+		client:SetRunSpeed(speed * 2)
+	end)
 else
+	CreateClientConVar("echoes_speed", "100")
+
+	cvars.AddChangeCallback("echoes_speed", function(name, old, new)
+		net.Start("echoSetSpeed")
+			net.WriteFloat(tonumber(new))
+		net.SendToServer()
+	end, "echoes_speed")
+
 	-- Don't render other players
 	hook.Add("PrePlayerDraw", "player_PrePlayerDraw", function(client)
 		return true
