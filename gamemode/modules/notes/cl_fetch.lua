@@ -36,6 +36,8 @@ function FetchNotes(bNoSound)
 
 		local noteCount = #notes
 
+		expiredNoteCount = 0
+
 		for i = 1, #data.notes do
 			local newNote = data.notes[i]
 			local exists = false
@@ -68,6 +70,10 @@ function FetchNotes(bNoSound)
 
 			local text = newNote.text
 			local expired = table.HasValue(savedData, newNote.id)
+
+			if (expired) then
+				expiredNoteCount = expiredNoteCount + 1
+			end
 
 			notes[#notes + 1] = {
 				explicit = IsOffensive(text),

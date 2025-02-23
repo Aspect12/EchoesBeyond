@@ -128,7 +128,7 @@ hook.Add("ScoreboardShow", "mainmenu_ScoreboardShow", function()
 	local noteCount = #notes
 
 	local currCountLabel = vgui.Create("DLabel", mainMenu)
-	currCountLabel:SetText("There " .. (noteCount == 1 and "is" or "are") .. " currently " .. noteCount .. " echo" .. (noteCount == 1 and "" or "es") .. " on this map.")
+	currCountLabel:SetText("There " .. (noteCount == 1 and "is" or "are") .. " currently " .. noteCount .. " echo" .. (noteCount == 1 and "" or "es") .. " on this map. You have read " .. expiredNoteCount .. " of them.")
 	currCountLabel:SizeToContents()
 	currCountLabel:CenterHorizontal()
 	currCountLabel:SetY(height - 70)

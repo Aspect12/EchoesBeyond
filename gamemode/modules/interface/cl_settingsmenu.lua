@@ -91,7 +91,7 @@ function PANEL:Init()
 	local expiredNotes = GetConVar("echoes_hideexpired")
 
 	local expiredNotesCheckbox = vgui.Create("DCheckBoxLabel", self)
-	expiredNotesCheckbox:SetText("Hide Expired Echoes")
+	expiredNotesCheckbox:SetText("Hide Read Echoes")
 	expiredNotesCheckbox:SetValue(expiredNotes:GetBool())
 	expiredNotesCheckbox:SizeToContents()
 	expiredNotesCheckbox:SetPos(50, 175)

@@ -94,6 +94,8 @@ hook.Add("PostDrawTranslucentRenderables", "notes_render_Combined", function(bDr
 					savedData = util.JSONToTable((savedData and savedData != "" and savedData) or"[]")
 					savedData[#savedData + 1] = note.id
 
+					expiredNoteCount = expiredNoteCount + 1
+
 					file.CreateDir("echoesbeyond")
 					file.Write("echoesbeyond/expirednotes.txt", util.TableToJSON(savedData))
 				end
