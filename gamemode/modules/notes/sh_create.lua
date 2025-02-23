@@ -82,6 +82,12 @@ else
 			return
 		end
 
+		if (mapRatelimit > os.time()) then
+			EchoNotify("Uncharted territory must be explored with care. You must wait another " .. (string.NiceTime(mapRatelimit - os.time())) .. " before creating an Echo on a new map.")
+
+			return
+		end
+
 		local client = LocalPlayer()
 
 		-- Prevent creating notes too close to other notes

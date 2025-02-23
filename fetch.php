@@ -47,7 +47,14 @@
 		$ratelimit = json_decode(file_get_contents("ratelimit.json"), true);
 	}
 
+	$mapRatelimit = [];
+
+	if (file_exists("mapratelimit.json")) {
+		$mapRatelimit = json_decode(file_get_contents("mapratelimit.json"), true);
+	}
+
 	$response["ratelimit"] = $ratelimit[$ip] ?? 0;
+	$response["mapRatelimit"] = $mapRatelimit[$ip] ?? 0;
 
 	// Respond
 	echo json_encode($response);

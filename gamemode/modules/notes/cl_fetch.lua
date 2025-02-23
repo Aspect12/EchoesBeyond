@@ -18,6 +18,10 @@ function FetchNotes(bNoSound)
 			nextNote = data.ratelimit
 		end
 
+		if (data.mapRatelimit) then
+			mapRatelimit = data.mapRatelimit
+		end
+
 		if (data.mapList) then
 			mapList = data.mapList
 		end
