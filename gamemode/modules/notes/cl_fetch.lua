@@ -50,6 +50,12 @@ function FetchNotes(bNoSound)
 				break
 			end
 
+			local expired = table.HasValue(savedData, newNote.id)
+
+			if (expired) then
+				expiredNoteCount = expiredNoteCount + 1
+			end
+
 			-- Don't add notes that already exist
 			if (exists) then continue end
 
@@ -69,11 +75,6 @@ function FetchNotes(bNoSound)
 			position = Vector(tonumber(position[1]), tonumber(position[2]), tonumber(position[3]))
 
 			local text = newNote.text
-			local expired = table.HasValue(savedData, newNote.id)
-
-			if (expired) then
-				expiredNoteCount = expiredNoteCount + 1
-			end
 
 			notes[#notes + 1] = {
 				explicit = IsOffensive(text),
