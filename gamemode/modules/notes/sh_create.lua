@@ -82,7 +82,7 @@ else
 			return
 		end
 
-		if (mapRatelimit > os.time()) then
+		if (mapRatelimit > os.time() and !mapList[game.GetMap()]) then
 			EchoNotify("Uncharted territory must be explored with care. You must wait another " .. (string.NiceTime(mapRatelimit - os.time())) .. " before creating an Echo on a new map.")
 
 			return
