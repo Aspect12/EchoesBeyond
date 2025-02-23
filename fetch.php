@@ -6,13 +6,14 @@
 	$stats = json_decode(file_get_contents("stats.json"), true);
 	$response["stats"] = $stats;
 
-	// Get all .json files in the stored folder and add their name to the response without the json extension
+	// Get a map list with the number of notes in them
+	$maps = array_diff(scandir("stored"), [".", ".."]);
 	$mapList = [];
 
-	$files = glob("stored/*.json");
-
-	foreach ($files as $file) {
-		$mapList[] = pathinfo($file, PATHINFO_FILENAME);
+	foreach ($maps as $map) {
+		$notes = json_decode(file_get_contents("stored/$map"), true);
+		$map = substr($map, 0, -5);
+		$mapList[$map] = count($notes);
 	}
 
 	$response["mapList"] = $mapList;

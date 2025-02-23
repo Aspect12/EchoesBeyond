@@ -53,13 +53,24 @@ function PANEL:Init()
 	mapListPanel.VBar.btnUp.Paint = function() end
 	mapListPanel.VBar.btnDown.Paint = function() end
 
-	for i = 1, #mapList do
-		local map = vgui.Create("DLabel", mapListPanel)
-		map:SetText(mapList[i])
-		map:SizeToContents()
-		map:Dock(TOP)
-		map:SetContentAlignment(5)
-		map:DockMargin(0, 0, 0, 5)
+	for name, amount in SortedPairsByValue(mapList, true) do
+		local entry = vgui.Create("DPanel", mapListPanel)
+		entry:Dock(TOP)
+		entry:SetTall(20)
+		entry:DockMargin(0, 0, 0, 5)
+		entry:SetPaintBackground(false)
+
+		local mapName = vgui.Create("DLabel", entry)
+		mapName:SetText(name)
+		mapName:SizeToContents()
+		mapName:Dock(LEFT)
+		mapName:SetContentAlignment(4)
+
+		local noteCount = vgui.Create("DLabel", entry)
+		noteCount:SetText(amount .. " notes")
+		noteCount:SizeToContents()
+		noteCount:Dock(RIGHT)
+		noteCount:SetContentAlignment(6)
 	end
 end
 
