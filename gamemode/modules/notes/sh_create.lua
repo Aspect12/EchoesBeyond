@@ -74,7 +74,7 @@ else
 	end
 
 	net.Receive("CreateNote", function()
-		local ratelimit = nextNote + 60 * #notes
+		local ratelimit = nextNote + 30 * #notes
 
 		if (ratelimit > os.time()) then
 			EchoNotify("A good message bides its time. You must wait another " .. (string.NiceTime(ratelimit - os.time())) .. " before creating a new Echo.")
