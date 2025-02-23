@@ -32,12 +32,11 @@
 		exit();
 	}
 
-	$ply = trim($_POST["ply"]);
 	$pos = trim($_POST["pos"]);
 	$text = trim($_POST["text"]);
 	$explicit = isset($_POST["explicit"]) ? $_POST["explicit"] : "0";
 
-	if ($ply == "" || $map == "" || $pos == "" || $text == "") {
+	if ($map == "" || $pos == "" || $text == "") {
 		echo "Invalid input";
 
 		exit();
@@ -97,7 +96,6 @@
 	// Add the new note
 	$notes[] = array(
 		"id" => $id,
-		"ply" => $ply,
 		"pos" => $pos,
 		"text" => $text,
 		"explicit" => $explicit,
@@ -113,4 +111,7 @@
 	// Save the rate limit file
 	$ratelimit[$ip] = $time;
 	file_put_contents("ratelimit.json", json_encode($ratelimit));
+
+	// Return the note ID
+	echo $id;
 ?>

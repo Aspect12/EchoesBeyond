@@ -39,18 +39,37 @@ else
 
 		local client = LocalPlayer()
 		local position = client:GetPos() + Vector(0, 0, 32)
+		local isOffensive = IsOffensive(message)
 
 		-- I kindly ask that you do not abuse this or act with malice.
 		-- This game is meant to be a positive experience for everyone.
 		-- Please do not ruin that for others.
-		http.Post("https://hl2rp.net/echoes/submit.php", {
-			ply = client:SteamID(),
+		http.Post("https://hl2rp.net/echoes/submittest.php", {
 			map = game.GetMap(),
 			pos = position.x .. "," .. position.y .. "," .. position.z,
-			explicit = IsOffensive(message) and "1" or "0",
+			explicit = isOffensive and "1" or "0",
 			text = message,
 		}, function(body, size, headers, code)
 			FetchNotes()
+
+			-- If we're here, the note was properly successfully created, so let's save it
+			local savedNotes = file.Read("echoesbeyond/writtennotes.txt", "DATA")
+			savedNotes = util.JSONToTable(savedNotes and savedNotes != "" and savedNotes or "[]")
+
+			savedNotes[#savedNotes + 1] = {
+				map = game.GetMap(),
+				pos = position,
+				text = message,
+				id = tonumber(body),
+			}
+
+			file.Write("echoesbeyond/writtennotes.txt", util.TableToJSON(savedNotes))
+
+			if (isOffensive) then
+				local profanity = GetConVar("echoes_profanity")
+
+				profanity:SetBool(true)
+			end
 		end)
 	end
 
