@@ -112,6 +112,20 @@ function PANEL:Init()
 	speedSlider.OnValueChanged = function(self, value)
 		speed:SetInt(value)
 	end
+
+	local renderDist = GetConVar("echoes_renderdist")
+
+	local renderDistSlider = vgui.Create("DNumSlider", self)
+	renderDistSlider:SetText("Render Distance")
+	renderDistSlider:SetMin(10000)
+	renderDistSlider:SetMax(100000000)
+	renderDistSlider:SetDecimals(0)
+	renderDistSlider:SetValue(renderDist:GetInt())
+	renderDistSlider:SetWide(self:GetWide() - 100)
+	renderDistSlider:SetPos(50, 225)
+	renderDistSlider.OnValueChanged = function(self, value)
+		renderDist:SetInt(value)
+	end
 end
 
 function PANEL:Paint(width, height)

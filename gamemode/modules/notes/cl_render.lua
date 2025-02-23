@@ -1,9 +1,9 @@
 
 CreateClientConVar("echoes_hideexpired", "1")
+CreateClientConVar("echoes_renderdist", "25000000")
 
 local noteMat = Material("echoesbeyond/note.png", "mips")
 local lightRenderDist = 3000000 -- How far the dynamic light should render
-local noteCutoffDist = 25000000 -- How far the note should be visible
 local activationDist = 6500 -- How close the player should be to activate the note
 local noteFadeDist = 2500 -- How far the note should start fading
 
@@ -16,6 +16,7 @@ hook.Add("PostDrawTranslucentRenderables", "notes_render_Combined", function(bDr
 	local curTime = CurTime()
 	local profanity = GetConVar("echoes_profanity"):GetBool()
 	local hideExpired = GetConVar("echoes_hideexpired"):GetBool()
+	local cutOffDist = GetConVar("echoes_renderdist"):GetInt()
 	local lerpFactor = math.Clamp(frameTime * 5, 0, 1)
 	local activationOffset = Vector(0, 0, 24 + math.sin(curTime * 1.5) * 0.5)
 	local expiredOffset = Vector(0, 0, 20)
@@ -131,7 +132,7 @@ hook.Add("PostDrawTranslucentRenderables", "notes_render_Combined", function(bDr
 		end
 
 		-- Draw note if within cutoff distance (using note.drawPos)
-		if (noteDistSqr > noteCutoffDist) then continue end
+		if (noteDistSqr > cutOffDist) then continue end
 
 		local alpha = (math.Clamp((noteDistSqr - noteFadeDist / 2) / noteFadeDist, 0, 1) * 255) * note.init
 
