@@ -20,12 +20,13 @@
 
 	$notes = json_decode(file_get_contents("stored/$map.json"), true);
 
+
+	// Rate limit: 1 note per minute per IP multiplied by the number of notes
 	$noteCount = count($notes);
+	$rateLimit = isset($ratelimit[$ip]) ? $ratelimit[$ip] : 0;
+	$cooldown = $rateLimit + (60 * $noteCount);
 
-	// Rate limit: 1 note per minutes mu IP
-	$cooldown = $ratelimit[$ip] + (60 * $noteCount);
-
-	if (isset($ratelimit[$ip]) && $cooldown > $time) {
+	if ($cooldown > $time) {
 		echo "Rate Limited.";
 
 		exit();
