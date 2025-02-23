@@ -7,8 +7,27 @@
 		file_put_contents("ratelimit.json", "[]");
 	}
 
-	$ratelimit = json_decode(file_get_contents("ratelimit.json"), true);
+	$ratelimitFile = json_decode(file_get_contents("ratelimit.json"), true);
 	$time = time();
+
+	if (!file_exists("mapratelimit.json")) {
+		file_put_contents("mapratelimit.json", "[]");
+	}
+
+	$mapratelimitFile = json_decode(file_get_contents("mapratelimit.json"), true);
+	$mapratelimit = isset($mapratelimitFile[$ip]) ? $mapratelimitFile[$ip] : 0;
+
+	if ($mapratelimit > $time) {
+		echo "Rate Limited.";
+
+		exit();
+	}
+
+	// 24 hours
+	$mapratelimit = $time + 86400;
+	$mapratelimitFile[$ip] = $mapratelimit;
+
+	file_put_contents("mapratelimit.json", json_encode($mapratelimitFile));
 
 	// Read the json file
 	$map = trim($_POST["map"]);
@@ -20,10 +39,9 @@
 
 	$notes = json_decode(file_get_contents("stored/$map.json"), true);
 
-
 	// Rate limit: 1 note per minute per IP multiplied by the number of notes
 	$noteCount = count($notes);
-	$rateLimit = isset($ratelimit[$ip]) ? $ratelimit[$ip] : 0;
+	$rateLimit = isset($ratelimitFile[$ip]) ? $ratelimitFile[$ip] : 0;
 	$cooldown = $rateLimit + (60 * $noteCount);
 
 	if ($cooldown > $time) {
@@ -109,8 +127,8 @@
 	file_put_contents("stats.json", json_encode($stats));
 
 	// Save the rate limit file
-	$ratelimit[$ip] = $time;
-	file_put_contents("ratelimit.json", json_encode($ratelimit));
+	$ratelimitFile[$ip] = $time;
+	file_put_contents("ratelimit.json", json_encode($ratelimitFile));
 
 	// Return the note ID
 	echo $id;
