@@ -34,7 +34,7 @@
 	$ply = trim($_POST["ply"]);
 	$pos = trim($_POST["pos"]);
 	$text = trim($_POST["text"]);
-	$explicit = isset($_POST["explicit"]) ? $_POST["explicit"] : null;
+	$explicit = isset($_POST["explicit"]) ? $_POST["explicit"] : "0";
 
 	if ($ply == "" || $map == "" || $pos == "" || $text == "") {
 		echo "Invalid input";
@@ -73,7 +73,7 @@
 	// Convert the client's position string into a vector
 	$clientPos = parseVector($pos);
 
-	if ($note["explicit"] == "0") {
+	if ($explicit == "0") {
 		foreach ($notes as $note) {
 			// Convert the note's position string into a vector
 			$notePos = parseVector($note["pos"]);
