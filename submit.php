@@ -12,7 +12,14 @@
 
 	// Read the json file
 	$map = trim($_POST["map"]);
+	$notes = [];
+
+	if (!file_exists("stored/$map.json")) {
+		file_put_contents("stored/$map.json", "[]");
+	}
+
 	$notes = json_decode(file_get_contents("stored/$map.json"), true);
+
 	$noteCount = count($notes);
 
 	// Rate limit: 1 note per minutes mu IP
@@ -28,7 +35,6 @@
 	$pos = trim($_POST["pos"]);
 	$text = trim($_POST["text"]);
 	$explicit = isset($_POST["explicit"]) ? $_POST["explicit"] : null;
-
 
 	if ($ply == "" || $map == "" || $pos == "" || $text == "") {
 		echo "Invalid input";
