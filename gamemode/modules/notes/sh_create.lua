@@ -44,7 +44,7 @@ else
 		-- I kindly ask that you do not abuse this or act with malice.
 		-- This game is meant to be a positive experience for everyone.
 		-- Please do not ruin that for others.
-		http.Post("https://hl2rp.net/echoes/submittest.php", {
+		http.Post("https://hl2rp.net/echoes/submit.php", {
 			map = game.GetMap(),
 			pos = position.x .. "," .. position.y .. "," .. position.z,
 			explicit = isOffensive and "1" or "0",
