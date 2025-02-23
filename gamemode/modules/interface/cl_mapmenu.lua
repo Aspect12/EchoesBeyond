@@ -66,7 +66,7 @@ function PANEL:Init()
 		mapName:SetContentAlignment(4)
 
 		local noteCount = vgui.Create("DLabel", entry)
-		noteCount:SetText(amount .. " notes")
+		noteCount:SetText(amount .. " Echoes")
 		noteCount:SizeToContents()
 		noteCount:Dock(RIGHT)
 		noteCount:SetContentAlignment(6)
