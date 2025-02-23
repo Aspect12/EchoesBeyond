@@ -48,9 +48,11 @@ function FetchNotes(bNoSound)
 			position = Vector(tonumber(position[1]), tonumber(position[2]), tonumber(position[3]))
 
 			local text = data.notes[i].text
+			local expired = table.HasValue(savedData, data.notes[i].id)
 
 			notes[#notes + 1] = {
-				expired = table.HasValue(savedData, data.notes[i].id),
+				expired = expired,
+				expiredTime = expired and 0,
 				explicit = IsOffensive(text),
 				drawPos = position,
 				text = text,

@@ -66,6 +66,17 @@ function PANEL:Init()
 		smoothView:SetBool(value)
 	end
 
+	local expiredNotes = GetConVar("echoes_hideexpired")
+
+	local expiredNotesCheckbox = vgui.Create("DCheckBoxLabel", self)
+	expiredNotesCheckbox:SetText("Hide Expired Echoes")
+	expiredNotesCheckbox:SetValue(expiredNotes:GetBool())
+	expiredNotesCheckbox:SizeToContents()
+	expiredNotesCheckbox:SetPos(50, 175)
+	expiredNotesCheckbox.OnChange = function(self, value)
+		expiredNotes:SetBool(value)
+	end
+
 	local speed = GetConVar("echoes_speed")
 
 	local speedSlider = vgui.Create("DNumSlider", self)
@@ -75,7 +86,7 @@ function PANEL:Init()
 	speedSlider:SetDecimals(0)
 	speedSlider:SetValue(speed:GetInt())
 	speedSlider:SetWide(self:GetWide() - 100)
-	speedSlider:SetPos(50, 175)
+	speedSlider:SetPos(50, 200)
 	speedSlider.OnValueChanged = function(self, value)
 		speed:SetInt(value)
 	end
