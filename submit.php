@@ -10,7 +10,7 @@
 	$ratelimit = json_decode(file_get_contents("ratelimit.json"), true);
 	$time = time();
 
-	// Rate limit: 1 note per minute per IP
+	// Rate limit: 1 note per 10 minutes per IP
 	if (isset($ratelimit[$ip]) && $ratelimit[$ip] > $time) {
 		echo "Rate Limited.";
 
@@ -64,12 +64,12 @@
 	// Convert the client's position string into a vector
 	$clientPos = parseVector($pos);
 
-	foreach ($notes as $note) {
-		if ($note["explicit"] == "1") {
+	if ($note["explicit"] == "0") {
+		foreach ($notes as $note) {
 			// Convert the note's position string into a vector
 			$notePos = parseVector($note["pos"]);
 
-			// Check the squared distance; skip if it's 1000 or more
+			// Check the squared distance; exit if under 1000
 			if (distToSqr($clientPos, $notePos) < 1000) {
 				exit();
 			}
