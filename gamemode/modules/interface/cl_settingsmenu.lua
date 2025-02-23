@@ -1,6 +1,28 @@
 
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
 
+local function ToggleMusic(bEnabled)
+	local music = GetConVar("echoes_music")
+
+	if (bEnabled) then
+		music:SetBool(true)
+		PlayMusic()
+	else
+		music:SetBool(false)
+		StopMusic()
+	end
+end
+
+local function ToggleProfanity(bEnabled)
+	local profanity = GetConVar("echoes_profanity")
+
+	if (bEnabled) then
+		profanity:SetBool(true)
+	else
+		profanity:SetBool(false)
+	end
+end
+
 -- The map menu
 local PANEL = {}
 
@@ -41,7 +63,7 @@ function PANEL:Init()
 	musicCheckbox:SizeToContents()
 	musicCheckbox:SetPos(50, 100)
 	musicCheckbox.OnChange = function(self, value)
-		music:SetBool(value)
+		ToggleMusic(value)
 	end
 
 	local profanity = GetConVar("echoes_profanity")
@@ -52,7 +74,7 @@ function PANEL:Init()
 	profanityCheckbox:SizeToContents()
 	profanityCheckbox:SetPos(50, 125)
 	profanityCheckbox.OnChange = function(self, value)
-		profanity:SetBool(value)
+		ToggleProfanity(value)
 	end
 
 	local smoothView = GetConVar("echoes_smoothview")

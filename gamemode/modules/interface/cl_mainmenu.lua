@@ -4,28 +4,6 @@ local mapMat = Material("echoesbeyond/map.png", "smooth")
 local settingsMat = Material("echoesbeyond/settings.png", "smooth")
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
 
-local function ToggleMusic(bEnabled)
-	local music = GetConVar("echoes_music")
-
-	if (bEnabled) then
-		music:SetBool(true)
-		PlayMusic()
-	else
-		music:SetBool(false)
-		StopMusic()
-	end
-end
-
-local function ToggleProfanity(bEnabled)
-	local profanity = GetConVar("echoes_profanity")
-
-	if (bEnabled) then
-		profanity:SetBool(true)
-	else
-		profanity:SetBool(false)
-	end
-end
-
 -- The main menu
 hook.Add("ScoreboardShow", "mainmenu_ScoreboardShow", function()
 	if (IsValid(mainMenu)) then
