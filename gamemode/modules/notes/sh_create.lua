@@ -22,6 +22,13 @@ if (SERVER) then
 			return
 		end
 
+		-- Prevent creating notes in the air
+		if (!client:IsOnGround()) then
+			EchoNotify(client, "A good message is built on solid ground. You are in the air.")
+
+			return
+		end
+
 		net.Start("CreateNote")
 		net.Send(client)
 	end)
