@@ -30,7 +30,7 @@ function PANEL:Init()
 	title:SetY(20)
 
 	local subTitle = vgui.Create("DLabel", self)
-	subTitle:SetText("Below is a list of all " .. mapCount .. " maps with Echoes in them.")
+	subTitle:SetText("Below is a list of " .. table.Count(mapList) .. " maps with Echoes in them.")
 	subTitle:SizeToContents()
 	subTitle:CenterHorizontal()
 	subTitle:SetY(55)
