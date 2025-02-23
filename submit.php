@@ -10,7 +10,7 @@
 	$ratelimit = json_decode(file_get_contents("ratelimit.json"), true);
 	$time = time();
 
-	// Rate limit: 1 note per 10 minutes per IP
+	// Rate limit: 1 note per minutes mu IP
 	if (isset($ratelimit[$ip]) && $ratelimit[$ip] > $time) {
 		echo "Rate Limited.";
 
@@ -48,6 +48,7 @@
 
 	// Read the json file
 	$notes = json_decode(file_get_contents("stored/$map.json"), true);
+	$noteCount = count($notes);
 
 	// Convert a comma-separated string to a vector (an array of numbers)
 	function parseVector($str) {
@@ -101,6 +102,6 @@
 	file_put_contents("stats.json", json_encode($stats));
 
 	// Save the rate limit file
-	$ratelimit[$ip] = $time + 600;
+	$ratelimit[$ip] = $time + (60 * $noteCount);
 	file_put_contents("ratelimit.json", json_encode($ratelimit));
 ?>
