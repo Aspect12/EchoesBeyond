@@ -13,39 +13,10 @@ if (SERVER) then
 		client:SetFriction(0.5)
 		client:GodEnable()
 		client:AllowFlashlight(true)
-
-		-- Load position data. Only works on servers
-		local mapName = game.GetMap()
-		local mapData = file.Read("echoesbeyond/playerpos/" .. mapName .. ".txt", "DATA")
-		mapData = util.JSONToTable(mapData and mapData != "" and mapData or "[]")
-
-		local posData = mapData[client:SteamID()]
-
-		if (posData) then
-			client:SetPos(posData.position)
-			client:SetAngles(posData.angles)
-		end
 	end)
 
 	hook.Add("CanPlayerSuicide", "player_CanPlayerSuicide", function(client)
 		return false
-	end)
-
-	-- Save position data locally. Only works on servers
-	hook.Add("PlayerDisconnected", "player_PlayerDisconnected", function(client)
-		local posData = {
-			position = client:GetPos(),
-			angles = client:GetAngles()
-		}
-
-		local mapName = game.GetMap()
-		local mapData = file.Read("echoesbeyond/playerpos/" .. mapName .. ".txt", "DATA")
-
-		mapData = util.JSONToTable(mapData and mapData != "" and mapData or "[]")
-		mapData[client:SteamID()] = posData
-
-		file.CreateDir("echoesbeyond/playerpos")
-		file.Write("echoesbeyond/playerpos/" .. mapName .. ".txt", util.TableToJSON(mapData))
 	end)
 
 	-- Disable player collisions
