@@ -55,6 +55,10 @@ hook.Add("ScoreboardShow", "mainmenu_ScoreboardShow", function()
 			settingsMenu:Close(true)
 		end
 
+		if (IsValid(reportMenu)) then
+			reportMenu:Close(true)
+		end
+
 		LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 90, 0.75)
 
 		self:SetKeyboardInputEnabled(false)

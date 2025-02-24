@@ -1,6 +1,7 @@
 
 CreateClientConVar("echoes_hideexpired", "1")
 CreateClientConVar("echoes_renderdist", "25000000")
+CreateClientConVar("echoes_dlights", "1")
 
 local noteMat = Material("echoesbeyond/note.png", "mips")
 local lightRenderDist = 3000000 -- How far the dynamic light should render
@@ -114,7 +115,7 @@ hook.Add("PostDrawTranslucentRenderables", "notes_render_Combined", function(bDr
 		local explicit = note.explicit
 
 		-- Render dynamic light if within render distance (using note.pos for distance)
-		if (noteDistSqr <= lightRenderDist) then
+		if (noteDistSqr <= lightRenderDist and GetConVar("echoes_dlights"):GetBool()) then
 			local r = !expired and (special and 255 or explicit and 255 or bOwner and 255 or (100 + 155 * active)) or (25 + 230 * active)
 			local g = !expired and (special and (255 * active) or explicit and (25 + 230 * active) or bOwner and 255 or 255) or (25 + 230 * active)
 			local b = !expired and (special and 255 or explicit and (25 + 230 * active) or bOwner and (255 * active) or 255) or (25 + 230 * active)
