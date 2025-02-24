@@ -1,12 +1,12 @@
 
--- Create notes
+-- Create echoes
 if (SERVER) then
 	util.AddNetworkString("CreateNote")
 
-	hook.Add("KeyPress", "notes_create_KeyPress", function(client, key)
+	hook.Add("KeyPress", "echoes_create_KeyPress", function(client, key)
 		if (key != IN_RELOAD) then return end
 
-		-- Prevent creating notes too close to any spawn points
+		-- Prevent creating echoes too close to any spawn points
 		for _, spawn in ipairs(ents.FindByClass("info_player_start")) do
 			if (client:GetShootPos():DistToSqr(spawn:GetPos()) >= 10000) then continue end
 
@@ -15,14 +15,14 @@ if (SERVER) then
 			return
 		end
 
-		-- Prevent creating notes outside the world
+		-- Prevent creating echoes outside the world
 		if (!util.IsInWorld(client:GetPos())) then
 			EchoNotify(client, "A good message is grounded in reality. You are outside the world.")
 
 			return
 		end
 
-		-- Prevent creating notes in the air
+		-- Prevent creating echoes in the air
 		if (!client:IsOnGround()) then
 			EchoNotify(client, "A good message is built on solid ground. You are in the air.")
 
@@ -50,20 +50,20 @@ else
 			explicit = isOffensive and "1" or "0",
 			text = message,
 		}, function(body, size, headers, code)
-			FetchNotes()
+			FetchEchoes()
 
 			-- If we're here, the note was properly successfully created, so let's save it
-			local savedNotes = file.Read("echoesbeyond/writtennotes.txt", "DATA")
-			savedNotes = util.JSONToTable(savedNotes and savedNotes != "" and savedNotes or "[]")
+			local savedEchoes = file.Read("echoesbeyond/writtenechoes.txt", "DATA")
+			savedEchoes = util.JSONToTable(savedEchoes and savedEchoes != "" and savedEchoes or "[]")
 
-			savedNotes[#savedNotes + 1] = {
+			savedEchoes[#savedEchoes + 1] = {
 				map = game.GetMap(),
 				pos = position,
 				text = message,
 				id = tonumber(body),
 			}
 
-			file.Write("echoesbeyond/writtennotes.txt", util.TableToJSON(savedNotes))
+			file.Write("echoesbeyond/writtenechoes.txt", util.TableToJSON(savedEchoes))
 
 			if (isOffensive) then
 				local profanity = GetConVar("echoes_profanity")
@@ -74,7 +74,7 @@ else
 	end
 
 	net.Receive("CreateNote", function()
-		local ratelimit = nextNote + 30 * #notes
+		local ratelimit = nextNote + 30 * #echoes
 
 		if (ratelimit > os.time()) then
 			EchoNotify("A good message bides its time. You must wait another " .. (string.NiceTime(ratelimit - os.time())) .. " before creating a new Echo.")
@@ -90,8 +90,8 @@ else
 
 		local client = LocalPlayer()
 
-		-- Prevent creating notes too close to other notes
-		for _, note in ipairs(notes) do
+		-- Prevent creating echoes too close to other echoes
+		for _, note in ipairs(echoes) do
 			if (note.explicit) then continue end
 			if ((client:GetPos() + Vector(0, 0, 32)):DistToSqr(note.pos) >= 1000) then continue end
 

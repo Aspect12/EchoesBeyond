@@ -1,4 +1,4 @@
 
 include("shared.lua")
 
-notes = notes or {}
+echoes = echoes or {}

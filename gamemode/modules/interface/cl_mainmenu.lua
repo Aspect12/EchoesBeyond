@@ -5,82 +5,38 @@ local settingsMat = Material("echoesbeyond/settings.png", "smooth")
 local reportMat = Material("echoesbeyond/report.png", "smooth")
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
 
--- The main menu
-hook.Add("ScoreboardShow", "mainmenu_ScoreboardShow", function()
+local PANEL = {}
+
+function PANEL:Init()
 	if (IsValid(mainMenu)) then
 		mainMenu:Remove()
 	end
 
-	local width, height = ScrW() / 2.5, ScrH() / 2
+	mainMenu = self
 
-	mainMenu = vgui.Create("DPanel")
-	mainMenu:SetSize(width, height)
-	mainMenu:Center()
-	mainMenu:MakePopup()
-	mainMenu:SetAlpha(0)
-	mainMenu:AlphaTo(255, 0.5)
+	self:SetSize(ScrW() / 2.5, ScrH() / 2)
+	self:Center()
+	self:MakePopup()
+	self:SetAlpha(0)
+	self:AlphaTo(255, 0.5)
 
 	LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 100, 0.75)
 
-	mainMenu.Paint = function(self, width, height)
-		surface.SetDrawColor(25, 25, 25)
-		surface.DrawRect(0, 0, width, height)
-
-		surface.SetMaterial(vignette)
-		surface.DrawTexturedRect(0, 0, width, height)
-
-		local breatheLayer = math.sin(CurTime() * 1.5)
-
-		surface.SetDrawColor(255, 255, 255, 5)
-		surface.SetMaterial(noteMat)
-		surface.DrawTexturedRectRotated(width / 2, height / 2 + 5 * breatheLayer, height / 1.5, height / 1.5, 0)
-
-		draw.DrawText("Important Note:\nThe backend system for Echoes Beyond is being reconstructed.\n\nWith the new system, a lot of the spam will disappear, and cooldowns will be\nsignificantly lowered across the board. Unfortunately, the new system will also come\nwith an Echo wipe.\n\nA reporting system is also being worked on, to allow the game to self-moderate.\n\nYour support and patience is appreciated. This is a very unique gamemode, and what\nstarted as a small side-project has now turned into something I'm very passionate about.\n\nYour Echoes are a huge motivator to keep going.\nThank you for playing! ~Aspect", "TargetID", width / 2, height / 2 - 125, Color(200, 200, 200), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-	end
-
-	mainMenu.OnKeyCodePressed = function(self, key)
-		if (key != KEY_TAB) then return end
-
-		self:Close()
-	end
-
-	mainMenu.Close = function(self)
-		self:AlphaTo(0, 0.25, 0, function()
-			self:Remove()
-		end)
-
-		if (IsValid(mapMenu)) then
-			mapMenu:Close(true)
-		end
-
-		if (IsValid(settingsMenu)) then
-			settingsMenu:Close(true)
-		end
-
-		if (IsValid(reportMenu)) then
-			reportMenu:Close(true)
-		end
-
-		LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 90, 0.75)
-
-		self:SetKeyboardInputEnabled(false)
-		self:SetMouseInputEnabled(false)
-	end
-
-	local title = vgui.Create("DLabel", mainMenu)
+	local title = vgui.Create("DLabel", self)
 	title:SetText("Echoes Beyond")
 	title:SetFont("DermaLarge")
 	title:SizeToContents()
 	title:CenterHorizontal()
 	title:SetY(20)
 
-	local subTitle = vgui.Create("DLabel", mainMenu)
+	-- TODO: Make this a wave
+	local subTitle = vgui.Create("DLabel", self)
 	subTitle:SetText("- A cinematic thought experiment -")
 	subTitle:SizeToContents()
 	subTitle:CenterHorizontal()
 	subTitle:SetY(55)
 
-	local mapOption = vgui.Create("DButton", mainMenu)
+	local mapOption = vgui.Create("DButton", self)
 	mapOption:SetSize(48, 48)
 	mapOption:SetPos(10, 10)
 	mapOption:SetText("")
@@ -99,9 +55,9 @@ hook.Add("ScoreboardShow", "mainmenu_ScoreboardShow", function()
 		end
 	end
 
-	local settingsOption = vgui.Create("DButton", mainMenu)
+	local settingsOption = vgui.Create("DButton", self)
 	settingsOption:SetSize(48, 48)
-	settingsOption:SetPos(width - 48 - 10, 10)
+	settingsOption:SetPos(self:GetWide() - 48 - 10, 10)
 	settingsOption:SetText("")
 	settingsOption.Paint = function(self, width, height)
 		surface.SetDrawColor(self:IsDown() and Color(100, 100, 100) or self:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
@@ -120,9 +76,9 @@ hook.Add("ScoreboardShow", "mainmenu_ScoreboardShow", function()
 		end
 	end
 
-	local reportOption = vgui.Create("DButton", mainMenu)
+	local reportOption = vgui.Create("DButton", self)
 	reportOption:SetSize(48, 48)
-	reportOption:SetPos(width - 48 - 10, 48 + 20)
+	reportOption:SetPos(self:GetWide() - 48 - 10, 48 + 20)
 	reportOption:SetText("")
 	reportOption.Paint = function(self, width, height)
 		surface.SetDrawColor(self:IsDown() and Color(100, 100, 100) or self:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
@@ -143,11 +99,12 @@ hook.Add("ScoreboardShow", "mainmenu_ScoreboardShow", function()
 
 	local maps = {}
 	local ownMapCount = 0
-	local writtenNotes = file.Read("echoesbeyond/writtennotes.txt", "DATA")
-	writtenNotes = util.JSONToTable(writtenNotes and writtenNotes != "" and writtenNotes or "[]")
 
-	for i = 1, #writtenNotes do
-		local map = writtenNotes[i].map
+	local writtenEchoes = file.Read("echoesbeyond/writtenechoes.txt", "DATA")
+	writtenEchoes = util.JSONToTable(writtenEchoes and writtenEchoes != "" and writtenEchoes or "[]")
+
+	for i = 1, #writtenEchoes do
+		local map = writtenEchoes[i].map
 		if (maps[map]) then continue end
 
 		maps[map] = true
@@ -155,25 +112,79 @@ hook.Add("ScoreboardShow", "mainmenu_ScoreboardShow", function()
 
 	ownMapCount = table.Count(maps)
 
-	local noteCount = #notes
+	local noteCount = #echoes
 
-	local currCountLabel = vgui.Create("DLabel", mainMenu)
-	currCountLabel:SetText("There " .. (noteCount == 1 and "is" or "are") .. " currently " .. noteCount .. " echo" .. (noteCount == 1 and "" or "es") .. " on this map. You have read " .. expiredNoteCount .. " of them.")
-	currCountLabel:SizeToContents()
-	currCountLabel:CenterHorizontal()
-	currCountLabel:SetY(height - 70)
+	-- TODO: Flash blue on update
+	self.currCountLabel = vgui.Create("DLabel", self)
+	self.currCountLabel:SetText("There " .. (noteCount == 1 and "is" or "are") .. " currently " .. noteCount .. " echo" .. (noteCount == 1 and "" or "es") .. " on this map. You have read " .. readNoteCount .. " of them.")
+	self.currCountLabel:SizeToContents()
+	self.currCountLabel:CenterHorizontal()
+	self.currCountLabel:SetY(self:GetTall() - 70)
 
-	local personalCountLabel = vgui.Create("DLabel", mainMenu)
-	personalCountLabel:SetText("You have written " .. #writtenNotes .. " echo" .. (#writtenNotes == 1 and "" or "es") .. " across " .. ownMapCount .. (ownMapCount == 1 and " map." or " different maps."))
-	personalCountLabel:SizeToContents()
-	personalCountLabel:CenterHorizontal()
-	personalCountLabel:SetY(height - 50)
+	self.personalCountLabel = vgui.Create("DLabel", self)
+	self.personalCountLabel:SetText("You have written " .. #writtenEchoes .. " echo" .. (#writtenEchoes == 1 and "" or "es") .. " across " .. ownMapCount .. (ownMapCount == 1 and " map." or " different maps."))
+	self.personalCountLabel:SizeToContents()
+	self.personalCountLabel:CenterHorizontal()
+	self.personalCountLabel:SetY(self:GetTall() - 50)
 
-	local totalCountLabel = vgui.Create("DLabel", mainMenu)
-	totalCountLabel:SetText("There are currently " .. globalNoteCount .. " total echoes across " .. mapCount .. " different maps.")
-	totalCountLabel:SizeToContents()
-	totalCountLabel:CenterHorizontal()
-	totalCountLabel:SetY(height - 30)
+	-- TODO: Flash blue on update
+	self.totalCountLabel = vgui.Create("DLabel", self)
+	self.totalCountLabel:SetText("There are currently " .. globalNoteCount .. " total echoes across " .. mapCount .. " different maps.")
+	self.totalCountLabel:SizeToContents()
+	self.totalCountLabel:CenterHorizontal()
+	self.totalCountLabel:SetY(self:GetTall() - 30)
+end
+
+function PANEL:Paint(width, height)
+	surface.SetDrawColor(25, 25, 25)
+	surface.DrawRect(0, 0, width, height)
+
+	surface.SetMaterial(vignette)
+	surface.DrawTexturedRect(0, 0, width, height)
+
+	local breatheLayer = math.sin(CurTime() * 1.5)
+
+	surface.SetDrawColor(255, 255, 255, 5)
+	surface.SetMaterial(noteMat)
+	surface.DrawTexturedRectRotated(width / 2, height / 2 + 5 * breatheLayer, height / 1.5, height / 1.5, 0)
+end
+
+function PANEL:OnKeyCodePressed(key)
+	if (key != KEY_TAB) then return end
+
+	self:Close()
+end
+
+function PANEL:Close()
+	self:AlphaTo(0, 0.25, 0, function()
+		self:Remove()
+	end)
+
+	if (IsValid(mapMenu)) then
+		mapMenu:Close(true)
+	end
+
+	if (IsValid(settingsMenu)) then
+		settingsMenu:Close(true)
+	end
+
+	if (IsValid(reportMenu)) then
+		reportMenu:Close(true)
+	end
+
+	LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 90, 0.75)
+
+	self:SetKeyboardInputEnabled(false)
+	self:SetMouseInputEnabled(false)
+end
+
+vgui.Register("echoMainMenu", PANEL, "EditablePanel")
+
+-- The main menu
+hook.Add("ScoreboardShow", "mainmenu_ScoreboardShow", function()
+	vgui.Create("echoMainMenu")
+
+	return false
 end)
 
 -- Close when pressing escape

@@ -6,8 +6,8 @@ if (CLIENT) then
 	cvars.AddChangeCallback("echoes_profanity", function(name, old, new)
 		if (new == "0") then return end
 
-		for i = 1, #notes do
-			local note = notes[i]
+		for i = 1, #echoes do
+			local note = echoes[i]
 			if (!note.explicit) then continue end
 
 			note.init = 0
