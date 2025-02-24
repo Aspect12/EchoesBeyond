@@ -29,11 +29,11 @@ function PANEL:Init()
 	title:CenterHorizontal()
 	title:SetY(20)
 
-	local subTitle = vgui.Create("DLabel", self)
-	subTitle:SetText("Below is a list of " .. table.Count(mapList) .. " maps with Echoes in them.")
-	subTitle:SizeToContents()
-	subTitle:CenterHorizontal()
-	subTitle:SetY(55)
+	self.subTitle = vgui.Create("DLabel", self)
+	self.subTitle:SetText("Below is a list of 0 maps with Echoes in them.")
+	self.subTitle:SizeToContents()
+	self.subTitle:CenterHorizontal()
+	self.subTitle:SetY(55)
 
 	local subSubTitle = vgui.Create("DLabel", self)
 	subSubTitle:SetText("Click on a map to search for it in the Steam Workshop.")
@@ -63,7 +63,6 @@ function PANEL:Init()
 	self.mapListPanel.Paint = function(this, width, height)
 		surface.SetDrawColor(0, 0, 0, 100)
 		surface.DrawRect(0, 0, this:GetWide(), this:GetTall())
-
 	end
 	self.mapListPanel.VBar.Paint = function(this, width, height)
 		surface.SetDrawColor(35, 35, 35)
@@ -92,6 +91,7 @@ function PANEL:ListMaps(filter)
 
 	for name, amount in SortedPairsByValue(mapList, true) do
 		if (filter and !name:lower():find(filter:lower())) then continue end
+		if (amount < 10) then continue end
 
 		local entry = vgui.Create("DPanel", self.mapListPanel)
 		entry:Dock(TOP)
@@ -126,6 +126,9 @@ function PANEL:ListMaps(filter)
 
 		self.mapList[name] = entry
 	end
+
+	self.subTitle:SetText("Below is a list of " .. table.Count(self.mapList) .. " maps with Echoes in them.")
+	self.subTitle:SizeToContents()
 end
 
 function PANEL:Paint(width, height)

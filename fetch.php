@@ -12,13 +12,8 @@
 
 	foreach ($maps as $map) {
 		$notes = json_decode(file_get_contents("stored/$map"), true);
-		$noteCount = is_array($notes) ? count($notes) : 0;
-
-		// If less than 10, skip
-		if ($noteCount < 10) continue;
-
 		$map = substr($map, 0, -5);
-		$mapList[$map] = $noteCount;
+		$mapList[$map] = is_array($notes) ? count($notes) : 0;
 	}
 
 	$response["mapList"] = $mapList;
