@@ -106,8 +106,8 @@
 	// Remove newlines from text
 	$text = str_replace("\n", " ", $text);
 
-	// Limit text length to 512 characters
-	$text = substr($text, 0, 512);
+	// Limit text length to 256 characters
+	$text = substr($text, 0, 256);
 
 	// Add the new note
 	$notes[] = array(

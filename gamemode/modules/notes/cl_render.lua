@@ -109,7 +109,7 @@ hook.Add("PostDrawTranslucentRenderables", "notes_render_Combined", function(bDr
 				end
 			end
 		end
-		
+
 		local special = note.special
 		local active = note.active
 		local explicit = note.explicit
@@ -150,6 +150,7 @@ hook.Add("PostDrawTranslucentRenderables", "notes_render_Combined", function(bDr
 
 				if (surface.GetTextSize(line .. " " .. word) > 512) then
 					table.insert(lines, line)
+
 					line = word
 				else
 					line = (line == ""and word or line .. " " .. word)

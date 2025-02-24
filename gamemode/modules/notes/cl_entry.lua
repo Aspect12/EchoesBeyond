@@ -2,7 +2,7 @@
 local PANEL = {}
 
 local maxSmallLength = 49 -- Max text length before the text field expands
-local maxBigSize = 512 -- Max text length
+local maxBigSize = 256 -- Max text length
 
 function PANEL:Init()
 	if (IsValid(noteEntry)) then
@@ -167,15 +167,15 @@ function PANEL:ToggleSize(bEnlarge)
 			LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 100, 0.75)
 		end
 
-		self:SizeTo(self:GetWide(), (bLarge and 415 or 210) + extra, 0.5)
-		self:MoveTo(self:GetX(), ScrH() / 2 - ((bLarge and 207 or 100) + extra / 2), 0.5)
+		self:SizeTo(self:GetWide(), (bLarge and 310 or 210) + extra, 0.5)
+		self:MoveTo(self:GetX(), ScrH() / 2 - ((bLarge and 155 or 100) + extra / 2), 0.5)
 
 		self.entry:MoveTo(self.entry:GetX(), 85 + extra, 0.5)
-		self.entry:SizeTo(self.entry:GetWide(), bLarge and 235 or 30, 0.5)
+		self.entry:SizeTo(self.entry:GetWide(), bLarge and 130 or 30, 0.5)
 		self.entry:SetMultiline(true)
 
-		self.submit:MoveTo(self.submit:GetX(), (bLarge and 330 or 125) + extra, 0.5)
-		self.cancel:MoveTo(self.cancel:GetX(), (bLarge and 370 or 165) + extra, 0.5)
+		self.submit:MoveTo(self.submit:GetX(), (bLarge and 225 or 125) + extra, 0.5)
+		self.cancel:MoveTo(self.cancel:GetX(), (bLarge and 265 or 165) + extra, 0.5)
 	else
 		local extra = 0
 
