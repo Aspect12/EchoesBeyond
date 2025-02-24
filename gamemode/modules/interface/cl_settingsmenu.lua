@@ -1,7 +1,6 @@
 
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
 
--- The settings menu
 local function ToggleMusic(bEnabled)
 	local music = GetConVar("echoes_music")
 
@@ -24,6 +23,7 @@ local function ToggleProfanity(bEnabled)
 	end
 end
 
+-- The map menu
 local PANEL = {}
 
 function PANEL:Init()
@@ -99,17 +99,6 @@ function PANEL:Init()
 		expiredNotes:SetBool(value)
 	end
 
-	local dlights = GetConVar("echoes_dlights")
-
-	local dlightsCheckbox = vgui.Create("DCheckBoxLabel", self)
-	dlightsCheckbox:SetText("Enable Dynamic Lights")
-	dlightsCheckbox:SetValue(dlights:GetBool())
-	dlightsCheckbox:SizeToContents()
-	dlightsCheckbox:SetPos(50, 200)
-	dlightsCheckbox.OnChange = function(self, value)
-		dlights:SetBool(value)
-	end
-
 	local speed = GetConVar("echoes_speed")
 
 	local speedSlider = vgui.Create("DNumSlider", self)
@@ -119,7 +108,7 @@ function PANEL:Init()
 	speedSlider:SetDecimals(0)
 	speedSlider:SetValue(speed:GetInt())
 	speedSlider:SetWide(self:GetWide() - 100)
-	speedSlider:SetPos(50, 225)
+	speedSlider:SetPos(50, 200)
 	speedSlider.OnValueChanged = function(self, value)
 		speed:SetInt(value)
 	end
@@ -133,7 +122,7 @@ function PANEL:Init()
 	renderDistSlider:SetDecimals(0)
 	renderDistSlider:SetValue(renderDist:GetInt())
 	renderDistSlider:SetWide(self:GetWide() - 100)
-	renderDistSlider:SetPos(50, 250)
+	renderDistSlider:SetPos(50, 225)
 	renderDistSlider.OnValueChanged = function(self, value)
 		renderDist:SetInt(value)
 	end

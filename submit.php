@@ -26,8 +26,8 @@
 			exit();
 		}
 
-		// 6 hours
-		$mapratelimit = $time + 21600;
+		// 24 hours
+		$mapratelimit = $time + 86400;
 		$mapratelimitFile[$ip] = $mapratelimit;
 
 		file_put_contents("mapratelimit.json", json_encode($mapratelimitFile));
