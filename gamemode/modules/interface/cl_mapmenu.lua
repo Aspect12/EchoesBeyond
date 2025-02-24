@@ -51,7 +51,7 @@ function PANEL:Init()
 		self:ListMaps(search)
 	end
 	searchBar.Paint = function(this, width, height)
-		surface.SetDrawColor(50, 50, 50, 255)
+		surface.SetDrawColor(50, 50, 50)
 		surface.DrawRect(0, 0, width, height)
 
 		this:DrawTextEntryText(color_white, color_white, color_white)

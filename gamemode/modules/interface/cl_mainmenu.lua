@@ -2,6 +2,7 @@
 local noteMat = Material("echoesbeyond/note_simple.png", "smooth")
 local mapMat = Material("echoesbeyond/map.png", "smooth")
 local settingsMat = Material("echoesbeyond/settings.png", "smooth")
+local reportMat = Material("echoesbeyond/report.png", "smooth")
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
 
 -- The main menu
@@ -33,6 +34,8 @@ hook.Add("ScoreboardShow", "mainmenu_ScoreboardShow", function()
 		surface.SetDrawColor(255, 255, 255, 5)
 		surface.SetMaterial(noteMat)
 		surface.DrawTexturedRectRotated(width / 2, height / 2 + 5 * breatheLayer, height / 1.5, height / 1.5, 0)
+
+		draw.DrawText("Important Note:\nThe backend system for Echoes Beyond is being reconstructed.\n\nWith the new system, a lot of the spam will disappear, and cooldowns will be\nsignificantly lowered across the board. Unfortunately, the new system will also come\nwith an Echo wipe.\n\nA reporting system is also being worked on, to allow the game to self-moderate.\n\nYour support and patience is appreciated. This is a very unique gamemode, and what\nstarted as a small side-project has now turned into something I'm very passionate about.\n\nYour Echoes are a huge motivator to keep going.\nThank you for playing! ~Aspect", "TargetID", width / 2, height / 2 - 125, Color(200, 200, 200), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 	end
 
 	mainMenu.OnKeyCodePressed = function(self, key)
@@ -52,6 +55,10 @@ hook.Add("ScoreboardShow", "mainmenu_ScoreboardShow", function()
 
 		if (IsValid(settingsMenu)) then
 			settingsMenu:Close(true)
+		end
+
+		if (IsValid(reportMenu)) then
+			reportMenu:Close(true)
 		end
 
 		LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 90, 0.75)
@@ -104,10 +111,33 @@ hook.Add("ScoreboardShow", "mainmenu_ScoreboardShow", function()
 	settingsOption.DoClick = function()
 		LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
 
+		if (IsValid(reportMenu)) then reportMenu:Close() end
+
 		if (IsValid(settingsMenu)) then
 			settingsMenu:Close()
 		else
 			vgui.Create("echoSettingsMenu")
+		end
+	end
+
+	local reportOption = vgui.Create("DButton", mainMenu)
+	reportOption:SetSize(48, 48)
+	reportOption:SetPos(width - 48 - 10, 48 + 20)
+	reportOption:SetText("")
+	reportOption.Paint = function(self, width, height)
+		surface.SetDrawColor(self:IsDown() and Color(100, 100, 100) or self:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
+		surface.SetMaterial(reportMat)
+		surface.DrawTexturedRect(0, 0, width, height)
+	end
+	reportOption.DoClick = function()
+		LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
+
+		if (IsValid(settingsMenu)) then settingsMenu:Close() end
+
+		if (IsValid(reportMenu)) then
+			reportMenu:Close()
+		else
+			vgui.Create("echoReportMenu")
 		end
 	end
 

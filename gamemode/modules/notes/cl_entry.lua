@@ -77,7 +77,7 @@ function PANEL:Init()
 		surface.SetDrawColor(50, 50, 50)
 		surface.DrawRect(0, 0, width, height)
 
-		this:DrawTextEntryText(Color(175, 175, 175), Color(255, 255, 255), Color(175, 175, 175))
+		this:DrawTextEntryText(Color(175, 175, 175), color_white, Color(175, 175, 175))
 	end
 	self.entry:RequestFocus()
 
