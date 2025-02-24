@@ -109,10 +109,15 @@ hook.Add("PostDrawTranslucentRenderables", "notes_render_Combined", function(bDr
 				end
 			end
 		end
-
+		
 		local special = note.special
 		local active = note.active
 		local explicit = note.explicit
+
+		-- Draw note if within cutoff distance (using note.drawPos)
+		if (noteDistSqr > cutOffDist) then continue end
+
+		local alpha = (math.Clamp((noteDistSqr - noteFadeDist / 2) / noteFadeDist, 0, 1) * 255) * note.init
 
 		-- Render dynamic light if within render distance (using note.pos for distance)
 		if (noteDistSqr <= lightRenderDist and GetConVar("echoes_dlights"):GetBool()) then
@@ -128,16 +133,11 @@ hook.Add("PostDrawTranslucentRenderables", "notes_render_Combined", function(bDr
 				dLight.g = g
 				dLight.b = b
 				dLight.Brightness = 3
-				dLight.Size = 256 * ((lightRenderDist - noteDistSqr) / lightRenderDist) * note.init
+				dLight.Size = 256 * (((lightRenderDist - noteDistSqr) / lightRenderDist) * note.init) * (alpha / 255)
 				dLight.Decay = 1000
 				dLight.DieTime = curTime + 0.1
 			end
 		end
-
-		-- Draw note if within cutoff distance (using note.drawPos)
-		if (noteDistSqr > cutOffDist) then continue end
-
-		local alpha = (math.Clamp((noteDistSqr - noteFadeDist / 2) / noteFadeDist, 0, 1) * 255) * note.init
 
 		-- Cache wrapped text to avoid recalculations
 		if (!note.cachedText) then
