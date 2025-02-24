@@ -1,6 +1,7 @@
 
 CreateClientConVar("echoes_hideexpired", "1")
 CreateClientConVar("echoes_renderdist", "25000000")
+CreateClientConVar("echoes_dlights", "1")
 
 local noteMat = Material("echoesbeyond/note.png", "mips")
 local lightRenderDist = 3000000 -- How far the dynamic light should render
@@ -108,13 +109,18 @@ hook.Add("PostDrawTranslucentRenderables", "notes_render_Combined", function(bDr
 				end
 			end
 		end
-
+		
 		local special = note.special
 		local active = note.active
 		local explicit = note.explicit
 
+		-- Draw note if within cutoff distance (using note.drawPos)
+		if (noteDistSqr > cutOffDist) then continue end
+
+		local alpha = (math.Clamp((noteDistSqr - noteFadeDist / 2) / noteFadeDist, 0, 1) * 255) * note.init
+
 		-- Render dynamic light if within render distance (using note.pos for distance)
-		if (noteDistSqr <= lightRenderDist) then
+		if (noteDistSqr <= lightRenderDist and GetConVar("echoes_dlights"):GetBool()) then
 			local r = !expired and (special and 255 or explicit and 255 or bOwner and 255 or (100 + 155 * active)) or (25 + 230 * active)
 			local g = !expired and (special and (255 * active) or explicit and (25 + 230 * active) or bOwner and 255 or 255) or (25 + 230 * active)
 			local b = !expired and (special and 255 or explicit and (25 + 230 * active) or bOwner and (255 * active) or 255) or (25 + 230 * active)
@@ -127,16 +133,11 @@ hook.Add("PostDrawTranslucentRenderables", "notes_render_Combined", function(bDr
 				dLight.g = g
 				dLight.b = b
 				dLight.Brightness = 3
-				dLight.Size = 256 * ((lightRenderDist - noteDistSqr) / lightRenderDist) * note.init
+				dLight.Size = 256 * (((lightRenderDist - noteDistSqr) / lightRenderDist) * note.init) * (alpha / 255)
 				dLight.Decay = 1000
 				dLight.DieTime = curTime + 0.1
 			end
 		end
-
-		-- Draw note if within cutoff distance (using note.drawPos)
-		if (noteDistSqr > cutOffDist) then continue end
-
-		local alpha = (math.Clamp((noteDistSqr - noteFadeDist / 2) / noteFadeDist, 0, 1) * 255) * note.init
 
 		-- Cache wrapped text to avoid recalculations
 		if (!note.cachedText) then
