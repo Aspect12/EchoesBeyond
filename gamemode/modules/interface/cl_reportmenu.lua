@@ -1,6 +1,6 @@
 
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
-local noteMat = Material("echoesbeyond/note_simple.png", "smooth")
+local echoMat = Material("echoesbeyond/echo_simple.png", "smooth")
 
 local PANEL = {}
 
@@ -50,7 +50,7 @@ function PANEL:Paint(width, height)
 	local breatheLayer = math.sin(CurTime() * 1.5)
 
 	surface.SetDrawColor(255, 255, 255, 5)
-	surface.SetMaterial(noteMat)
+	surface.SetMaterial(echoMat)
 	surface.DrawTexturedRectRotated(width / 2, height / 2 + 5 * breatheLayer, width / 1.5, width / 1.5, 0)
 
 	draw.SimpleText("WIP. Check back soon.", "DermaLarge", width / 2, height / 2, Color(200, 200, 200), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)

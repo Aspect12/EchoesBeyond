@@ -3,10 +3,10 @@ CreateClientConVar("echoes_showread", "1")
 CreateClientConVar("echoes_renderdist", "25000000")
 CreateClientConVar("echoes_dlights", "1")
 
-local noteMat = Material("echoesbeyond/note.png", "mips")
+local echoMat = Material("echoesbeyond/echo.png", "mips")
 local lightRenderDist = 3000000 -- How far the dynamic light should render
-local activationDist = 6500 -- How close the player should be to activate the note
-local noteFadeDist = 2500 -- How far the note should start fading
+local activationDist = 6500 -- How close the player should be to activate the echo
+local echoFadeDist = 2500 -- How far the echo should start fading
 
 hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bDrawingDepth, bDrawingSkybox)
 	if (bDrawingDepth or bDrawingSkybox) then return end
@@ -37,90 +37,90 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 	end)
 
 	for i = 1, #sortedEchoes do
-		local note = sortedEchoes[i]
-		local noteDistSqr = clientPos:DistToSqr(note.pos)
-		local read = note.read
-		local bOwner = note.isOwner
+		local echo = sortedEchoes[i]
+		local echoDistSqr = clientPos:DistToSqr(echo.pos)
+		local read = echo.read
+		local bOwner = echo.isOwner
 
 		-- Update angle (smooth rotation)
-		local ang = (clientPos - note.pos):Angle()
+		local ang = (clientPos - echo.pos):Angle()
 
 		ang:RotateAroundAxis(ang:Forward(), 90)
 		ang:RotateAroundAxis(ang:Right(), -90)
 		ang = Angle(ang.p, ang.y, 90)
 
-		note.angle = LerpAngle(lerpFactor, note.angle, ang)
+		echo.angle = LerpAngle(lerpFactor, echo.angle, ang)
 
 		-- Update initialization factor based on explicit flag and profanity setting
 		if (read and showRead) then
-			if (!note.readTime) then
-				note.readTime = curTime
+			if (!echo.readTime) then
+				echo.readTime = curTime
 			end
 
-			-- Fade out note if it was read for more than 60 seconds
-			if (curTime - note.readTime > 60) then
-				note.init = math.max(note.init - frameTime, 0)
+			-- Fade out echo if it was read for more than 60 seconds
+			if (curTime - echo.readTime > 60) then
+				echo.init = math.max(echo.init - frameTime, 0)
 			end
 		else
-			if (note.explicit and !profanity) then
-				note.init = math.max(note.init-frameTime, 0)
-			elseif (note.init < 1) then
-				if ((note.explicit and profanity) or (!note.explicit)) then
-					note.init = math.min(note.init + frameTime, 1)
+			if (echo.explicit and !profanity) then
+				echo.init = math.max(echo.init-frameTime, 0)
+			elseif (echo.init < 1) then
+				if ((echo.explicit and profanity) or (!echo.explicit)) then
+					echo.init = math.min(echo.init + frameTime, 1)
 				end
 			end
 		end
 
-		if (note.init == 0) then continue end -- Skip rendering if note is not initialized
+		if (echo.init == 0) then continue end -- Skip rendering if echo is not initialized
 
-		-- Activate note if within activation distance
-		if ((note.explicit and profanity) or (!note.explicit)) then
-			if (noteDistSqr < activationDist) then
-				local active = math.min(note.active + frameTime * 3, 1)
+		-- Activate echo if within activation distance
+		if ((echo.explicit and profanity) or (!echo.explicit)) then
+			if (echoDistSqr < activationDist) then
+				local active = math.min(echo.active + frameTime * 3, 1)
 
-				note.active = active
-				note.drawPos = LerpVector(frameTime * 3, note.drawPos, note.pos + activationOffset)
+				echo.active = active
+				echo.drawPos = LerpVector(frameTime * 3, echo.drawPos, echo.pos + activationOffset)
 
-				if (!note.soundActive) then
-					note.soundActive = true
+				if (!echo.soundActive) then
+					echo.soundActive = true
 
-					client:EmitSound("echoesbeyond/note_activate.wav", 75, note.special and math.random(115, 125) or note.explicit and math.random(65, 75) or math.random(95, 105))
+					client:EmitSound("echoesbeyond/echo_activate.wav", 75, echo.special and math.random(115, 125) or echo.explicit and math.random(65, 75) or math.random(95, 105))
 				end
 
-				if (active == 1 and !bOwner and !note.read and !note.special) then
+				if (active == 1 and !bOwner and !echo.read and !echo.special) then
 					local savedData = file.Read("echoesbeyond/readechoes.txt", "DATA")
 
-					note.read = true
+					echo.read = true
 
 					savedData = util.JSONToTable((savedData and savedData != "" and savedData) or"[]")
-					savedData[#savedData + 1] = note.id
+					savedData[#savedData + 1] = echo.id
 
-					readNoteCount = readNoteCount + 1
+					readEchoCount = readEchoCount + 1
 
 					file.CreateDir("echoesbeyond")
 					file.Write("echoesbeyond/readechoes.txt", util.TableToJSON(savedData))
 				end
 			else
-				note.active = math.max(note.active - frameTime * 0.5, 0)
-				note.drawPos = LerpVector(frameTime * 1.5, note.drawPos, note.pos - (note.read and readOffset or Vector(0, 0, 0)))
+				echo.active = math.max(echo.active - frameTime * 0.5, 0)
+				echo.drawPos = LerpVector(frameTime * 1.5, echo.drawPos, echo.pos - (echo.read and readOffset or Vector(0, 0, 0)))
 
-				if (note.soundActive) then
-					note.soundActive = false
+				if (echo.soundActive) then
+					echo.soundActive = false
 				end
 			end
 		end
 
-		local special = note.special
-		local active = note.active
-		local explicit = note.explicit
+		local special = echo.special
+		local active = echo.active
+		local explicit = echo.explicit
 
-		-- Draw note if within cutoff distance (using note.drawPos)
-		if (noteDistSqr > cutOffDist) then continue end
+		-- Draw echo if within cutoff distance (using echo.drawPos)
+		if (echoDistSqr > cutOffDist) then continue end
 
-		local alpha = (math.Clamp((noteDistSqr - noteFadeDist / 2) / noteFadeDist, 0, 1) * 255) * note.init
+		local alpha = (math.Clamp((echoDistSqr - echoFadeDist / 2) / echoFadeDist, 0, 1) * 255) * echo.init
 
-		-- Render dynamic light if within render distance (using note.pos for distance)
-		if (noteDistSqr <= lightRenderDist and GetConVar("echoes_dlights"):GetBool()) then
+		-- Render dynamic light if within render distance (using echo.pos for distance)
+		if (echoDistSqr <= lightRenderDist and GetConVar("echoes_dlights"):GetBool()) then
 			local r = !read and (special and 255 or explicit and 255 or bOwner and 255 or (100 + 155 * active)) or (25 + 230 * active)
 			local g = !read and (special and (255 * active) or explicit and (25 + 230 * active) or bOwner and 255 or 255) or (25 + 230 * active)
 			local b = !read and (special and 255 or explicit and (25 + 230 * active) or bOwner and (255 * active) or 255) or (25 + 230 * active)
@@ -128,20 +128,20 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 			local dLight = DynamicLight(i)
 
 			if (dLight) then
-				dLight.Pos = note.drawPos
+				dLight.Pos = echo.drawPos
 				dLight.r = r
 				dLight.g = g
 				dLight.b = b
 				dLight.Brightness = 3
-				dLight.Size = 256 * (((lightRenderDist - noteDistSqr) / lightRenderDist) * note.init) * (alpha / 255)
+				dLight.Size = 256 * (((lightRenderDist - echoDistSqr) / lightRenderDist) * echo.init) * (alpha / 255)
 				dLight.Decay = 1000
 				dLight.DieTime = curTime + 0.1
 			end
 		end
 
 		-- Cache wrapped text to avoid recalculations
-		if (!note.cachedText) then
-			local words = string.Explode(" ", note.text)
+		if (!echo.cachedText) then
+			local words = string.Explode(" ", echo.text)
 			local lines = {}
 			local line = ""
 
@@ -163,21 +163,21 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 				lines[j], lines[#lines - j + 1] = lines[#lines - j + 1], lines[j]
 			end
 
-			note.cachedText = lines
+			echo.cachedText = lines
 		end
 
-		-- Draw the note's texture and text
+		-- Draw the echo's texture and text
 		local rDraw = !read and (special and (200 + 55 * active) or explicit and 255 or bOwner and 255 or (150 + 105 * active)) or (100 + 155 * active)
 		local gDraw = !read and (special and (255 * active) or explicit and (50 + 205 * active) or bOwner and 255 or 255) or (100 + 155 * active)
 		local bDraw = !read and (special and (200 + 55 * active) or explicit and (50 + 205 * active) or bOwner and (255 * active) or 255) or (100 + 155 * active)
 
-		cam.Start3D2D(note.drawPos, note.angle, 0.1)
+		cam.Start3D2D(echo.drawPos, echo.angle, 0.1)
 			surface.SetDrawColor(rDraw, gDraw, bDraw, alpha)
-			surface.SetMaterial(noteMat)
+			surface.SetMaterial(echoMat)
 			surface.DrawTexturedRect(-96, -96, 192, 192)
 
-			for j = 1, #note.cachedText do
-				draw.SimpleText(note.cachedText[j], "CenterPrintText", 0, -(150 + j * 15), Color(255, 255, 255, math.min(active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+			for j = 1, #echo.cachedText do
+				draw.SimpleText(echo.cachedText[j], "CenterPrintText", 0, -(150 + j * 15), Color(255, 255, 255, math.min(active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			end
 		cam.End3D2D()
 	end

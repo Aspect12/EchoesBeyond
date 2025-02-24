@@ -7,10 +7,10 @@ if (CLIENT) then
 		if (new == "0") then return end
 
 		for i = 1, #echoes do
-			local note = echoes[i]
-			if (!note.explicit) then continue end
+			local echo = echoes[i]
+			if (!echo.explicit) then continue end
 
-			note.init = 0
+			echo.init = 0
 		end
 	end, "echoes_profanity")
 end

@@ -52,7 +52,7 @@ else
 		}, function(body, size, headers, code)
 			FetchEchoes()
 
-			-- If we're here, the note was properly successfully created, so let's save it
+			-- If we're here, the echo was probably successfully created, so let's save it
 			local savedEchoes = file.Read("echoesbeyond/writtenechoes.txt", "DATA")
 			savedEchoes = util.JSONToTable(savedEchoes and savedEchoes != "" and savedEchoes or "[]")
 
@@ -74,7 +74,7 @@ else
 	end
 
 	net.Receive("CreateNote", function()
-		local ratelimit = nextNote + 30 * #echoes
+		local ratelimit = nextEcho + 30 * #echoes
 
 		if (ratelimit > os.time()) then
 			EchoNotify("A good message bides its time. You must wait another " .. (string.NiceTime(ratelimit - os.time())) .. " before creating a new Echo.")
@@ -91,9 +91,9 @@ else
 		local client = LocalPlayer()
 
 		-- Prevent creating echoes too close to other echoes
-		for _, note in ipairs(echoes) do
-			if (note.explicit) then continue end
-			if ((client:GetPos() + Vector(0, 0, 32)):DistToSqr(note.pos) >= 1000) then continue end
+		for _, echo in ipairs(echoes) do
+			if (echo.explicit) then continue end
+			if ((client:GetPos() + Vector(0, 0, 32)):DistToSqr(echo.pos) >= 1000) then continue end
 
 			EchoNotify("A good message needs an identity of its own. You are too close to another Echo.")
 

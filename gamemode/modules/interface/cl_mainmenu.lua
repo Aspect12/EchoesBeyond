@@ -1,5 +1,5 @@
 
-local noteMat = Material("echoesbeyond/note_simple.png", "smooth")
+local echoMat = Material("echoesbeyond/echo_simple.png", "smooth")
 local mapMat = Material("echoesbeyond/map.png", "smooth")
 local settingsMat = Material("echoesbeyond/settings.png", "smooth")
 local reportMat = Material("echoesbeyond/report.png", "smooth")
@@ -112,11 +112,11 @@ function PANEL:Init()
 
 	ownMapCount = table.Count(maps)
 
-	local noteCount = #echoes
+	local echoCount = #echoes
 
 	-- TODO: Flash blue on update
 	self.currCountLabel = vgui.Create("DLabel", self)
-	self.currCountLabel:SetText("There " .. (noteCount == 1 and "is" or "are") .. " currently " .. noteCount .. " echo" .. (noteCount == 1 and "" or "es") .. " on this map. You have read " .. readNoteCount .. " of them.")
+	self.currCountLabel:SetText("There " .. (echoCount == 1 and "is" or "are") .. " currently " .. echoCount .. " echo" .. (echoCount == 1 and "" or "es") .. " on this map. You have read " .. readEchoCount .. " of them.")
 	self.currCountLabel:SizeToContents()
 	self.currCountLabel:CenterHorizontal()
 	self.currCountLabel:SetY(self:GetTall() - 70)
@@ -129,7 +129,7 @@ function PANEL:Init()
 
 	-- TODO: Flash blue on update
 	self.totalCountLabel = vgui.Create("DLabel", self)
-	self.totalCountLabel:SetText("There are currently " .. globalNoteCount .. " total echoes across " .. mapCount .. " different maps.")
+	self.totalCountLabel:SetText("There are currently " .. globalEchoCount .. " total echoes across " .. mapCount .. " different maps.")
 	self.totalCountLabel:SizeToContents()
 	self.totalCountLabel:CenterHorizontal()
 	self.totalCountLabel:SetY(self:GetTall() - 30)
@@ -145,7 +145,7 @@ function PANEL:Paint(width, height)
 	local breatheLayer = math.sin(CurTime() * 1.5)
 
 	surface.SetDrawColor(255, 255, 255, 5)
-	surface.SetMaterial(noteMat)
+	surface.SetMaterial(echoMat)
 	surface.DrawTexturedRectRotated(width / 2, height / 2 + 5 * breatheLayer, height / 1.5, height / 1.5, 0)
 end
 

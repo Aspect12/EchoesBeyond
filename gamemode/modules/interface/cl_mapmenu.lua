@@ -118,11 +118,11 @@ function PANEL:ListMaps(filter)
 			gui.OpenURL("https://steamcommunity.com/workshop/browse/?appid=4000&searchtext=" .. name .. "&requiredtags%5B%5D=Map&requiredtags%5B%5D=Addon")
 		end
 
-		local noteCount = vgui.Create("DLabel", entry)
-		noteCount:SetText(amount .. " Echoes")
-		noteCount:SizeToContents()
-		noteCount:Dock(RIGHT)
-		noteCount:SetContentAlignment(6)
+		local echoCount = vgui.Create("DLabel", entry)
+		echoCount:SetText(amount .. " Echoes")
+		echoCount:SizeToContents()
+		echoCount:Dock(RIGHT)
+		echoCount:SetContentAlignment(6)
 
 		self.mapList[name] = entry
 	end

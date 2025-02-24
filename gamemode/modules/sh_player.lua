@@ -17,8 +17,8 @@ if (SERVER) then
 		-- Load position data. Only works on servers
 		local mapName = game.GetMap()
 		local mapData = file.Read("echoesbeyond/playerpos/" .. mapName .. ".txt", "DATA")
-
 		mapData = util.JSONToTable(mapData and mapData != "" and mapData or "[]")
+
 		local posData = mapData[client:SteamID()]
 
 		if (posData) then

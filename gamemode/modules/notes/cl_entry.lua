@@ -5,11 +5,11 @@ local maxSmallLength = 49 -- Max text length before the text field expands
 local maxBigSize = 256 -- Max text length
 
 function PANEL:Init()
-	if (IsValid(noteEntry)) then
-		noteEntry:Remove()
+	if (IsValid(echoEntry)) then
+		echoEntry:Remove()
 	end
 
-	noteEntry = self
+	echoEntry = self
 
 	self:SetSize(600, 210)
 	self:Center()
@@ -239,9 +239,9 @@ vgui.Register("echoEntry", PANEL, "EditablePanel")
 
 -- Close when pressing escape
 hook.Add("OnPauseMenuShow", "entry_OnPauseMenuShow", function()
-	if (!IsValid(noteEntry)) then return end
+	if (!IsValid(echoEntry)) then return end
 
-	noteEntry:Close()
+	echoEntry:Close()
 
 	return false
 end)
