@@ -1,6 +1,7 @@
 
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
 
+-- The settings menu
 local function ToggleMusic(bEnabled)
 	local music = GetConVar("echoes_music")
 
@@ -23,7 +24,6 @@ local function ToggleProfanity(bEnabled)
 	end
 end
 
--- The map menu
 local PANEL = {}
 
 function PANEL:Init()
