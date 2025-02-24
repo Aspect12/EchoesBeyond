@@ -53,8 +53,7 @@ else
 			FetchEchoes()
 
 			-- If we're here, the echo was probably successfully created, so let's save it
-			local savedEchoes = file.Read("echoesbeyond/writtenechoes.txt", "DATA")
-			savedEchoes = util.JSONToTable(savedEchoes and savedEchoes != "" and savedEchoes or "[]")
+			local savedEchoes = file.ReadOrCreate("echoesbeyond/writtenechoes.txt", "[]")
 
 			savedEchoes[#savedEchoes + 1] = {
 				map = game.GetMap(),

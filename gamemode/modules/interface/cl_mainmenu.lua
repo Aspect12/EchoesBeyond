@@ -100,8 +100,7 @@ function PANEL:Init()
 	local maps = {}
 	local ownMapCount = 0
 
-	local writtenEchoes = file.Read("echoesbeyond/writtenechoes.txt", "DATA")
-	writtenEchoes = util.JSONToTable(writtenEchoes and writtenEchoes != "" and writtenEchoes or "[]")
+	local writtenEchoes = file.ReadOrCreate("echoesbeyond/writtenechoes.txt", "[]")
 
 	for i = 1, #writtenEchoes do
 		local map = writtenEchoes[i].map

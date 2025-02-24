@@ -88,12 +88,10 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 				end
 
 				if (active == 1 and !bOwner and !echo.read and !echo.special) then
-					local savedData = file.Read("echoesbeyond/readechoes.txt", "DATA")
+					local savedData = file.ReadOrCreate("echoesbeyond/readechoes.txt", "[]")
+					savedData[#savedData + 1] = echo.id
 
 					echo.read = true
-
-					savedData = util.JSONToTable((savedData and savedData != "" and savedData) or"[]")
-					savedData[#savedData + 1] = echo.id
 
 					readEchoCount = readEchoCount + 1
 
