@@ -37,6 +37,15 @@ else
 		message = string.Trim(message)
 		if (message == "") then return end
 
+		-- Enforce echo uniqueness
+		for _, echo in ipairs(echoes) do
+			if (string.lower(message) != string.lower(message)) then continue end
+
+			EchoNotify("A good message does not get lost in the noise. Your Echo must be unique.")
+
+			return
+		end
+
 		local client = LocalPlayer()
 		local position = client:GetPos() + Vector(0, 0, 32)
 		local isOffensive = IsOffensive(message)
