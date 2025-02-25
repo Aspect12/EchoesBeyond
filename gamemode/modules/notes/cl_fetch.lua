@@ -27,13 +27,21 @@ function FetchEchoes()
 		if (!echoData) then return end
 
 		local readEchoes = file.ReadOrCreate("echoesbeyond/readechoes.txt")
-
 		local echoCount = #echoData
-		readEchoCount = 0
+
+		if (echoCount > #echoes) then
+			LocalPlayer():EmitSound("echoesbeyond/echo_create.wav", 75, math.random(95, 105))
+
+			if (GetConVar("echoes_windowflash"):GetBool()) then
+				system.FlashWindow()
+			end
+		end
 
 		if (IsValid(mainMenu)) then
 			mainMenu:UpdateStats(nil, #echoData)
 		end
+
+		readEchoCount = 0
 
 		for i = 1, #echoData do
 			local newEcho = echoData[i]
@@ -83,14 +91,6 @@ function FetchEchoes()
 				active = 0,
 				init = 0
 			}
-		end
-
-		if (echoCount < #echoes) then
-			LocalPlayer():EmitSound("echoesbeyond/echo_create.wav", 75, math.random(95, 105))
-
-			if (GetConVar("echoes_windowflash"):GetBool()) then
-				system.FlashWindow()
-			end
 		end
 	end, function(error)
 		EchoNotify(error)
