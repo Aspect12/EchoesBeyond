@@ -36,7 +36,7 @@ function PANEL:Init()
 	self.subTitle:SetY(55)
 
 	local subSubTitle = vgui.Create("DLabel", self)
-	subSubTitle:SetText("Click on a map to search for it in the Steam Workshop.")
+	subSubTitle:SetText("Click on a map to search for it in the Steam Workshop, or change to it if it's downloaded.")
 	subSubTitle:SizeToContents()
 	subSubTitle:CenterHorizontal()
 	subSubTitle:SetY(75)
@@ -122,7 +122,11 @@ function PANEL:ListMaps(filter)
 			end
 		end
 		mapName.DoClick = function(this)
-			gui.OpenURL("https://steamcommunity.com/workshop/browse/?appid=4000&searchtext=" .. name .. "&requiredtags%5B%5D=Map&requiredtags%5B%5D=Addon")
+			if (file.Read("maps/" .. name .. ".bsp", "GAME")) then
+				RunConsoleCommand("changelevel", name)
+			else
+				gui.OpenURL("https://steamcommunity.com/workshop/browse/?appid=4000&searchtext=" .. name .. "&requiredtags%5B%5D=Map&requiredtags%5B%5D=Addon")
+			end
 		end
 
 		self.mapList[name] = entry
