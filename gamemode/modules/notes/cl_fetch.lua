@@ -4,12 +4,13 @@ CreateClientConVar("echoes_windowflash", "1")
 
 -- Initialize globals
 mapCount = mapCount or 0 -- Total amount of maps with echoes, used in the main menu
-userCount = userCount or 0 -- Total amount of users, ditto
-globalEchoCount = globalEchoCount or 0 -- Total amount of echoes, ditto
-nextEcho = nextEcho or 0 -- Time a new echo can be made
-readEchoCount = readEchoCount or 0 -- Amount of echoes read by the player
-echoes = echoes or {} -- Echoes on the map
 writtenEchoes = writtenEchoes or {} -- Echoes on the map written by the player
+readEchoCount = readEchoCount or 0 -- Amount of echoes read by the player
+globalEchoCount = globalEchoCount or 0 -- Total amount of echoes, ditto
+userCount = userCount or 0 -- Total amount of users, ditto
+nextEcho = nextEcho or 0 -- Time a new echo can be made
+mapList = mapList or {} -- List of maps with echoes
+echoes = echoes or {} -- Echoes on the map
 
 function FetchEchoes()
 	local map = game.GetMap()
@@ -98,17 +99,19 @@ end
 
 function FetchOwnEchoes()
 	http.Fetch("https://resonance.flatgrass.net/note/mine", function(body, _, _, code)
-		if (code != 200) then
-			EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
+		if (authToken) then
+			if (code != 200) then
+				EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
 
-			return
+				return
+			end
+
+			local data = util.JSONToTable(body) or {}
+			local echoData = data.notes
+			if (!echoData) then return end
+
+			writtenEchoes = echoData
 		end
-
-		local data = util.JSONToTable(body) or {}
-		local echoData = data.notes
-		if (!echoData) then return end
-
-		writtenEchoes = echoData
 
 		FetchEchoes()
 	end, function(error)
@@ -117,6 +120,8 @@ function FetchOwnEchoes()
 end
 
 function FetchStats()
+	if (!authToken) then return end
+
 	http.Fetch("https://resonance.flatgrass.net/stats", function(body, _, _, code)
 		if (code != 200) then
 			EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
@@ -142,6 +147,8 @@ function FetchStats()
 end
 
 function FetchInfo()
+	if (!authToken) then return end
+
 	http.Fetch("https://resonance.flatgrass.net/info?map=" .. game.GetMap(), function(body, _, _, code)
 		if (code != 200) then
 			EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
