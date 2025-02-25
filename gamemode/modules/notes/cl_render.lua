@@ -177,7 +177,8 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 			if (alpha == 0 or active == 0) then cam.End3D2D() continue end
 
 			for j = 1, #echo.cachedText do
-				draw.SimpleText(echo.cachedText[j], "CenterPrintText", 0, -(150 + j * 15), Color(255, 255, 255, math.min(active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText(echo.cachedText[j], "TargetID", 1, -(150 + j * 15), Color(0, 0, 0, math.min(active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText(echo.cachedText[j], "TargetID", 0, -(151 + j * 15), Color(255, 255, 255, math.min(active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			end
 		cam.End3D2D()
 	end
