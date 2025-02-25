@@ -39,7 +39,7 @@ else
 
 		-- Enforce echo uniqueness
 		for _, echo in ipairs(echoes) do
-			if (string.lower(message) != string.lower(message)) then continue end
+			if (string.lower(message) != string.lower(echo.text)) then continue end
 
 			EchoNotify("A good message does not get lost in the noise. Your Echo must be unique.")
 
