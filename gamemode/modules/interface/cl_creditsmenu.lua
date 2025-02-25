@@ -1,6 +1,6 @@
 
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
-local flatgrass, fgWidth, fgHeight = Material("echoesbeyond/flatgrass.png", "smooth"), 1000, 373
+local flatgrassGrey, flatgrassColor, fgWidth, fgHeight = Material("echoesbeyond/flatgrass_greyscale.png", "smooth"), Material("echoesbeyond/flatgrass_color.png", "smooth"), 1000, 373
 
 local PANEL = {}
 
@@ -10,6 +10,8 @@ function PANEL:Init()
 	end
 
 	creditsMenu = self
+
+	self.flatgrassSaturation = 0
 
 	self:SetSize(ScrW() / 4, ScrH() / 1.5)
 	self:Center()
@@ -107,27 +109,31 @@ function PANEL:Init()
 	badActors2:SizeToContents()
 	badActors2:SetPos(self:GetWide() - 20 - badActors2:GetWide(), 220)
 
-	local flatgrass1 = vgui.Create("DLabel", self)
-	flatgrass1:SetText("Serverside Codebase")
-	flatgrass1:SetFont("DermaLarge")
-	flatgrass1:SetColor(Color(150, 150, 150))
-	flatgrass1:SizeToContents()
-	flatgrass1:SetY(self:GetTall() - 120)
-	flatgrass1:CenterHorizontal()
+	local fgHeight = (fgHeight / fgWidth) * self:GetWide()
 
-	local flatgrass2 = vgui.Create("DButton", self)
-	flatgrass2:SetText("Kindly provided by Flatgrass.net")
-	flatgrass2:SetFont("DermaLarge")
-	flatgrass2:SizeToContents()
-	flatgrass2:SetY(self:GetTall() - 80)
-	flatgrass2:CenterHorizontal()
-	flatgrass2.Paint = function(this, width, height)
-		local isHovered = this:IsHovered()
-		local isDown = this:IsDown()
+	local flatgrassPanel = vgui.Create("DButton", self)
+	flatgrassPanel:SetSize(self:GetWide(), fgHeight)
+	flatgrassPanel:SetPos(0, self:GetTall() - flatgrassPanel:GetTall())
+	flatgrassPanel:SetText("")
+	flatgrassPanel.Paint = function(this, width, height)
+		if (this:IsHovered()) then
+			self.flatgrassSaturation = math.Approach(self.flatgrassSaturation, 255, FrameTime() * 1000)
+		else
+			self.flatgrassSaturation = math.Approach(self.flatgrassSaturation, 0, FrameTime() * 1000)
+		end
 
-		this:SetColor(isDown and Color(50, 100, 255) or isHovered and Color(125, 175, 255) or Color(200, 200, 200))
+		surface.SetDrawColor(100, 100, 100, 255 - self.flatgrassSaturation)
+		surface.SetMaterial(flatgrassGrey)
+		surface.DrawTexturedRect(0, 0, width, height)
+
+		surface.SetDrawColor(150, 150, 150, self.flatgrassSaturation)
+		surface.SetMaterial(flatgrassColor)
+		surface.DrawTexturedRect(0, 0, width, height)
+
+		draw.SimpleText("Hosting & Server Development", "DermaLarge", width / 2, height - 100, Color(200, 200, 200), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+		draw.SimpleText("Kindly provided by Flatgrass.net", "DermaLarge", width / 2, height - 60, Color(200, 200, 200), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 	end
-	flatgrass2.DoClick = function()
+	flatgrassPanel.DoClick = function()
 		gui.OpenURL("https://github.com/flatgrassdotnet/")
 
 		LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
@@ -137,12 +143,6 @@ end
 function PANEL:Paint(width, height)
 	surface.SetDrawColor(25, 25, 25)
 	surface.DrawRect(0, 0, width, height)
-
-	local realHeight = (fgHeight / fgWidth) * width
-
-	surface.SetDrawColor(100, 100, 100)
-	surface.SetMaterial(flatgrass)
-	surface.DrawTexturedRect(0, height - realHeight, width, realHeight)
 
 	surface.SetDrawColor(25, 25, 25)
 	surface.SetMaterial(vignette)
