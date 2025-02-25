@@ -148,6 +148,56 @@ function PANEL:Init()
 	renderDistSlider.OnValueChanged = function(self, value)
 		renderDist:SetInt(value)
 	end
+
+	local deleteAll = vgui.Create("DButton", self)
+	deleteAll:SetSize(self:GetWide() * 0.5, 30)
+	deleteAll:SetText("Delete all data")
+	deleteAll:SetFont("CreditsText")
+	deleteAll:SetColor(Color(175, 175, 175))
+	deleteAll:CenterHorizontal()
+	deleteAll:SetY(self:GetTall() - 50)
+	deleteAll.Paint = function(this, width, height)
+		surface.SetDrawColor(this:IsDown() and Color(100, 100, 100) or this:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
+		surface.DrawRect(0, 0, width, height)
+	end
+	deleteAll.DoClick = function()
+		EchoesConfirm("Delete all data", "This will delete all of your data from Echoes Beyond, including all Echoes. Are you sure?", function()
+			http.Fetch("https://resonance.flatgrass.net/nuke", function(body, _, _, code)
+				if (code != 200) then
+					EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
+
+					return
+				end
+
+				mainMenu:Close()
+
+				file.Delete("echoesbeyond/readechoes.txt")
+				file.Delete("echoesbeyond/authtoken.txt")
+				authToken = nil
+				writtenEchoes = {}
+				readEchoCount = 0
+
+				local newEchoes = {}
+
+				for i = 1, #echoes do
+					local echo = echoes[i]
+					if (echo.isOwner) then continue end
+
+					newEchoes[#newEchoes + 1] = echo
+				end
+
+				echoes = newEchoes
+
+				EchoNotify("All data has been deleted.")
+
+				LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
+			end, function(error)
+				EchoNotify(error)
+			end, {authorization = authToken})
+		end)
+
+		LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
+	end
 end
 
 function PANEL:Paint(width, height)

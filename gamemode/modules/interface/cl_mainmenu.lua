@@ -14,6 +14,11 @@ function PANEL:Init()
 
 	mainMenu = self
 
+	FetchStats()
+	timer.Create("echoesFetchStats", 1, 0, FetchStats)
+
+	self.colorStats1, self.colorStats3 = Color(200, 200, 200), Color(200, 200, 200)
+
 	self:SetSize(ScrW() / 2.5, ScrH() / 2)
 	self:Center()
 	self:MakePopup()
@@ -98,9 +103,7 @@ function PANEL:Init()
 	end
 
 	local maps = {}
-	local ownMapCount = 0
-
-	local writtenEchoes = file.ReadOrCreate("echoesbeyond/writtenechoes.txt", "[]")
+	self.ownMapCount = 0
 
 	for i = 1, #writtenEchoes do
 		local map = writtenEchoes[i].map
@@ -109,29 +112,21 @@ function PANEL:Init()
 		maps[map] = true
 	end
 
-	ownMapCount = table.Count(maps)
+	self.ownMapCount = table.Count(maps)
+end
 
-	local echoCount = #echoes
+function PANEL:UpdateStats(newUserCount, newEchoCount, newMapCount, newMaps)
+	if (newUserCount != userCount or newMapCount != mapCount or newEchoCount != globalEchoCount) then
+		self.colorStats3 = Color(50, 150, 255)
+	end
 
-	-- TODO: Flash blue on update
-	self.currCountLabel = vgui.Create("DLabel", self)
-	self.currCountLabel:SetText("There " .. (echoCount == 1 and "is" or "are") .. " currently " .. echoCount .. " echo" .. (echoCount == 1 and "" or "es") .. " on this map. You have read " .. readEchoCount .. " of them.")
-	self.currCountLabel:SizeToContents()
-	self.currCountLabel:CenterHorizontal()
-	self.currCountLabel:SetY(self:GetTall() - 70)
+	if (!newUserCount and newEchoCount != #echoes) then
+		self.colorStats1 = Color(50, 150, 255)
+	end
 
-	self.personalCountLabel = vgui.Create("DLabel", self)
-	self.personalCountLabel:SetText("You have written " .. #writtenEchoes .. " echo" .. (#writtenEchoes == 1 and "" or "es") .. " across " .. ownMapCount .. (ownMapCount == 1 and " map." or " different maps."))
-	self.personalCountLabel:SizeToContents()
-	self.personalCountLabel:CenterHorizontal()
-	self.personalCountLabel:SetY(self:GetTall() - 50)
+	if (!IsValid(mapMenu) or !newMaps) then return end
 
-	-- TODO: Flash blue on update
-	self.totalCountLabel = vgui.Create("DLabel", self)
-	self.totalCountLabel:SetText("There are currently " .. globalEchoCount .. " total echoes across " .. mapCount .. " different maps.")
-	self.totalCountLabel:SizeToContents()
-	self.totalCountLabel:CenterHorizontal()
-	self.totalCountLabel:SetY(self:GetTall() - 30)
+	mapMenu:UpdateMaps(newMaps)
 end
 
 function PANEL:Paint(width, height)
@@ -146,6 +141,15 @@ function PANEL:Paint(width, height)
 	surface.SetDrawColor(255, 255, 255, 5)
 	surface.SetMaterial(echoMat)
 	surface.DrawTexturedRectRotated(width / 2, height / 2 + 5 * breatheLayer, height / 1.5, height / 1.5, 0)
+
+	local echoCount = #echoes
+	local frameTime = FrameTime()
+
+	draw.SimpleText("There " .. (echoCount == 1 and "is" or "are") .. " currently " .. echoCount .. " echo" .. (echoCount == 1 and "" or "es") .. " on this map. You have read " .. readEchoCount .. " of them.", "DermaDefault", width / 2, height - 70, self.colorStats1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+	draw.SimpleText("You have written " .. #writtenEchoes .. " echo" .. (#writtenEchoes == 1 and "" or "es") .. " across " .. self.ownMapCount .. (self.ownMapCount == 1 and " map." or " different maps."), "DermaDefault", width / 2, height - 50, Color(200, 200, 200), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+	draw.SimpleText("There are currently " .. globalEchoCount .. " total echoes across " .. mapCount .. " different maps from " .. userCount .. " different users.", "DermaDefault", width / 2, height - 30, self.colorStats3, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+
+	self.colorStats1, self.colorStats3 = LerpColor(frameTime, self.colorStats1, Color(200, 200, 200)), LerpColor(frameTime, self.colorStats3, Color(200, 200, 200))
 end
 
 function PANEL:OnKeyCodePressed(key)
@@ -155,6 +159,8 @@ function PANEL:OnKeyCodePressed(key)
 end
 
 function PANEL:Close()
+	timer.Remove("echoesFetchStats")
+
 	self:AlphaTo(0, 0.25, 0, function()
 		self:Remove()
 	end)

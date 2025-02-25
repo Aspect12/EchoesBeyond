@@ -52,7 +52,7 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 		echo.angle = LerpAngle(lerpFactor, echo.angle, ang)
 
 		-- Update initialization factor based on explicit flag and profanity setting
-		if (read and showRead) then
+		if (read and !showRead) then
 			if (!echo.readTime) then
 				echo.readTime = curTime
 			end
@@ -88,7 +88,7 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 				end
 
 				if (active == 1 and !bOwner and !echo.read and !echo.special) then
-					local savedData = file.ReadOrCreate("echoesbeyond/readechoes.txt", "[]")
+					local savedData = file.ReadOrCreate("echoesbeyond/readechoes.txt")
 					savedData[#savedData + 1] = echo.id
 
 					echo.read = true

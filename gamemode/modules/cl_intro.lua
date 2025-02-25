@@ -1,10 +1,10 @@
 
 -- Small intro sequence
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
+local echoMat = Material("echoesbeyond/echo_simple.png", "smooth")
 
 hook.Add("InitPostEntity", "intro_InitPostEntity", function()
 	if (file.Exists("echoesbeyond/readechoes.txt", "DATA")) then return end
-	if (file.Exists("echoesbeyond/writtenechoes.txt", "DATA")) then return end
 
 	local intro = vgui.Create("DPanel")
 	intro:SetSize(ScrW(), ScrH())
@@ -18,6 +18,12 @@ hook.Add("InitPostEntity", "intro_InitPostEntity", function()
 		surface.SetDrawColor(color_black)
 		surface.SetMaterial(vignette)
 		surface.DrawTexturedRect(0, 0, width, height)
+
+		local breatheLayer = math.sin(CurTime() * 1.5)
+
+		surface.SetDrawColor(255, 255, 255, 5)
+		surface.SetMaterial(echoMat)
+		surface.DrawTexturedRectRotated(width / 2, height / 2 + 5 * breatheLayer, height / 1.5, height / 1.5, 0)
 	end
 
 	timer.Simple(3, function()

@@ -91,14 +91,19 @@ function PANEL:ListMaps(filter)
 
 	for name, amount in SortedPairsByValue(mapList, true) do
 		if (filter and !name:lower():find(filter:lower())) then continue end
-		if (amount < 10) then continue end
+	--	if (amount < 10) then continue end
 
 		local entry = vgui.Create("DPanel", self.mapListPanel)
 		entry:Dock(TOP)
 		entry:DockPadding(5, 0, 15, 0)
 		entry:SetTall(20)
 		entry:DockMargin(0, 0, 0, 5)
-		entry:SetPaintBackground(false)
+		entry.Paint = function(this, width, height)
+			draw.SimpleText(amount .. " Echoes", "DermaDefault", width - 10, height / 2, this.textColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+
+			this.textColor = LerpColor(FrameTime(), this.textColor, Color(200, 200, 200))
+		end
+		entry.textColor = Color(200, 200, 200)
 
 		local mapName = vgui.Create("DButton", entry)
 		mapName:SetText(name)
@@ -111,24 +116,28 @@ function PANEL:ListMaps(filter)
 			if (this:IsHovered()) then
 				this:SetTextColor(Color(0, 125, 255))
 			else
-				this:SetTextColor(color_white)
+				this:SetTextColor(entry.textColor)
 			end
 		end
 		mapName.DoClick = function(this)
 			gui.OpenURL("https://steamcommunity.com/workshop/browse/?appid=4000&searchtext=" .. name .. "&requiredtags%5B%5D=Map&requiredtags%5B%5D=Addon")
 		end
 
-		local echoCount = vgui.Create("DLabel", entry)
-		echoCount:SetText(amount .. " Echoes")
-		echoCount:SizeToContents()
-		echoCount:Dock(RIGHT)
-		echoCount:SetContentAlignment(6)
-
 		self.mapList[name] = entry
 	end
 
 	self.subTitle:SetText("Below is a list of " .. table.Count(self.mapList) .. " maps with Echoes in them.")
 	self.subTitle:SizeToContents()
+end
+
+function PANEL:UpdateMaps(newMaps)
+	for name, amount in pairs(newMaps) do
+		local entry = self.mapList[name]
+		if (!entry) then continue end
+		if (mapList[name] == amount) then continue end
+
+		entry.textColor = Color(50, 150, 255)
+	end
 end
 
 function PANEL:Paint(width, height)

@@ -1,108 +1,170 @@
 
--- Fetch notes and send them to the client
-mapCount = mapCount or 0 -- Total amount of maps with notes, used in the main menu
-globalNoteCount = globalNoteCount or 0 -- Total amount of notes, ditto
-nextNote = nextNote or 0 -- Time a new note can be made
+-- Fetch echoes and send them to the client
+CreateClientConVar("echoes_windowflash", "1")
 
-function FetchNotes(bNoSound)
+-- Initialize globals
+mapCount = mapCount or 0 -- Total amount of maps with echoes, used in the main menu
+userCount = userCount or 0 -- Total amount of users, ditto
+globalEchoCount = globalEchoCount or 0 -- Total amount of echoes, ditto
+nextEcho = nextEcho or 0 -- Time a new echo can be made
+readEchoCount = readEchoCount or 0 -- Amount of echoes read by the player
+echoes = echoes or {} -- Echoes on the map
+writtenEchoes = writtenEchoes or {} -- Echoes on the map written by the player
+
+function FetchEchoes()
 	local map = game.GetMap()
 
-	http.Fetch("https://hl2rp.net/echoes/fetch.php?map=" .. map, function(body)
-		local data = util.JSONToTable(body)
-		if (!data) then return end
+	http.Fetch("https://resonance.flatgrass.net/note/view?map=" .. map, function(body, _, _, code)
+		if (code != 200) then
+			EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
 
-		mapCount = data.stats.maps
-		globalNoteCount = data.stats.notes
-
-		if (data.ratelimit) then
-			nextNote = data.ratelimit
+			return
 		end
 
-		if (data.mapRatelimit) then
-			mapRatelimit = data.mapRatelimit
+		local data = util.JSONToTable(body) or {}
+		local echoData = data.notes
+		if (!echoData) then return end
+
+		local readEchoes = file.ReadOrCreate("echoesbeyond/readechoes.txt")
+
+		local echoCount = #echoData
+		readEchoCount = 0
+
+		if (IsValid(mainMenu)) then
+			mainMenu:UpdateStats(nil, #echoData)
 		end
 
-		if (data.mapList) then
-			mapList = data.mapList
-		end
-
-		if (!data.notes) then return end
-
-		local savedData = file.Read("echoesbeyond/expirednotes.txt", "DATA")
-		savedData = util.JSONToTable(savedData and savedData != "" and savedData or "[]")
-
-		local savedNotes = file.Read("echoesbeyond/writtennotes.txt", "DATA")
-		savedNotes = util.JSONToTable(savedNotes and savedNotes != "" and savedNotes or "[]")
-
-		local noteCount = #notes
-
-		expiredNoteCount = 0
-
-		for i = 1, #data.notes do
-			local newNote = data.notes[i]
+		for i = 1, #echoData do
+			local newEcho = echoData[i]
 			local exists = false
 
-			for k = 1, #notes do
-				if (notes[k].id != newNote.id) then continue end
+			for k = 1, #echoes do
+				if (echoes[k].id != newEcho.id) then continue end
 
 				exists = true
 
 				break
 			end
 
-			local expired = table.HasValue(savedData, newNote.id)
-
-			if (expired) then
-				expiredNoteCount = expiredNoteCount + 1
-			end
-
-			-- Don't add notes that already exist
-			if (exists) then continue end
-
-			-- Figure out if we own the note
+			local read = table.HasValue(readEchoes, newEcho.id)
 			local isOwner = false
 
-			for k = 1, #savedNotes do
-				if (savedNotes[k].id != newNote.id) then continue end
+			for k = 1, #writtenEchoes do
+				if (writtenEchoes[k].id != newEcho.id) then continue end
 
 				isOwner = true
 
 				break
 			end
 
-			-- Convert the position string to a vector
-			local position = string.Explode(",", newNote.pos)
-			position = Vector(tonumber(position[1]), tonumber(position[2]), tonumber(position[3]))
+			if (read or isOwner) then
+				readEchoCount = readEchoCount + 1
+			end
 
-			local text = newNote.text
+			if (exists) then continue end
 
-			notes[#notes + 1] = {
+			local position = Vector(tonumber(newEcho.position[1]), tonumber(newEcho.position[2]), tonumber(newEcho.position[3]))
+			local text = newEcho.comment
+			local read = table.HasValue(readEchoes, newEcho.id)
+
+			echoes[#echoes + 1] = {
 				explicit = IsOffensive(text),
-				expiredTime = expired and 0,
-				special = newNote.special,
+				readTime = read and 0,
+				special = newEcho.special,
 				angle = Angle(0, 0, 90),
 				soundActive = false,
 				drawPos = position,
-				expired = expired,
 				isOwner = isOwner,
-				id = newNote.id,
+				id = newEcho.id,
 				pos = position,
+				read = read,
 				text = text,
 				active = 0,
 				init = 0
 			}
 		end
 
-		if (!bNoSound and noteCount < #notes) then
-			LocalPlayer():EmitSound("echoesbeyond/note_create.wav", 75, math.random(95, 105))
+		if (echoCount < #echoes) then
+			LocalPlayer():EmitSound("echoesbeyond/echo_create.wav", 75, math.random(95, 105))
+
+			if (GetConVar("echoes_windowflash"):GetBool()) then
+				system.FlashWindow()
+			end
 		end
 	end, function(error)
 		EchoNotify(error)
 	end)
 end
 
-hook.Add("InitPostEntity", "notes_fetch_InitPostEntity", function()
-	FetchNotes(true)
+function FetchOwnEchoes()
+	http.Fetch("https://resonance.flatgrass.net/note/mine", function(body, _, _, code)
+		if (code != 200) then
+			EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
 
-	timer.Create("notes_fetch_timer", 60, 0, FetchNotes) -- Fetch notes every minute
+			return
+		end
+
+		local data = util.JSONToTable(body) or {}
+		local echoData = data.notes
+		if (!echoData) then return end
+
+		writtenEchoes = echoData
+
+		FetchEchoes()
+	end, function(error)
+		EchoNotify(error)
+	end, {authorization = authToken})
+end
+
+function FetchStats()
+	http.Fetch("https://resonance.flatgrass.net/stats", function(body, _, _, code)
+		if (code != 200) then
+			EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
+
+			return
+		end
+
+		local data = util.JSONToTable(body)
+		if (!data) then return end
+
+		if (IsValid(mainMenu)) then
+			mainMenu:UpdateStats(data.user_count, data.note_count, data.map_count, data.maps)
+		end
+
+		userCount = data.user_count
+		globalEchoCount = data.note_count
+		mapCount = data.map_count
+		mapList = data.maps
+
+	end, function(error)
+		EchoNotify(error)
+	end)
+end
+
+function FetchInfo()
+	http.Fetch("https://resonance.flatgrass.net/info?map=" .. game.GetMap(), function(body, _, _, code)
+		if (code != 200) then
+			EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
+
+			return
+		end
+
+		local data = util.JSONToTable(body)
+		if (!data) then return end
+
+		nextEcho = os.time() + data.note_cooldown
+	end, function(error)
+		EchoNotify(error)
+	end, {authorization = authToken})
+end
+
+hook.Add("InitPostEntity", "echoes_fetch_InitPostEntity", function()
+	authToken = file.Read("echoesbeyond/authtoken.txt", "DATA")
+	authToken = authToken and string.find(authToken, "\n", 1, true) and string.Explode("\n", authToken)[2]
+
+	FetchOwnEchoes()
+	FetchInfo()
+
+	-- Fetch echoes & info every minute
+	timer.Create("echoesFetchEchoes", 60, 0, function() FetchEchoes() FetchInfo() end)
 end)
