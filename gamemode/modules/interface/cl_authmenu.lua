@@ -92,7 +92,9 @@ function PANEL:Init()
 		surface.DrawRect(0, 0, width, height)
 	end
 	authButton.DoClick = function()
-		gui.OpenURL("https://resonance.flatgrass.net/login")
+		local ticket = GenerateHex()
+
+		gui.OpenURL("https://resonance.flatgrass.net/login?ticket=" .. ticket)
 
 		for i = 1, 5 do
 			if (!IsValid(self["text" .. i])) then continue end
@@ -105,7 +107,7 @@ function PANEL:Init()
 		throbber:AlphaTo(255, 0.5)
 
 		timer.Create("echoAuthCheck", 1, 300, function()
-			http.Fetch("https://resonance.flatgrass.net/login/finish", function(body, _, _, code)
+			http.Fetch("https://resonance.flatgrass.net/login/finish?ticket=" .. ticket, function(body, _, _, code)
 				if (code != 200) then return end
 
 				timer.Remove("echoAuthCheck")

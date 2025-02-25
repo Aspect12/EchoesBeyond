@@ -28,3 +28,15 @@ function LerpColor(frac, from, to)
 		Lerp(frac, from.a, to.a)
 	)
 end
+
+local hexChars = "0123456789ABCDEF"
+
+function GenerateHex()
+	local hex = ""
+
+	for i = 1, 32 do
+		hex = hex .. hexChars[math.random(16)]
+	end
+
+	return hex
+end
