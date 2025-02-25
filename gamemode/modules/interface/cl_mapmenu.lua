@@ -85,13 +85,14 @@ function PANEL:ListMaps(filter)
 
 	if (filter) then
 		filter = filter:Trim()
+		filter = filter != "" and filter
 	end
 
 	self.mapList = {}
 
 	for name, amount in SortedPairsByValue(mapList, true) do
 		if (filter and !name:lower():find(filter:lower())) then continue end
-		if (amount < 5) then continue end
+		if (!filter and amount < 5) then continue end
 
 		local entry = vgui.Create("DPanel", self.mapListPanel)
 		entry:Dock(TOP)
