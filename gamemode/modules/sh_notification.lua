@@ -24,7 +24,7 @@ else
 		self:AlphaTo(255, 0.5)
 		self:MoveTo(self:GetX(), 25, 0.5, 0, 0.5, function()
 			self:AlphaTo(0, 0.5, 5)
-			self:SlideOut(5)
+			self:SlideOut(10)
 		end)
 
 		local label = vgui.Create("DLabel", self)
