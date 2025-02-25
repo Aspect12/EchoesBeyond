@@ -174,6 +174,8 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 			surface.SetMaterial(echoMat)
 			surface.DrawTexturedRect(-96, -96, 192, 192)
 
+			if (alpha == 0 or active == 0) then cam.End3D2D() continue end
+
 			for j = 1, #echo.cachedText do
 				draw.SimpleText(echo.cachedText[j], "CenterPrintText", 0, -(150 + j * 15), Color(255, 255, 255, math.min(active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			end
