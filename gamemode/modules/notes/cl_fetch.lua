@@ -120,8 +120,6 @@ function FetchOwnEchoes()
 end
 
 function FetchStats()
-	if (!authToken) then return end
-
 	http.Fetch("https://resonance.flatgrass.net/stats", function(body, _, _, code)
 		if (code != 200) then
 			EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
