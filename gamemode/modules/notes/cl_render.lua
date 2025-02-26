@@ -25,11 +25,18 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 
 	-- Create a shallow copy of echoes and sort by distance (squared)
 	local sortedEchoes = {}
+	local fixedI = 1
 
 	for i = 1, #echoes do
-		sortedEchoes[i] = echoes[i]
-		sortedEchoes[i].distSqr = clientPos:DistToSqr(sortedEchoes[i].pos)
 		if (echoes[i].creationTime > curTime) then continue end
+
+		local distToSqr = clientPos:DistToSqr(echoes[i].pos)
+		if (distToSqr > cutOffDist) then continue end
+
+		sortedEchoes[fixedI] = echoes[i]
+		sortedEchoes[fixedI].distSqr = distToSqr
+
+		fixedI = fixedI + 1
 	end
 
 	table.sort(sortedEchoes, function(a, b)
@@ -108,14 +115,11 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 			end
 		end
 
+		local alpha = (math.Clamp((echoDistSqr - echoFadeDist / 2) / echoFadeDist, 0, 1) * 255) * echo.init
+
 		local special = echo.special
 		local active = echo.active
 		local explicit = echo.explicit
-
-		-- Draw echo if within cutoff distance (using echo.drawPos)
-		if (echoDistSqr > cutOffDist) then continue end
-
-		local alpha = (math.Clamp((echoDistSqr - echoFadeDist / 2) / echoFadeDist, 0, 1) * 255) * echo.init
 
 		-- Render dynamic light if within render distance (using echo.pos for distance)
 		if (echoDistSqr <= lightRenderDist and GetConVar("echoes_dlights"):GetBool() and i >= (#sortedEchoes - (32 - dLightCount))) then -- Source can only handle 32 dynamic lights, so that's the
