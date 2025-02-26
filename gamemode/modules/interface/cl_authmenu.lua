@@ -1,7 +1,8 @@
 
 local echoMat = Material("echoesbeyond/echo_simple.png", "smooth")
+local echoBlankMat = Material("echoesbeyond/echo_simple_blank.png", "smooth")
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
-local throbberMat = Material("echoesbeyond/throbber.png", "smooth")
+local throbberMat = Material("echoesbeyond/echo_simple_dots.png", "nocull")
 local steamMat = Material("echoesbeyond/steam.png", "smooth")
 
 local PANEL = {}
@@ -71,15 +72,28 @@ function PANEL:Init()
 	self.text5:CenterHorizontal()
 	self.text5:SetY(height / 2 + 30)
 
-	local throbber = vgui.Create("DPanel", self) -- lol, funny name
-	throbber:SetSize(width / 2, width / 2)
-	throbber:Center()
-	throbber.Paint = function(this, width, height)
-		surface.SetDrawColor(255, 255, 255, 100)
+	self.throbber = vgui.Create("DPanel", self) -- lol, funny name
+	self.throbber:SetSize(height / 1.5, height / 1.5)
+	self.throbber:Center()
+	self.throbber.Paint = function(this, width, height)
+		local breatheLayer = math.sin(CurTime() * 1.5)
+
+		surface.SetDrawColor(255, 255, 255, 5)
+		surface.SetMaterial(echoBlankMat)
+		surface.DrawTexturedRectRotated(width / 2, height / 2  + 5 * breatheLayer, width, height, 0)
+
+		surface.SetDrawColor(255, 255, 255, 195)
 		surface.SetMaterial(throbberMat)
-		surface.DrawTexturedRectRotated(width / 2, height / 2, height / 3, height / 3, CurTime() * -200)
+		surface.DrawTexturedRectRotated(width / 2, height / 2  + 5 * breatheLayer, width, height, CurTime() * -150)
 	end
-	throbber:SetAlpha(0)
+	self.throbber:SetAlpha(0)
+
+	self.wait = vgui.Create("DLabel", self)
+	self.wait:SetText("Please wait while we authenticate you...")
+	self.wait:SetFont("TargetID")
+	self.wait:SizeToContents()
+	self.wait:Center()
+	self.wait:SetAlpha(0)
 
 	local buttonHeight = (100 / 669) * width * 0.3
 
@@ -113,7 +127,50 @@ function PANEL:Init()
 		this:AlphaTo(0, 0.5)
 		this:SetMouseInputEnabled(false)
 
-		throbber:AlphaTo(255, 0.5)
+		self.throbber:AlphaTo(255, 0.5)
+		self.wait:AlphaTo(0, 0.5, 0, function(animData, this)
+			this:SetText("Please wait while we authenticate you...")
+			this:SizeToContents()
+			this:Center()
+
+			this:AlphaTo(255, 0.5, 0, function()
+				timer.Simple(10, function()
+					if (!IsValid(this)) then return end
+
+					this:AlphaTo(0, 0.5, 0, function()
+						if (!IsValid(this)) then return end
+
+						this:SetText("This is taking longer than expected. Please stand by...")
+						this:SizeToContents()
+						this:Center()
+
+						this:AlphaTo(255, 0.5, 0, function()
+							if (!IsValid(this)) then return end
+
+							timer.Simple(10, function()
+								if (!IsValid(this)) then return end
+
+								this:AlphaTo(0, 0.5, 0, function()
+									if (!IsValid(this)) then return end
+
+									this:SetText("Something went wrong. Please try again or contact the developers.")
+									this:SizeToContents()
+									this:Center()
+
+									authButton:SetMouseInputEnabled(true)
+									authButton:AlphaTo(255, 0.5)
+
+									this:AlphaTo(255, 0.5)
+									self.throbber:AlphaTo(0, 0.5)
+
+									timer.Remove("echoAuthCheck")
+								end)
+							end)
+						end)
+					end)
+				end)
+			end)
+		end)
 
 		timer.Create("echoAuthCheck", 1, 300, function()
 			http.Fetch("https://resonance.flatgrass.net/login/finish?ticket=" .. ticket, function(body, _, _, code)
@@ -158,8 +215,10 @@ function PANEL:Paint(width, height)
 	surface.DrawTexturedRect(0, 0, width, height)
 
 	local breatheLayer = math.sin(CurTime() * 1.5)
+	local alpha = self.throbber:GetAlpha()
+	alpha = 5 - (alpha / 255) * 5
 
-	surface.SetDrawColor(255, 255, 255, 5)
+	surface.SetDrawColor(255, 255, 255, alpha)
 	surface.SetMaterial(echoMat)
 	surface.DrawTexturedRectRotated(width / 2, height / 2 + 5 * breatheLayer, height / 1.5, height / 1.5, 0)
 end
