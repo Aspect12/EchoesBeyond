@@ -108,6 +108,7 @@ function PANEL:ListEchoes(filter)
 	end
 
 	local currMap = game.GetMap()
+	local echoNum = 1
 
 	for i = #writtenEchoes, 1, -1 do -- Loop through the echoes in reverse order
 		local echo = writtenEchoes[i]
@@ -190,7 +191,11 @@ function PANEL:ListEchoes(filter)
 			end)
 		end
 
+		basePanel:SetAlpha(0)
+		basePanel:AlphaTo(255, 0.25, 0.05 * echoNum)
 		self.echoList[#self.echoList + 1] = basePanel
+
+		echoNum = echoNum + 1
 	end
 
 	self.deleting = false

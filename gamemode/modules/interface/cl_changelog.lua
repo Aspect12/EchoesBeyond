@@ -2,7 +2,7 @@
 -- A simple changelog menu
 local PANEL = {}
 local vignette = Material("echoesbeyond/vignette.png")
-local changelogID = "changelog!"
+local changelogID = "asdasd"
 
 function PANEL:Init()
 	if (IsValid(changeLog)) then
@@ -53,16 +53,7 @@ function PANEL:Init()
 	end
 
 	changelog:SetText([[
-		- Improved authentication menu sequence.
-		- Added a 'Personal Echoes' menu.
-		    - From this menu you can view all the Echoes that you have created, and delete them if you wish.
-		    - Deleting an Echo will also decrease the wait time for creating a new one in the target map.
-		- Added a subtle fade-in effect to Echoes. Most noticeable on first load.
-		- Minor changes & optimizations.
-
-
-
-		Cheese eaters everywhere.
+		- Minor visual update to Personal Echoes menu.
 	]])
 
 	local close = vgui.Create("DButton", self)
