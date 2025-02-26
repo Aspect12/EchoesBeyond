@@ -33,7 +33,7 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 	end
 
 	table.sort(sortedEchoes, function(a, b)
-		return a.distSqr < b.distSqr
+		return a.distSqr > b.distSqr
 	end)
 
 	for i = 1, #sortedEchoes do
@@ -118,8 +118,8 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 		local alpha = (math.Clamp((echoDistSqr - echoFadeDist / 2) / echoFadeDist, 0, 1) * 255) * echo.init
 
 		-- Render dynamic light if within render distance (using echo.pos for distance)
-		if (echoDistSqr <= lightRenderDist and GetConVar("echoes_dlights"):GetBool() and i <= 32) then -- Source can only handle 32 dynamic lights
-			local r = !read and (special and 255 or explicit and 255 or bOwner and 255 or (100 + 155 * active)) or (25 + 230 * active)
+		if (echoDistSqr <= lightRenderDist and GetConVar("echoes_dlights"):GetBool() and i >= (#sortedEchoes - (32 - dLightCount))) then -- Source can only handle 32 dynamic lights, so that's the
+			local r = !read and (special and 255 or explicit and 255 or bOwner and 255 or (100 + 155 * active)) or (25 + 230 * active) -- limit we use, minus the number of map-created dynamic lights
 			local g = !read and (special and (255 * active) or explicit and (25 + 230 * active) or bOwner and 255 or 255) or (25 + 230 * active)
 			local b = !read and (special and 255 or explicit and (25 + 230 * active) or bOwner and (255 * active) or 255) or (25 + 230 * active)
 
