@@ -93,7 +93,7 @@ function PANEL:Init()
 		surface.DrawRect(0, 0, width, height)
 	end
 	self.submit.DoClick = function()
-		CreateNote(self.entry:GetValue())
+		CreateEcho(self.entry:GetValue())
 
 		self:Close()
 

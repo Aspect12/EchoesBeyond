@@ -52,6 +52,29 @@ else
 		local client = LocalPlayer()
 		local position = client:GetPos() + Vector(0, 0, 32)
 		local isOffensive = IsOffensive(message)
+		local curTime = CurTime()
+
+		-- Create the echo in anticipation of the server response
+		echoes[#echoes + 1] = {
+			angle = Angle(0, 0, 90),
+			creationTime = curTime,
+			soundActive = false,
+			drawPos = position,
+			explicit = false,
+			special = false,
+			isOwner = false,
+			failed = false,
+			loading = true,
+			pos = position,
+			readTime = 0,
+			id = curTime,
+			read = false,
+			text = message,
+			active = 0,
+			init = 0
+		}
+
+		LocalPlayer():EmitSound("echoesbeyond/echo_create.wav", 75, math.random(95, 105))
 
 		http.Post("https://resonance.flatgrass.net/note/create", {
 			map = game.GetMap(),
@@ -60,6 +83,16 @@ else
 		}, function(body, _, _, code)
 			if (code != 200) then
 				EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
+
+				local echo = echoes[#echoes]
+
+				echo.explicit = true -- Just to make it red
+				echo.loading = false
+				echo.failed = true
+
+				timer.Simple(3, function()
+					echoes[#echoes] = nil
+				end)
 
 				return
 			end
@@ -72,7 +105,17 @@ else
 
 				profanity:SetBool(true)
 			end
-		end, nil, {authorization = authToken})
+		end, function()
+			local echo = echoes[#echoes]
+
+			echo.explicit = true -- Just to make it red
+			echo.loading = false
+			echo.failed = true
+
+			timer.Simple(3, function()
+				echoes[#echoes] = nil
+			end)
+		end, {authorization = authToken})
 	end
 
 	net.Receive("CreateEcho", function()

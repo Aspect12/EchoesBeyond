@@ -3,6 +3,8 @@ CreateClientConVar("echoes_showread", "1")
 CreateClientConVar("echoes_renderdist", "25000000")
 
 local echoMat = Material("echoesbeyond/echo.png", "mips")
+local echoBlankMat = Material("echoesbeyond/echo_blank.png", "mips")
+local echoDotsMat = Material("echoesbeyond/echo_dots.png", "mips")
 local lightRenderDist = 3000000 -- How far the dynamic light should render
 local activationDist = 6500 -- How close the player should be to activate the echo
 local echoFadeDist = 2500 -- How far the echo should start fading
@@ -69,19 +71,19 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 				echo.init = math.max(echo.init - frameTime, 0)
 			end
 		else
-			if (echo.explicit and !profanity) then
-				echo.init = math.max(echo.init-frameTime, 0)
-			elseif (echo.init < 1) then
-				if ((echo.explicit and profanity) or (!echo.explicit)) then
-					echo.init = math.min(echo.init + frameTime, 1)
-				end
+			if ((echo.explicit and !profanity) or echo.failed) then
+				echo.init = math.max(echo.init - frameTime, 0)
+			elseif (echo.init < 1 and (echo.explicit and profanity) or !echo.explicit) then
+				echo.init = math.min(echo.init + frameTime, 1)
 			end
 		end
 
 		if (echo.init == 0) then continue end -- Skip rendering if echo is not initialized
 
+		local loading = echo.loading
+
 		-- Activate echo if within activation distance
-		if ((echo.explicit and profanity) or (!echo.explicit)) then
+		if (((echo.explicit and profanity) or !echo.explicit) and !loading) then
 			if (echoDistSqr < activationDist) then
 				local active = math.min(echo.active + frameTime * 3, 1)
 
@@ -123,9 +125,9 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 
 		-- Render dynamic light if within render distance (using echo.pos for distance)
 		if (echoDistSqr <= lightRenderDist and GetConVar("echoes_dlights"):GetBool() and i >= (#sortedEchoes - (32 - dLightCount))) then -- Source can only handle 32 dynamic lights, so that's the
-			local r = !read and (special and 255 or explicit and 255 or bOwner and 255 or (100 + 155 * active)) or (25 + 230 * active) -- limit we use, minus the number of map-created dynamic lights
-			local g = !read and (special and (255 * active) or explicit and (25 + 230 * active) or bOwner and 255 or 255) or (25 + 230 * active)
-			local b = !read and (special and 255 or explicit and (25 + 230 * active) or bOwner and (255 * active) or 255) or (25 + 230 * active)
+			local r = !read and !loading and (special and 255 or explicit and 255 or bOwner and 255 or (100 + 155 * active)) or (25 + 230 * active) -- limit we use, minus the number of map-created dynamic lights
+			local g = !read and !loading and (special and (255 * active) or explicit and (25 + 230 * active) or bOwner and 255 or 255) or (25 + 230 * active)
+			local b = !read and !loading and (special and 255 or explicit and (25 + 230 * active) or bOwner and (255 * active) or 255) or (25 + 230 * active)
 
 			local dLight = DynamicLight(i)
 
@@ -169,14 +171,20 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 		end
 
 		-- Draw the echo's texture and text
-		local rDraw = !read and (special and (200 + 55 * active) or explicit and 255 or bOwner and 255 or (150 + 105 * active)) or (100 + 155 * active)
-		local gDraw = !read and (special and (255 * active) or explicit and (50 + 205 * active) or bOwner and 255 or 255) or (100 + 155 * active)
-		local bDraw = !read and (special and (200 + 55 * active) or explicit and (50 + 205 * active) or bOwner and (255 * active) or 255) or (100 + 155 * active)
+		local rDraw = !read and !loading and (special and (200 + 55 * active) or explicit and 255 or bOwner and 255 or (150 + 105 * active)) or (100 + 155 * active)
+		local gDraw = !read and !loading and (special and (255 * active) or explicit and (50 + 205 * active) or bOwner and 255 or 255) or (100 + 155 * active)
+		local bDraw = !read and !loading and (special and (200 + 55 * active) or explicit and (50 + 205 * active) or bOwner and (255 * active) or 255) or (100 + 155 * active)
 
 		cam.Start3D2D(echo.drawPos, echo.angle, 0.1)
 			surface.SetDrawColor(rDraw, gDraw, bDraw, alpha)
-			surface.SetMaterial(echoMat)
+			surface.SetMaterial(loading and echoBlankMat or echoMat)
 			surface.DrawTexturedRect(-96, -96, 192, 192)
+
+			if (loading) then
+				surface.SetDrawColor(0, 0, 0, alpha)
+				surface.SetMaterial(echoDotsMat)
+				surface.DrawTexturedRectRotated(0, 0, 192, 192, curTime * -350)
+			end
 
 			if (alpha == 0 or active == 0) then cam.End3D2D() continue end
 
