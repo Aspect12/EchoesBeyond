@@ -1,7 +1,7 @@
 
 -- Create echoes
 if (SERVER) then
-	util.AddNetworkString("CreateNote")
+	util.AddNetworkString("CreateEcho")
 
 	hook.Add("KeyPress", "echoes_create_KeyPress", function(client, key)
 		if (key != IN_RELOAD) then return end
@@ -29,11 +29,11 @@ if (SERVER) then
 			return
 		end
 
-		net.Start("CreateNote")
+		net.Start("CreateEcho")
 		net.Send(client)
 	end)
 else
-	function CreateNote(message)
+	function CreateEcho(message)
 		message = string.Trim(message)
 		if (message == "") then return end
 
@@ -75,7 +75,7 @@ else
 		end, nil, {authorization = authToken})
 	end
 
-	net.Receive("CreateNote", function()
+	net.Receive("CreateEcho", function()
 		if (!authToken) then
 			vgui.Create("echoAuthMenu")
 
