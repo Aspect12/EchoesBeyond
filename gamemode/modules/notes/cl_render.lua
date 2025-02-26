@@ -5,6 +5,7 @@ CreateClientConVar("echoes_renderdist", "25000000")
 local echoMat = Material("echoesbeyond/echo.png", "mips")
 local echoBlankMat = Material("echoesbeyond/echo_blank.png", "mips")
 local echoDotsMat = Material("echoesbeyond/echo_dots.png", "mips")
+local echoDotSingleMat = Material("echoesbeyond/echo_dot_single.png", "mips")
 local lightRenderDist = 3000000 -- How far the dynamic light should render
 local activationDist = 6500 -- How close the player should be to activate the echo
 local echoFadeDist = 2500 -- How far the echo should start fading
@@ -20,7 +21,9 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 	local showRead = GetConVar("echoes_showread"):GetBool()
 	local cutOffDist = GetConVar("echoes_renderdist"):GetInt()
 	local lerpFactor = math.Clamp(frameTime * 5, 0, 1)
-	local activationOffset = Vector(0, 0, 24 + math.sin(curTime * 1.5) * 0.5)
+	local curTimeSpeed = curTime * 1.5
+	local breathLayer = math.sin(curTimeSpeed) * 0.5
+	local activationOffset = Vector(0, 0, 24 + breathLayer)
 	local readOffset = Vector(0, 0, 20)
 
 	surface.SetFont("CenterPrintText")
@@ -177,7 +180,7 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 
 		cam.Start3D2D(echo.drawPos, echo.angle, 0.1)
 			surface.SetDrawColor(rDraw, gDraw, bDraw, alpha)
-			surface.SetMaterial(loading and echoBlankMat or echoMat)
+			surface.SetMaterial(active == 0 and echoMat or echoBlankMat)
 			surface.DrawTexturedRect(-96, -96, 192, 192)
 
 			if (loading) then
@@ -192,6 +195,21 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 				draw.SimpleText(echo.cachedText[j], "TargetID", 1, -(150 + j * 15), Color(0, 0, 0, math.min(active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				draw.SimpleText(echo.cachedText[j], "TargetID", 0, -(151 + j * 15), Color(255, 255, 255, math.min(active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			end
+		cam.End3D2D()
+
+		surface.SetMaterial(echoDotSingleMat)
+
+		-- I don't like this, but it's the only way they can be smooth.
+		cam.Start3D2D(echo.drawPos + Vector(0, 0, (0.5 * math.sin(curTimeSpeed)) * active), echo.angle, 0.1)
+			surface.DrawTexturedRect(-124, -96, 192, 192)
+		cam.End3D2D()
+
+		cam.Start3D2D(echo.drawPos + Vector(0, 0, (0.5 * math.sin(curTimeSpeed + 20)) * active), echo.angle, 0.1)
+			surface.DrawTexturedRect(-96, -96, 192, 192)
+		cam.End3D2D()
+
+		cam.Start3D2D(echo.drawPos + Vector(0, 0, (0.5 * math.sin(curTimeSpeed + 40)) * active), echo.angle, 0.1)
+			surface.DrawTexturedRect(-68, -96, 192, 192)
 		cam.End3D2D()
 	end
 end)

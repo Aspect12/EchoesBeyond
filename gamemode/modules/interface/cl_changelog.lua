@@ -56,6 +56,8 @@ function PANEL:Init()
 		- Minor visual update to Personal Echoes menu.
 		- Map list now only shows maps with 10 or more echoes.
 		    - All maps can still be accessed through the search function.
+		- A temporary 'loading' Echo is now shown when an Echo is created, until a response from the API is received.
+		- Echoes now animate while active.
 	]])
 
 	local close = vgui.Create("DButton", self)
