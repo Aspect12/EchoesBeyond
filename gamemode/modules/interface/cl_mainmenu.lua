@@ -54,10 +54,33 @@ function PANEL:Init()
 	mapOption.DoClick = function()
 		LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
 
+		if (IsValid(personalEchoesMenu)) then personalEchoesMenu:Close(true) end
+
 		if (IsValid(mapMenu)) then
-			mapMenu:Close()
+			mapMenu:Close(true)
 		else
 			vgui.Create("echoMapMenu")
+		end
+	end
+
+	local personalEchoes = vgui.Create("DButton", self)
+	personalEchoes:SetSize(48, 48)
+	personalEchoes:SetPos(10, 48 + 20)
+	personalEchoes:SetText("")
+	personalEchoes.Paint = function(self, width, height)
+		surface.SetDrawColor(self:IsDown() and Color(100, 100, 100) or self:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
+		surface.SetMaterial(echoMat)
+		surface.DrawTexturedRect(-7, -7, width + 14, height + 14)
+	end
+	personalEchoes.DoClick = function()
+		LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
+
+		if (IsValid(mapMenu)) then mapMenu:Close(true) end
+
+		if (IsValid(personalEchoesMenu)) then
+			personalEchoesMenu:Close(true)
+		else
+			vgui.Create("echoPersonalEchoesMenu")
 		end
 	end
 
@@ -73,11 +96,11 @@ function PANEL:Init()
 	settingsOption.DoClick = function()
 		LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
 
-		if (IsValid(reportMenu)) then reportMenu:Close() end
-		if (IsValid(creditsMenu)) then creditsMenu:Close() end
+		if (IsValid(reportMenu)) then reportMenu:Close(true) end
+		if (IsValid(creditsMenu)) then creditsMenu:Close(true) end
 
 		if (IsValid(settingsMenu)) then
-			settingsMenu:Close()
+			settingsMenu:Close(true)
 		else
 			vgui.Create("echoSettingsMenu")
 		end
@@ -95,11 +118,11 @@ function PANEL:Init()
 	reportOption.DoClick = function()
 		LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
 
-		if (IsValid(settingsMenu)) then settingsMenu:Close() end
-		if (IsValid(creditsMenu)) then creditsMenu:Close() end
+		if (IsValid(settingsMenu)) then settingsMenu:Close(true) end
+		if (IsValid(creditsMenu)) then creditsMenu:Close(true) end
 
 		if (IsValid(reportMenu)) then
-			reportMenu:Close()
+			reportMenu:Close(true)
 		else
 			vgui.Create("echoReportMenu")
 		end
@@ -117,11 +140,11 @@ function PANEL:Init()
 	creditsOption.DoClick = function()
 		LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
 
-		if (IsValid(settingsMenu)) then settingsMenu:Close() end
-		if (IsValid(reportMenu)) then reportMenu:Close() end
+		if (IsValid(settingsMenu)) then settingsMenu:Close(true) end
+		if (IsValid(reportMenu)) then reportMenu:Close(true) end
 
 		if (IsValid(creditsMenu)) then
-			creditsMenu:Close()
+			creditsMenu:Close(true)
 		else
 			vgui.Create("echoCreditsMenu")
 		end
@@ -204,6 +227,10 @@ function PANEL:Close()
 
 	if (IsValid(creditsMenu)) then
 		creditsMenu:Close(true)
+	end
+
+	if (IsValid(personalEchoesMenu)) then
+		personalEchoesMenu:Close(true)
 	end
 
 	LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 90, 0.75)

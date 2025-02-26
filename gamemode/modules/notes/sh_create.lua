@@ -59,7 +59,7 @@ else
 			comment = message
 		}, function(body, _, _, code)
 			if (code != 200) then
-				EchoNotify("ERROR: " .. body)
+				EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
 
 				return
 			end

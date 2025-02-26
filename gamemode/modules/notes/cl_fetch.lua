@@ -43,6 +43,8 @@ function FetchEchoes()
 
 		readEchoCount = 0
 
+		local deletedEchoes = table.Copy(echoes) -- Copy of the echoes table to check for deleted echoes
+
 		for i = 1, #echoData do
 			local newEcho = echoData[i]
 			local exists = false
@@ -51,6 +53,14 @@ function FetchEchoes()
 				if (echoes[k].id != newEcho.id) then continue end
 
 				exists = true
+
+				for j = 1, #deletedEchoes do
+					if (deletedEchoes[j].id != newEcho.id) then continue end
+
+					table.remove(deletedEchoes, j)
+
+					break
+				end
 
 				break
 			end
@@ -91,6 +101,19 @@ function FetchEchoes()
 				active = 0,
 				init = 0
 			}
+		end
+
+		-- Remove echoes that were deleted
+		for i = 1, #deletedEchoes do
+			local echo = deletedEchoes[i]
+
+			for k = 1, #echoes do
+				if (echoes[k].id != echo.id) then continue end
+
+				table.remove(echoes, k)
+
+				break
+			end
 		end
 	end, function(error)
 		EchoNotify(error)
