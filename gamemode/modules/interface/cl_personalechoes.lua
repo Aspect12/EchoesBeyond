@@ -24,7 +24,7 @@ function PANEL:Init()
 	self:SetAlpha(0)
 
 	self:AlphaTo(255, 0.25, 0)
-	LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 100, 0.75)
+	EchoSound("whoosh", nil, 0.75)
 
 	local title = vgui.Create("DLabel", self)
 	title:SetText("Personal Echoes")
@@ -160,7 +160,7 @@ function PANEL:ListEchoes(filter)
 			surface.DrawTexturedRect(0, 0, width, height)
 		end
 		deleteButton.DoClick = function(this)
-			LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
+			EchoSound("button_click")
 
 			EchoesConfirm("Delete Echo", "Are you sure you want to delete this Echo? This action is irreversible.", function()
 				http.Fetch("https://resonance.flatgrass.net/note/delete?id=" .. echo.id, function(body, _, _, code)
@@ -221,7 +221,7 @@ function PANEL:Close(bNoSound)
 	end)
 
 	if (bNoSound) then return end
-	LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 90, 0.75)
+	EchoSound("whoosh", 90, 0.75)
 end
 
 vgui.Register("echoPersonalEchoesMenu", PANEL, "EditablePanel")

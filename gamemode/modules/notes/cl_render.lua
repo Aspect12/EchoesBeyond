@@ -93,7 +93,7 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 				if (!echo.soundActive) then
 					echo.soundActive = true
 
-					client:EmitSound("echoesbeyond/echo_activate.wav", 75, echo.special and math.random(115, 125) or echo.explicit and math.random(65, 75) or math.random(95, 105))
+					EchoSound("echo_activate", echo.special and math.random(115, 125) or echo.explicit and math.random(65, 75) or math.random(95, 105))
 				end
 
 				if (active == 1 and !bOwner and !echo.read and !echo.special) then

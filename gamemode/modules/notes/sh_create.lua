@@ -74,7 +74,7 @@ else
 			init = 0
 		}
 
-		LocalPlayer():EmitSound("echoesbeyond/echo_create.wav", 75, math.random(95, 105))
+		EchoSound("echo_create")
 
 		http.Post("https://resonance.flatgrass.net/note/create", {
 			map = game.GetMap(),

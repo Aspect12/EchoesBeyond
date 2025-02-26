@@ -20,7 +20,7 @@ function PANEL:Init()
 	self:SetAlpha(0)
 
 	self:AlphaTo(255, 0.5)
-	LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 100, 0.75)
+	EchoSound("whoosh", nil, 0.75)
 
 	local title = vgui.Create("DLabel", self)
 	title:SetText("Map List")
@@ -166,7 +166,7 @@ function PANEL:Close(bNoSound)
 	end)
 
 	if (bNoSound) then return end
-	LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 90, 0.75)
+	EchoSound("whoosh", 90, 0.75)
 end
 
 vgui.Register("echoMapMenu", PANEL, "EditablePanel")

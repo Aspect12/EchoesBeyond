@@ -22,7 +22,7 @@ function PANEL:Init()
 	self:SetAlpha(0)
 	self:AlphaTo(255, 0.5)
 
-	LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 100, 0.75)
+	EchoSound("whoosh", nil, 0.75)
 
 	local title = vgui.Create("DLabel", self)
 	title:SetText("Echoes Beyond - Authentication")
@@ -184,7 +184,7 @@ function PANEL:Init()
 			end)
 		end)
 
-		LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
+		EchoSound("button_click")
 	end
 
 	local cancel = vgui.Create("DButton", self)
@@ -201,7 +201,7 @@ function PANEL:Init()
 	cancel.DoClick = function()
 		self:Close()
 
-		LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
+		EchoSound("button_click")
 	end
 end
 
@@ -232,7 +232,7 @@ function PANEL:Close()
 		self:Remove()
 	end)
 
-	LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 90, 0.75)
+	EchoSound("whoosh", 90, 0.75)
 
 	self:SetKeyboardInputEnabled(false)
 	self:SetMouseInputEnabled(false)

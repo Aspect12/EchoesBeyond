@@ -20,7 +20,7 @@ function PANEL:Init()
 	self:SetAlpha(0)
 
 	self:AlphaTo(255, 0.5)
-	LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 100, 0.75)
+	EchoSound("whoosh", nil, 0.75)
 
 	local title = vgui.Create("DLabel", self)
 	title:SetText("Credits")
@@ -136,7 +136,7 @@ function PANEL:Init()
 	flatgrassPanel.DoClick = function()
 		gui.OpenURL("https://github.com/flatgrassdotnet/")
 
-		LocalPlayer():EmitSound("echoesbeyond/button_click.wav", 75, math.random(95, 105))
+		EchoSound("button_click")
 	end
 end
 
@@ -163,7 +163,7 @@ function PANEL:Close(bNoSound)
 	end)
 
 	if (bNoSound) then return end
-	LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 90, 0.75)
+	EchoSound("whoosh", 90, 0.75)
 end
 
 vgui.Register("echoCreditsMenu", PANEL, "EditablePanel")

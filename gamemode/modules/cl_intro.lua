@@ -35,7 +35,7 @@ hook.Add("InitPostEntity", "intro_InitPostEntity", function()
 		text:SetAlpha(0)
 		text:AlphaTo(255, 0.5)
 
-		LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 100, 0.75)
+		EchoSound("whoosh", nil, 0.75)
 
 		timer.Simple(5, function()
 			text:AlphaTo(0, 0.5, 0, function()
@@ -51,7 +51,7 @@ hook.Add("InitPostEntity", "intro_InitPostEntity", function()
 				text:SetAlpha(0)
 				text:AlphaTo(255, 0.5)
 
-				LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 100, 0.75)
+				EchoSound("whoosh", nil, 0.75)
 
 				timer.Simple(5, function()
 					text:AlphaTo(0, 0.5, 0, function()
@@ -67,7 +67,7 @@ hook.Add("InitPostEntity", "intro_InitPostEntity", function()
 						text:SetAlpha(0)
 						text:AlphaTo(255, 0.5)
 
-						LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 100, 0.75)
+						EchoSound("whoosh", nil, 0.75)
 
 						timer.Simple(5, function()
 							text:AlphaTo(0, 0.5, 0, function()

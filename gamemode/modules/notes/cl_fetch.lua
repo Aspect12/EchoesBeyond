@@ -30,7 +30,7 @@ function FetchEchoes()
 		local echoCount = #echoData
 
 		if (echoCount > #echoes) then
-			LocalPlayer():EmitSound("echoesbeyond/echo_create.wav", 75, math.random(95, 105))
+			EchoSound("echo_create")
 
 			if (GetConVar("echoes_windowflash"):GetBool()) then
 				system.FlashWindow()

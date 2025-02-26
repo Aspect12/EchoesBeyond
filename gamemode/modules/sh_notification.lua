@@ -33,7 +33,7 @@ else
 		label:SizeToContents()
 		label:Center()
 
-		LocalPlayer():EmitSound("echoesbeyond/notification.wav", 75, math.random(95, 105))
+		EchoSound("notification")
 	end
 
 	function PANEL:SlideOut(delay)
