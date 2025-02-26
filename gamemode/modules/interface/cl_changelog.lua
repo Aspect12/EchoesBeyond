@@ -58,6 +58,7 @@ function PANEL:Init()
 		- Added this changelog menu, which appears once every update.
 		- Fixed some issues with Dynamic Lights flickering and not being rendered properly.
 		- Newlines in Echoes are now replaced with spaces.
+		- Changed authentication button style.
 
 		We surpassed 3000 Echoes! And all of them are legitimate, with no spam from the so-dubbed "Ramblers". Absolutely phenomenal.
 		Thank you all for your continued support and for making this project a success.

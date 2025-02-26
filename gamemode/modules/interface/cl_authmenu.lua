@@ -2,6 +2,7 @@
 local echoMat = Material("echoesbeyond/echo_simple.png", "smooth")
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
 local throbberMat = Material("echoesbeyond/throbber.png", "smooth")
+local steamMat = Material("echoesbeyond/steam.png", "smooth")
 
 local PANEL = {}
 
@@ -71,7 +72,7 @@ function PANEL:Init()
 	self.text5:SetY(height / 2 + 30)
 
 	local throbber = vgui.Create("DPanel", self) -- lol, funny name
-	throbber:SetSize(self:GetWide() / 2, self:GetWide() / 2)
+	throbber:SetSize(width / 2, width / 2)
 	throbber:Center()
 	throbber.Paint = function(this, width, height)
 		surface.SetDrawColor(255, 255, 255, 100)
@@ -80,18 +81,23 @@ function PANEL:Init()
 	end
 	throbber:SetAlpha(0)
 
+	local buttonHeight = (100 / 669) * width * 0.3
+
 	local authButton = vgui.Create("DButton", self)
-	authButton:SetSize(self:GetWide() * 0.3, 30)
-	authButton:SetText("Authenticate")
-	authButton:SetFont("CreditsText")
-	authButton:SetColor(Color(175, 175, 175))
+	authButton:SetSize(width * 0.3, buttonHeight)
+	authButton:SetText("")
 	authButton:CenterHorizontal()
-	authButton:SetY(height - 90)
+	authButton:SetY(height - 50 - 10 - buttonHeight)
 	authButton.Paint = function(this, width, height)
-		surface.SetDrawColor(this:IsDown() and Color(100, 100, 100) or this:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
-		surface.DrawRect(0, 0, width, height)
+		local isHovered = this:IsHovered()
+		local isDown = this:IsDown()
+		local color = isDown and Color(200, 200, 200) or isHovered and Color(225, 225, 225) or Color(175, 175, 175)
+
+		surface.SetDrawColor(color)
+		surface.SetMaterial(steamMat)
+		surface.DrawTexturedRect(0, 0, width, height)
 	end
-	authButton.DoClick = function()
+	authButton.DoClick = function(this)
 		local ticket = GenerateHex()
 
 		gui.OpenURL("https://resonance.flatgrass.net/login?ticket=" .. ticket)
@@ -103,6 +109,9 @@ function PANEL:Init()
 				self["text" .. i]:Remove()
 			end)
 		end
+
+		this:AlphaTo(0, 0.5)
+		this:SetMouseInputEnabled(false)
 
 		throbber:AlphaTo(255, 0.5)
 
@@ -124,7 +133,7 @@ function PANEL:Init()
 	end
 
 	local cancel = vgui.Create("DButton", self)
-	cancel:SetSize(self:GetWide() * 0.3, 30)
+	cancel:SetSize(width * 0.3, 30)
 	cancel:SetText("Cancel")
 	cancel:SetFont("CreditsText")
 	cancel:SetColor(Color(175, 175, 175))
