@@ -53,15 +53,16 @@ function PANEL:Init()
 	end
 
 	changelog:SetText([[
-		- Clicking on a map in the map list now makes you switch to it, if it is downloaded and mounted.
-		    - If it is not downloaded or mounted, it will open a Steam Workshop search query for that map.
-		- Added this changelog menu, which appears once every update.
-		- Fixed some issues with Dynamic Lights flickering and not being rendered properly.
-		- Newlines in Echoes are now replaced with spaces.
-		- Changed authentication button style.
+		- Improved authentication menu sequence.
+		- Added a 'Personal Echoes' menu.
+		    - From this menu you can view all the Echoes that you have created, and delete them if you wish.
+		    - Deleting an Echo will also decrease the wait time for creating a new one in the target map.
+		- Added a subtle fade-in effect to Echoes. Most noticeable on first load.
+		- Minor changes & optimizations.
 
-		We surpassed 3000 Echoes! And all of them are legitimate, with no spam from the so-dubbed "Ramblers". Absolutely phenomenal.
-		Thank you all for your continued support and for making this project a success.
+
+
+		Cheese eaters everywhere.
 	]])
 
 	local close = vgui.Create("DButton", self)
