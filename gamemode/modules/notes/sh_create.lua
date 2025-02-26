@@ -37,6 +37,9 @@ else
 		message = string.Trim(message)
 		if (message == "") then return end
 
+		-- Remove newlines
+		message = string.gsub(message, "\n", " ")
+
 		-- Enforce echo uniqueness
 		for _, echo in ipairs(echoes) do
 			if (string.lower(message) != string.lower(echo.text)) then continue end

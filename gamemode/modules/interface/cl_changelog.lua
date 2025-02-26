@@ -57,6 +57,7 @@ function PANEL:Init()
 		    - If it is not downloaded or mounted, it will open a Steam Workshop search query for that map.
 		- Added this changelog menu, which appears once every update.
 		- Fixed some issues with Dynamic Lights flickering and not being rendered properly.
+		- Newlines in Echoes are now replaced with spaces.
 
 		We surpassed 3000 Echoes! And all of them are legitimate, with no spam from the so-dubbed "Ramblers". Absolutely phenomenal.
 		Thank you all for your continued support and for making this project a success.
@@ -123,7 +124,7 @@ hook.Add("InitPostEntity", "changelog_InitPostEntity", function()
 
 		return
 	end
-	
+
 	local oldID = file.Read("echoesbeyond/changelogid.txt", "DATA")
 	if (oldID == changelogID) then return end -- Don't show the changelog if the player has already seen it
 
