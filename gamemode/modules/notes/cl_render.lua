@@ -1,7 +1,6 @@
 
 CreateClientConVar("echoes_showread", "1")
 CreateClientConVar("echoes_renderdist", "25000000")
-CreateClientConVar("echoes_dlights", "1")
 
 local echoMat = Material("echoesbeyond/echo.png", "mips")
 local lightRenderDist = 3000000 -- How far the dynamic light should render
@@ -30,6 +29,7 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 	for i = 1, #echoes do
 		sortedEchoes[i] = echoes[i]
 		sortedEchoes[i].distSqr = clientPos:DistToSqr(sortedEchoes[i].pos)
+		if (echoes[i].creationTime > curTime) then continue end
 	end
 
 	table.sort(sortedEchoes, function(a, b)
