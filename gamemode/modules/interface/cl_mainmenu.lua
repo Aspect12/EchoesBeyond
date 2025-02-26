@@ -1,4 +1,5 @@
 
+-- The main menu
 local echoMat = Material("echoesbeyond/echo_simple.png", "smooth")
 local mapMat = Material("echoesbeyond/map.png", "smooth")
 local settingsMat = Material("echoesbeyond/settings.png", "smooth")
@@ -213,7 +214,6 @@ end
 
 vgui.Register("echoMainMenu", PANEL, "EditablePanel")
 
--- The main menu
 hook.Add("ScoreboardShow", "mainmenu_ScoreboardShow", function()
 	vgui.Create("echoMainMenu")
 
