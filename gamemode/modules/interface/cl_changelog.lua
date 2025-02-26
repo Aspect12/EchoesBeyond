@@ -54,6 +54,8 @@ function PANEL:Init()
 
 	changelog:SetText([[
 		- Minor visual update to Personal Echoes menu.
+		- Map list now only shows maps with 10 or more echoes.
+		    - All maps can still be accessed through the search function.
 	]])
 
 	local close = vgui.Create("DButton", self)
