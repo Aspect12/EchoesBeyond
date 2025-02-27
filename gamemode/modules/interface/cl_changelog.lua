@@ -55,6 +55,8 @@ function PANEL:Init()
 	changelog:SetText([[
 		- Fixed a texture mismatch in 'loading' Echoes.
 		- Added an option to always show all Echoes as unread.
+		- Fixed a mismatch between Server and Client regarding max Echo text length.
+		- The maps in the map menu now fade in smoothly.
 	]])
 
 	local close = vgui.Create("DButton", self)

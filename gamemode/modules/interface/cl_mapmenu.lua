@@ -83,6 +83,8 @@ function PANEL:ListMaps(filter)
 		entry:Remove()
 	end
 
+	local mapNum = 1
+
 	if (filter) then
 		filter = filter:Trim()
 		filter = filter != "" and filter
@@ -129,7 +131,11 @@ function PANEL:ListMaps(filter)
 			end
 		end
 
+		entry:SetAlpha(0)
+		entry:AlphaTo(255, 0.25, 0.02 * mapNum)
 		self.mapList[name] = entry
+
+		mapNum = mapNum + 1
 	end
 
 	self.subTitle:SetText("Below is a list of " .. table.Count(self.mapList) .. " maps with Echoes in them.")
