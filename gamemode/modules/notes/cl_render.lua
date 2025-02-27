@@ -180,7 +180,7 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 
 		cam.Start3D2D(echo.drawPos, echo.angle, 0.1)
 			surface.SetDrawColor(rDraw, gDraw, bDraw, alpha)
-			surface.SetMaterial(active == 0 and echoMat or echoBlankMat)
+			surface.SetMaterial((loading or active > 0) and echoBlankMat or echoMat)
 			surface.DrawTexturedRect(-96, -96, 192, 192)
 
 			if (loading) then
