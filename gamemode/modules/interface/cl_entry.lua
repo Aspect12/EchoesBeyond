@@ -2,7 +2,7 @@
 local PANEL = {}
 
 local maxSmallLength = 49 -- Max text length before the text field expands
-local maxBigSize = 256 -- Max text length
+local maxBigSize = 250 -- Max text length
 
 function PANEL:Init()
 	if (IsValid(echoEntry)) then
