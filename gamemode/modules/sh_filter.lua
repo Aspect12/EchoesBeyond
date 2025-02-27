@@ -45,72 +45,19 @@ local substitutions = {
 	z = "[zZ2žźз]"			-- Latin z, 2, accented z's, Cyrillic ze
 }
 
--- Helper function to remove repeated characters from a string
-local function RemoveRepeatedChars(text)
-	local result = ""
-	local prev = ""
-
-	for i = 1, #text do
-		local char = text:sub(i, i)
-		if (char == prev) then continue end
-
-		result = result .. char
-		prev = char
-	end
-
-	return result
-end
-
-local maxGap = 1 -- Gotta figure out a better way to do this...
-
--- Check if the pattern exists in the given string
-local function FuzzyMatch(text, target)
-	text = RemoveRepeatedChars(text)
-
-	local pos = 1
-
-	for i = 1, #target do
-		local char = target:sub(i, i)
-		local lower_char = char:lower()
-		local pattern = substitutions[lower_char] or char
-
-		-- Find the next occurrence of the current letter's pattern
-		local s, e = string.find(text, pattern, pos)
-
-		if (!s) then
-			return false  -- Current letter not found
-		end
-
-		if (i > 1) then
-			local gapLength = s - pos  -- Gap between previous match end and current match start
-
-			if (gapLength > maxGap) then
-				return false  -- Gap is too large, abort
-			end
-		end
-
-		pos = e + 1  -- Advance past the current match
-	end
-
-	return true  -- All characters matched with acceptable gaps
-end
-
 -- Bleach your eyes
 local wordList = {
 	"kil yourself",
+	"tranies",
 	"retard",
-	"fagot",
 	"fagot",
 	"trany",
 	"negro",
 	"niger",
 	"chink",
 	"honky",
-	"tranies",
-	"sisy",
 	"spic",
 	"niga",
-	"paki",
 	"gook",
 	"kike",
 	"dyke",
@@ -119,10 +66,167 @@ local wordList = {
 	"kys"
 }
 
+-- This is silly, but I'm not sure how else to do this
+local exemptWords = {
+	"jacksepticeye",
+	"underground",
+	"especially",
+	"satisfies",
+	"flatgrass",
+	"minigame",
+	"fragment",
+	"bouncing",
+	"thinking",
+	"bonding",
+	"finding",
+	"running",
+	"getting",
+	"spooky",
+	"pitch",
+	"fight",
+	"flag",
+	"frag"
+}
+
+-- Helper function to remove repeated characters from a string
+local function RemoveRepeatedChars(text)
+	local result = ""
+	local mapping = {}  -- mapping[i] = original index of i-th char in result
+	local prev = ""
+
+	for i = 1, #text do
+		local char = text:sub(i, i)
+
+		if (char != prev) then
+			result = result .. char
+			table.insert(mapping, i)
+		end
+
+		prev = char
+	end
+
+	return result, mapping
+end
+
+local maxGap = 1 -- Gotta figure out a better way to do this...
+
+-- Check if the pattern exists in the given string
+local function FuzzyMatchFrom(text, target, pos, branchStart, lastMatchEnd)
+	if (target == "") then
+		return true, branchStart, lastMatchEnd
+	end
+
+	local char = target:sub(1, 1)
+	local pattern = substitutions[char] or char
+	local s, e = string.find(text, pattern, pos)
+
+	while (s) do
+		local valid = true
+
+		if (lastMatchEnd and (s - lastMatchEnd - 1 > maxGap)) then
+			valid = false
+		end
+
+		if (valid) then -- Only set branchStart if we haven't yet for this branch.
+			local newBranchStart = branchStart or s
+			local res, matchStart, matchEnd = FuzzyMatchFrom(text, target:sub(2), e + 1, newBranchStart, e)
+
+			if (res) then
+				return true, matchStart, matchEnd
+			end
+		end
+
+		s, e = string.find(text, pattern, s + 1)
+	end
+
+	return false
+end
+
+local function FuzzyMatch(text, target)
+	local processedText, mapping = RemoveRepeatedChars(text)
+	local res, procMatchStart, procMatchEnd = FuzzyMatchFrom(processedText, target, 1, nil, nil)
+
+	if (res) then -- Map processed indices back to original text indices.
+		local origStart = mapping[procMatchStart]
+		local origEnd = mapping[procMatchEnd]
+
+		return true, origStart, origEnd
+	else
+		return false
+	end
+end
+
+-- Helper function: checks if more than 50% of alphabetic characters are Cyrillic.
+local function IsMostlyCyrillic(text)
+	local totalAlpha = 0
+	local cyrillicCount = 0
+	local len = string.utf8len(text)
+
+	for i = 1, len do
+		local char = string.utf8sub(text, i, i)
+
+		-- Check if the character is an alphabetic letter
+		if (!char:match("[A-Za-zА-Яа-яЁё]")) then continue end
+
+		totalAlpha = totalAlpha + 1
+
+		if (char:match("[А-Яа-яЁё]")) then
+			cyrillicCount = cyrillicCount + 1
+		end
+	end
+
+	if (totalAlpha == 0) then
+		return false
+	end
+
+	return (cyrillicCount / totalAlpha) > 0.5
+end
+
+local function GetMatchedWord(text, matchStart, matchEnd)
+	local wordStart = matchStart
+	local wordEnd = matchEnd
+
+
+	while (wordStart > 1) do -- Expand backward until a non-letter is encountered.
+		local char = text:sub(wordStart - 1, wordStart - 1)
+		if (!char:match("[%a]")) then break end
+
+		wordStart = wordStart - 1
+	end
+
+	-- Expand forward until a non-letter is encountered.
+	while (wordEnd < #text) do
+		local char = text:sub(wordEnd + 1, wordEnd + 1)
+		if (!char:match("[%a]")) then break end
+
+		wordEnd = wordEnd + 1
+	end
+
+	return text:sub(wordStart, wordEnd)
+end
+
 function IsOffensive(text)
+	text = text:lower()
+
+	-- Don't bother checking Cyrillic text.
+	if (IsMostlyCyrillic(text)) then return false end
+
 	for _, target in ipairs(wordList) do
-		local found = FuzzyMatch(text, target)
-		if (!found) then continue end
+		local res, matchStart, matchEnd = FuzzyMatch(text, target)
+		if (!res) then continue end
+
+		local matchedWord = GetMatchedWord(text, matchStart, matchEnd)
+		local isExempt = false
+
+		for _, exempt in ipairs(exemptWords) do
+			if (!matchedWord:find(exempt)) then continue end
+			isExempt = true
+
+			break
+		end
+
+		if (isExempt) then continue end
+		print(matchedWord)
 
 		return true
 	end

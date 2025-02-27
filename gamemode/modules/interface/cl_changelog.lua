@@ -60,6 +60,7 @@ function PANEL:Init()
 		- The search bars in the map menu and the personal Echoes menu are now automatically in-focus.
 		- The Echo fade in effect now expands outwards from the player.
 		- Echo text now renders over the world and is readable through walls.
+		- Improved filter detection system and reduced false positives.
 	]])
 
 	local close = vgui.Create("DButton", self)
