@@ -1,6 +1,7 @@
 
 CreateClientConVar("echoes_showread", "1")
 CreateClientConVar("echoes_renderdist", "25000000")
+CreateClientConVar("echoes_disablereadsys", "0")
 
 local echoMat = Material("echoesbeyond/echo.png", "mips")
 local echoBlankMat = Material("echoesbeyond/echo_blank.png", "mips")
@@ -20,6 +21,7 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 	local profanity = GetConVar("echoes_profanity"):GetBool()
 	local showRead = GetConVar("echoes_showread"):GetBool()
 	local cutOffDist = GetConVar("echoes_renderdist"):GetInt()
+	local disableReadSys = GetConVar("echoes_disablereadsys"):GetBool()
 	local lerpFactor = math.Clamp(frameTime * 5, 0, 1)
 	local curTimeSpeed = curTime * 1.5
 	local breathLayer = math.sin(curTimeSpeed) * 0.5
@@ -51,7 +53,7 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 	for i = 1, #sortedEchoes do
 		local echo = sortedEchoes[i]
 		local echoDistSqr = clientPos:DistToSqr(echo.pos)
-		local read = echo.read
+		local read = echo.read and !disableReadSys
 		local bOwner = echo.isOwner
 
 		-- Update angle (smooth rotation)
@@ -65,9 +67,7 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 
 		-- Update initialization factor based on explicit flag and profanity setting
 		if (read and !showRead) then
-			if (!echo.readTime) then
-				echo.readTime = curTime
-			end
+			echo.readTime = echo.readTime or curTime
 
 			-- Fade out echo if it was read for more than 60 seconds
 			if (curTime - echo.readTime > 60) then
@@ -76,7 +76,7 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 		else
 			if ((echo.explicit and !profanity) or echo.failed) then
 				echo.init = math.max(echo.init - frameTime, 0)
-			elseif (echo.init < 1 and (echo.explicit and profanity) or !echo.explicit) then
+			elseif (echo.init < 1 and ((echo.explicit and profanity) or !echo.explicit) or disableReadSys) then
 				echo.init = math.min(echo.init + frameTime, 1)
 			end
 		end
@@ -112,7 +112,7 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 				end
 			else
 				echo.active = math.max(echo.active - frameTime * 0.5, 0)
-				echo.drawPos = LerpVector(frameTime * 1.5, echo.drawPos, echo.pos - (echo.read and readOffset or Vector(0, 0, 0)))
+				echo.drawPos = LerpVector(frameTime * 1.5, echo.drawPos, echo.pos - (read and readOffset or Vector(0, 0, 0)))
 
 				if (echo.soundActive) then
 					echo.soundActive = false

@@ -121,6 +121,17 @@ function PANEL:Init()
 		windowFlash:SetBool(value)
 	end
 
+	local disableReadSys = GetConVar("echoes_disablereadsys")
+
+	local disableReadSysCheckbox = vgui.Create("DCheckBoxLabel", self)
+	disableReadSysCheckbox:SetText("Disable Echo 'read' system")
+	disableReadSysCheckbox:SetValue(disableReadSys:GetBool())
+	disableReadSysCheckbox:SizeToContents()
+	disableReadSysCheckbox:SetPos(50, 250)
+	disableReadSysCheckbox.OnChange = function(self, value)
+		disableReadSys:SetBool(value)
+	end
+
 	local speed = GetConVar("echoes_speed")
 
 	local speedSlider = vgui.Create("DNumSlider", self)
@@ -130,7 +141,7 @@ function PANEL:Init()
 	speedSlider:SetDecimals(0)
 	speedSlider:SetValue(speed:GetInt())
 	speedSlider:SetWide(self:GetWide() - 100)
-	speedSlider:SetPos(50, 250)
+	speedSlider:SetPos(50, 275)
 	speedSlider.OnValueChanged = function(self, value)
 		speed:SetInt(value)
 	end
@@ -144,7 +155,7 @@ function PANEL:Init()
 	renderDistSlider:SetDecimals(0)
 	renderDistSlider:SetValue(renderDist:GetInt())
 	renderDistSlider:SetWide(self:GetWide() - 100)
-	renderDistSlider:SetPos(50, 275)
+	renderDistSlider:SetPos(50, 300)
 	renderDistSlider.OnValueChanged = function(self, value)
 		renderDist:SetInt(value)
 	end

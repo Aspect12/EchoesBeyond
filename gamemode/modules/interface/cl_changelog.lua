@@ -54,6 +54,7 @@ function PANEL:Init()
 
 	changelog:SetText([[
 		- Fixed a texture mismatch in 'loading' Echoes.
+		- Added an option to always show all Echoes as unread.
 	]])
 
 	local close = vgui.Create("DButton", self)
