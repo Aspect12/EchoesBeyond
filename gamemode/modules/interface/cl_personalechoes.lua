@@ -34,7 +34,7 @@ function PANEL:Init()
 	title:SetY(20)
 
 	local subTitle = vgui.Create("DLabel", self)
-	subTitle:SetText("View & Delete your written Echoes here.")
+	subTitle:SetText("View & Delete your written Echoes here. (Press R to write an Echo)")
 	subTitle:SizeToContents()
 	subTitle:CenterHorizontal()
 	subTitle:SetY(55)
@@ -73,6 +73,8 @@ function PANEL:Init()
 
 		this:DrawTextEntryText(color_white, color_white, color_white)
 	end
+
+	self.searchBar:RequestFocus()
 
 	self.echoContainer = vgui.Create("DScrollPanel", self)
 	self.echoContainer:SetPos(10, 155)

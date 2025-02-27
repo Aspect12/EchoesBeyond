@@ -57,6 +57,8 @@ function PANEL:Init()
 		this:DrawTextEntryText(color_white, color_white, color_white)
 	end
 
+	searchBar:RequestFocus()
+
 	self.mapListPanel = vgui.Create("DScrollPanel", self)
 	self.mapListPanel:SetPos(10, 130)
 	self.mapListPanel:SetSize(self:GetWide() - 20, self:GetTall() - 140)

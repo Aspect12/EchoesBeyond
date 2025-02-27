@@ -57,6 +57,7 @@ function PANEL:Init()
 		- Added an option to always show all Echoes as unread.
 		- Fixed a mismatch between Server and Client regarding max Echo text length.
 		- The maps in the map menu now fade in smoothly.
+		- The search bars in the map menu and the personal Echoes menu are now automatically in-focus.
 	]])
 
 	local close = vgui.Create("DButton", self)
