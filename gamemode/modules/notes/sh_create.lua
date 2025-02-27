@@ -128,7 +128,7 @@ else
 		if (nextEcho > os.time()) then
 			EchoNotify("A good message bides its time. You must wait another " .. (string.NiceTime(nextEcho - os.time())) .. " before creating a new Echo.")
 
---			return
+			return
 		end
 
 		local client = LocalPlayer()

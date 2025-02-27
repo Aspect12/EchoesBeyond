@@ -226,7 +226,6 @@ function IsOffensive(text)
 		end
 
 		if (isExempt) then continue end
-		print(matchedWord)
 
 		return true
 	end
