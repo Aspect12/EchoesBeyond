@@ -58,7 +58,8 @@ function PANEL:Init()
 		- Fixed a mismatch between Server and Client regarding max Echo text length.
 		- The maps in the map menu now fade in smoothly.
 		- The search bars in the map menu and the personal Echoes menu are now automatically in-focus.
-		- The echo fade in effect now expands outwards from the player.
+		- The Echo fade in effect now expands outwards from the player.
+		- Echo text now renders over the world and is readable through walls.
 	]])
 
 	local close = vgui.Create("DButton", self)

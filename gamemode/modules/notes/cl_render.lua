@@ -11,7 +11,7 @@ local lightRenderDist = 3000000 -- How far the dynamic light should render
 local activationDist = 6500 -- How close the player should be to activate the echo
 local echoFadeDist = 2500 -- How far the echo should start fading
 
-hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bDrawingDepth, bDrawingSkybox)
+hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDepth, bDrawingSkybox)
 	if (bDrawingDepth or bDrawingSkybox) then return end
 
 	local client = LocalPlayer()
@@ -49,6 +49,8 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 	end)
 
 	local echoCount = #sortedEchoes
+
+	for i = 1, echoCount do
 		local echo = sortedEchoes[i]
 
 		if (!echo.creationTime) then
@@ -196,10 +198,12 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 
 			if (alpha == 0 or active == 0) then cam.End3D2D() continue end
 
+			cam.IgnoreZ(true)
 			for j = 1, #echo.cachedText do
 				draw.SimpleText(echo.cachedText[j], "TargetID", 1, -(150 + j * 15), Color(0, 0, 0, math.min(active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				draw.SimpleText(echo.cachedText[j], "TargetID", 0, -(151 + j * 15), Color(255, 255, 255, math.min(active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			end
+			cam.IgnoreZ(false)
 		cam.End3D2D()
 
 		surface.SetMaterial(echoDotSingleMat)
