@@ -44,7 +44,6 @@ function FetchEchoes()
 		readEchoCount = 0
 
 		local deletedEchoes = table.Copy(echoes) -- Copy of the echoes table to check for deleted echoes
-		local newEchoes = 0
 
 		for i = 1, #echoData do
 			local newEcho = echoData[i]
@@ -83,14 +82,11 @@ function FetchEchoes()
 
 			if (exists) then continue end
 
-			newEchoes = newEchoes + 1
-
 			local position = Vector(tonumber(newEcho.position[1]), tonumber(newEcho.position[2]), tonumber(newEcho.position[3]))
 			local text = newEcho.comment
 			local read = table.HasValue(readEchoes, newEcho.id)
 
 			echoes[#echoes + 1] = {
-				creationTime = CurTime() + newEchoes * 0.01,
 				explicit = IsOffensive(text),
 				readTime = read and 0,
 				special = newEcho.special,

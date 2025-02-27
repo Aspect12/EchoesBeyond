@@ -2,7 +2,7 @@
 -- A simple changelog menu
 local PANEL = {}
 local vignette = Material("echoesbeyond/vignette.png")
-local changelogID = "reports"
+local changelogID = "potatoesthatareintellectual"
 
 function PANEL:Init()
 	if (IsValid(changeLog)) then
@@ -58,6 +58,7 @@ function PANEL:Init()
 		- Fixed a mismatch between Server and Client regarding max Echo text length.
 		- The maps in the map menu now fade in smoothly.
 		- The search bars in the map menu and the personal Echoes menu are now automatically in-focus.
+		- The echo fade in effect now expands outwards from the player.
 	]])
 
 	local close = vgui.Create("DButton", self)

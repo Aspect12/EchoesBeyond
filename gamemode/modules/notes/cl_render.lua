@@ -35,8 +35,6 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 	local fixedI = 1
 
 	for i = 1, #echoes do
-		if (echoes[i].creationTime > curTime) then continue end
-
 		local distToSqr = clientPos:DistToSqr(echoes[i].pos)
 		if (distToSqr > cutOffDist) then continue end
 
@@ -50,8 +48,15 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 		return a.distSqr > b.distSqr
 	end)
 
-	for i = 1, #sortedEchoes do
+	local echoCount = #sortedEchoes
 		local echo = sortedEchoes[i]
+
+		if (!echo.creationTime) then
+			echo.creationTime = curTime + 0.01 * (echoCount - i)
+		end
+
+		if (echo.creationTime > curTime) then continue end
+
 		local echoDistSqr = clientPos:DistToSqr(echo.pos)
 		local read = echo.read and !disableReadSys
 		local bOwner = echo.isOwner
@@ -127,7 +132,7 @@ hook.Add("PostDrawTranslucentRenderables", "echoes_render_Combined", function(bD
 		local explicit = echo.explicit
 
 		-- Render dynamic light if within render distance (using echo.pos for distance)
-		if (echoDistSqr <= lightRenderDist and GetConVar("echoes_dlights"):GetBool() and i >= (#sortedEchoes - (32 - dLightCount))) then -- Source can only handle 32 dynamic lights, so that's the
+		if (echoDistSqr <= lightRenderDist and GetConVar("echoes_dlights"):GetBool() and i >= (echoCount - (32 - dLightCount))) then -- Source can only handle 32 dynamic lights, so that's the
 			local r = !read and !loading and (special and 255 or explicit and 255 or bOwner and 255 or (100 + 155 * active)) or (25 + 230 * active) -- limit we use, minus the number of map-created dynamic lights
 			local g = !read and !loading and (special and (255 * active) or explicit and (25 + 230 * active) or bOwner and 255 or 255) or (25 + 230 * active)
 			local b = !read and !loading and (special and 255 or explicit and (25 + 230 * active) or bOwner and (255 * active) or 255) or (25 + 230 * active)
