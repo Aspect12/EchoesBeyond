@@ -85,12 +85,14 @@ function FetchEchoes()
 			local position = Vector(tonumber(newEcho.position[1]), tonumber(newEcho.position[2]), tonumber(newEcho.position[3]))
 			local text = newEcho.comment
 			local read = table.HasValue(readEchoes, newEcho.id)
+			local isSpecial = string.StartsWith(text, "!&") and newEcho.admin
+			local text = isSpecial and string.sub(text, string.StartsWith(text, "!& ") and 3 or 2) or text
 
 			echoes[#echoes + 1] = {
 				explicit = IsOffensive(text),
-				readTime = read and 0,
-				special = newEcho.special,
 				angle = Angle(0, 0, 90),
+				readTime = read and 0,
+				special = isSpecial,
 				soundActive = false,
 				drawPos = position,
 				isOwner = isOwner,
