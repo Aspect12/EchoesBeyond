@@ -135,6 +135,10 @@ function FetchOwnEchoes()
 			local echoData = data.notes
 			if (!echoData) then return end
 
+			for i = 1, #echoData do
+				echoData[i].position = Vector(tonumber(echoData[i].position[1]), tonumber(echoData[i].position[2]), tonumber(echoData[i].position[3]))
+			end
+
 			writtenEchoes = echoData
 		end
 

@@ -54,6 +54,7 @@ function PANEL:Init()
 
 	changelog:SetText([[
 		- Re-added 'special' Echo attribute.
+		- Added a teleport button to the Personal Echoes menu.
 	]])
 
 	local close = vgui.Create("DButton", self)

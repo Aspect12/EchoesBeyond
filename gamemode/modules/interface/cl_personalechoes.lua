@@ -3,6 +3,7 @@ CreateClientConVar("echoes_personalshowall", "0")
 
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
 local deleteMat = Material("echoesbeyond/trash.png", "smooth")
+local teleportMat = Material("echoesbeyond/teleport.png", "smooth")
 
 -- The personal echoes menu
 local PANEL = {}
@@ -114,9 +115,10 @@ function PANEL:ListEchoes(filter)
 
 	for i = #writtenEchoes, 1, -1 do -- Loop through the echoes in reverse order
 		local echo = writtenEchoes[i]
+		local mapName = echo.map
 
 		if (filter and !echo.comment:lower():find(filter:lower())) then continue end
-		if (echo.map != currMap and !self.showAll:GetChecked()) then continue end
+		if (mapName != currMap and !self.showAll:GetChecked()) then continue end
 
 		local basePanel = vgui.Create("DPanel", self.echoContainer)
 		basePanel:Dock(TOP)
@@ -129,7 +131,7 @@ function PANEL:ListEchoes(filter)
 
 		local mapLabel = vgui.Create("DLabel", basePanel)
 		mapLabel:SetPos(5, 3)
-		mapLabel:SetText(echo.map)
+		mapLabel:SetText(mapName)
 		mapLabel:SetFont("TargetID")
 		mapLabel:SetTextColor(Color(200, 200, 200))
 		mapLabel:SizeToContents()
@@ -191,6 +193,35 @@ function PANEL:ListEchoes(filter)
 					EchoNotify(error)
 				end, {authorization = authToken})
 			end)
+		end
+
+		local teleportButton = vgui.Create("DButton", basePanel)
+		teleportButton:SetSize(20, 20)
+		teleportButton:SetPos(self.echoContainer:GetWide() - (barEnabled and 60 or 75), 5)
+		teleportButton:SetText("")
+		teleportButton.Paint = function(this, width, height)
+			surface.SetDrawColor(this:IsDown() and Color(125, 125, 125) or this:IsHovered() and Color(100, 100, 100) or Color(75, 75, 75))
+			surface.SetMaterial(teleportMat)
+			surface.DrawTexturedRect(0, 0, width, height)
+		end
+		teleportButton.DoClick = function(this)
+			EchoSound("button_click")
+
+			if (mapName != currMap) then
+				EchoesConfirm("Switch Map", "This Echo is in a different map. Do you want to change to it?", function()
+					if (file.Read("maps/" .. mapName .. ".bsp", "GAME")) then
+						file.Write("echoesbeyond/teleport.json", util.TableToJSON({map = mapName, pos = echo.position}))
+
+						RunConsoleCommand("changelevel", mapName)
+					else
+						gui.OpenURL("https://steamcommunity.com/workshop/browse/?appid=4000&searchtext=" .. mapName .. "&requiredtags%5B%5D=Map&requiredtags%5B%5D=Addon")
+					end
+				end)
+			else
+				net.Start("echoesTeleport")
+					net.WriteVector(echo.position)
+				net.SendToServer()
+			end
 		end
 
 		basePanel:SetAlpha(0)
