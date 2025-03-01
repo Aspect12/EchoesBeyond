@@ -65,13 +65,16 @@ function PANEL:Init()
 		surface.DrawRect(0, 0, width, height)
 	end
 	self.cancel.DoClick = function()
-		self:Close()
+		if (self.cancelCallback) then
+			self.cancelCallback()
+		end
 
+		self:Close()
 		LocalPlayer():EmitSound("echoesbeyond/button_click.wav")
 	end
 end
 
-function PANEL:Populate(title, text, callback)
+function PANEL:Populate(title, text, callback, cancelCallback)
 	self.title:SetText(title)
 	self.title:SizeToContents()
 	self.title:CenterHorizontal()
@@ -81,6 +84,7 @@ function PANEL:Populate(title, text, callback)
 	self.subTitle:CenterHorizontal()
 
 	self.callback = callback
+	self.cancelCallback = cancelCallback
 end
 
 function PANEL:Close()
@@ -116,8 +120,8 @@ end
 
 vgui.Register("EchoesConfirm", PANEL, "DPanel")
 
-function EchoesConfirm(title, text, callback)
-	vgui.Create("EchoesConfirm"):Populate(title, text, callback)
+function EchoesConfirm(title, text, callback, cancelCallback)
+	vgui.Create("EchoesConfirm"):Populate(title, text, callback, cancelCallback)
 end
 
 -- Close when pressing escape

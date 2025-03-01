@@ -10,9 +10,10 @@ hook.Add("InitPostEntity", "echoes_gamemodenotice", function()
 		function()
 			RunConsoleCommand("gamemode", "echoesbeyond")
 			RunConsoleCommand("changelevel", game.GetMap())
+		end,
+		function()
+			file.CreateDir("echoesbeyond")
+			file.Write("echoesbeyond/readechoes.txt", "[]") -- Make sure the notice doesn't show up again
 		end
 	)
-
-	file.CreateDir("echoesbeyond")
-	file.Write("echoesbeyond/readechoes.txt", "[]") -- Make sure the notice doesn't show up again
 end)
