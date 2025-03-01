@@ -2,7 +2,7 @@
 -- A simple changelog menu
 local PANEL = {}
 local vignette = Material("echoesbeyond/vignette.png")
-local changelogID = "party!"
+local changelogID = "miniiaiaia"
 
 function PANEL:Init()
 	if (IsValid(changeLog)) then
@@ -62,6 +62,7 @@ function PANEL:Init()
 		- Added GabeN mode.
 		- Compressed music files to save space.
 		- Added Party Mode for Echo milstones.
+		- Fixed a string formatting bug.
 	]])
 
 	local close = vgui.Create("DButton", self)

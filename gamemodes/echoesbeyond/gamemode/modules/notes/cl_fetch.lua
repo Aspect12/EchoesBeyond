@@ -87,7 +87,7 @@ function FetchEchoes()
 			local text = newEcho.comment
 			local read = table.HasValue(readEchoes, newEcho.id)
 			local isSpecial = string.StartsWith(text, "!&") and newEcho.admin
-			local text = isSpecial and string.sub(text, string.StartsWith(text, "!& ") and 3 or 2) or text
+			local text = isSpecial and string.sub(text, string.StartsWith(text, "!& ") and 4 or 3) or text
 
 			echoes[#echoes + 1] = {
 				explicit = IsOffensive(text),
