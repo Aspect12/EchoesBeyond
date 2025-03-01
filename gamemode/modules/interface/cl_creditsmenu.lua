@@ -89,25 +89,35 @@ function PANEL:Init()
 	aspect2:SizeToContents()
 	aspect2:SetPos(self:GetWide() - 30 - aspect2:GetWide(), 180)
 
+	local pancakes = vgui.Create("DLabel", self)
+	pancakes:SetText("Pancakes")
+	pancakes:SizeToContents()
+	pancakes:SetPos(30, 200)
+
+	local pancakes2 = vgui.Create("DLabel", self)
+	pancakes2:SetText("Serverside Development")
+	pancakes2:SizeToContents()
+	pancakes2:SetPos(self:GetWide() - 30 - pancakes2:GetWide(), 200)
+
 	local friends = vgui.Create("DLabel", self)
 	friends:SetText("Friends")
 	friends:SizeToContents()
-	friends:SetPos(30, 200)
+	friends:SetPos(30, 220)
 
 	local friends2 = vgui.Create("DLabel", self)
 	friends2:SetText("Feedback, ideas, support, and testing")
 	friends2:SizeToContents()
-	friends2:SetPos(self:GetWide() - 30 - friends2:GetWide(), 200)
+	friends2:SetPos(self:GetWide() - 30 - friends2:GetWide(), 220)
 
 	local badActors = vgui.Create("DLabel", self)
 	badActors:SetText("Bad Actors")
 	badActors:SizeToContents()
-	badActors:SetPos(30, 220)
+	badActors:SetPos(30, 240)
 
 	local badActors2 = vgui.Create("DLabel", self)
 	badActors2:SetText("Valuable web security experience")
 	badActors2:SizeToContents()
-	badActors2:SetPos(self:GetWide() - 30 - badActors2:GetWide(), 220)
+	badActors2:SetPos(self:GetWide() - 30 - badActors2:GetWide(), 240)
 
 	local fgHeight = (fgHeight / fgWidth) * self:GetWide()
 
