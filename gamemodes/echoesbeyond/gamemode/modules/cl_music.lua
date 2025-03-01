@@ -2,8 +2,16 @@
 -- Plays ambient music
 CreateClientConVar("echoes_music", "1")
 
+cvars.AddChangeCallback("echoes_music", function(name, old, new)
+	if (new == "1") then
+		PlayMusic()
+	else
+		StopMusic()
+	end
+end, "echoes_music")
+
 local songs = {
-	"echoesbey`ond/music/eo_all_around us.mp3",
+	"echoesbeyond/music/eo_all_around us.mp3",
 	"echoesbeyond/music/eo_a_sunset.mp3",
 	"echoesbeyond/music/eo_below_the clouds.mp3",
 	"echoesbeyond/music/eo_dead_metal.mp3",

@@ -42,15 +42,18 @@ function GenerateHex()
 end
 
 function EchoSound(path, pitch, volume)
+	print(path)
+	print(pitch)
+	print(volume)
 	LocalPlayer():EmitSound("echoesbeyond/" .. path .. ".wav", 75, pitch or math.random(95, 105), volume or 1)
 end
 
 function RemoveSigning(text)
     local s, e = text:find("[%-~][^%-~]*$")  -- This pattern matches from the last dash/tilde to the end.
     if (!s) then return text end
-	
+
 	local candidate = text:sub(s+1):match("^%s*(.-)%s*$") -- Extract the candidate signing text (trim whitespace).
-	
+
 	-- If the candidate isn't empty, starts with a letter, and is short, assume it's a signing block and remove it.
 	if (candidate and candidate:match("^[A-Za-z]") and #candidate <= 30) then
 		return text:sub(1, s-1)

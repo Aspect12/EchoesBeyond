@@ -1,35 +1,58 @@
 
+-- The settings menu
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
 
--- The settings menu
-local function ToggleMusic(bEnabled)
-	local music = GetConVar("echoes_music")
-
-	if (bEnabled) then
-		music:SetBool(true)
-		PlayMusic()
-	else
-		music:SetBool(false)
-		StopMusic()
-	end
-end
-
-local function ToggleProfanity(bEnabled)
-	local profanity = GetConVar("echoes_profanity")
-
-	if (bEnabled) then
-		profanity:SetBool(true)
-	else
-		profanity:SetBool(false)
-	end
-end
-
 local PANEL = {}
+local y = 100
+
+local gabenSounds = {
+	"/gaben/al_intro",
+	"/gaben/hl2_intro",
+	"/gaben/l4d2_intro",
+	"/gaben/l4d_intro",
+	"/gaben/lc_intro",
+	"/gaben/p2_intro"
+}
+
+local function CreateCheckbox(text, convar, callback)
+	local checkbox = vgui.Create("DCheckBoxLabel", settingsMenu)
+	checkbox:SetText(text)
+	checkbox:SetValue(convar:GetBool())
+	checkbox:SizeToContents()
+	checkbox:SetPos(50, y)
+	checkbox.OnChange = function(self, value)
+		convar:SetBool(value)
+
+		if (callback) then
+			callback(value)
+		end
+	end
+
+	y = y + 25
+end
+
+local function CreateSlider(text, convar, min, max, decimals)
+	local slider = vgui.Create("DNumSlider", settingsMenu)
+	slider:SetText(text)
+	slider:SetMin(min)
+	slider:SetMax(max)
+	slider:SetDecimals(decimals)
+	slider:SetValue(convar:GetInt())
+	slider:SetWide(settingsMenu:GetWide() - 100)
+	slider:SetPos(50, y)
+	slider.OnValueChanged = function(self, value)
+		convar:SetInt(value)
+	end
+
+	y = y + 25
+end
 
 function PANEL:Init()
 	if (IsValid(settingsMenu)) then
 		settingsMenu:Remove()
 	end
+
+	y = 100
 
 	settingsMenu = self
 
@@ -55,121 +78,22 @@ function PANEL:Init()
 	subTitle:CenterHorizontal()
 	subTitle:SetY(55)
 
-	local music = GetConVar("echoes_music")
+	CreateCheckbox("Enable music", GetConVar("echoes_music"))
+	CreateCheckbox("Show offensive Echoes", GetConVar("echoes_profanity"))
+	CreateCheckbox("Enable smooth view", GetConVar("echoes_smoothview"))
+	CreateCheckbox("Show read Echoes", GetConVar("echoes_showread"))
+	CreateCheckbox("Enable dynamic lights", GetConVar("echoes_dlights"))
+	CreateCheckbox("Flash game window when a new Echo is created", GetConVar("echoes_windowflash"))
+	CreateCheckbox("Disable Echo 'read' system", GetConVar("echoes_disablereadsys"))
+	CreateCheckbox("Disable author signing", GetConVar("echoes_disablesigning"))
+	CreateCheckbox("Enable GabeN mode", GetConVar("echoes_gabenmode"), function(value)
+		if (!value) then return end
 
-	local musicCheckbox = vgui.Create("DCheckBoxLabel", self)
-	musicCheckbox:SetText("Enable music")
-	musicCheckbox:SetValue(music:GetBool())
-	musicCheckbox:SizeToContents()
-	musicCheckbox:SetPos(50, 100)
-	musicCheckbox.OnChange = function(self, value)
-		ToggleMusic(value)
-	end
+		EchoSound(table.Random(gabenSounds), nil, 0.75)
+	end)
 
-	local profanity = GetConVar("echoes_profanity")
-
-	local profanityCheckbox = vgui.Create("DCheckBoxLabel", self)
-	profanityCheckbox:SetText("Show offensive Echoes")
-	profanityCheckbox:SetValue(profanity:GetBool())
-	profanityCheckbox:SizeToContents()
-	profanityCheckbox:SetPos(50, 125)
-	profanityCheckbox.OnChange = function(self, value)
-		ToggleProfanity(value)
-	end
-
-	local smoothView = GetConVar("echoes_smoothview")
-
-	local smoothViewCheckbox = vgui.Create("DCheckBoxLabel", self)
-	smoothViewCheckbox:SetText("Enable smooth view")
-	smoothViewCheckbox:SetValue(smoothView:GetBool())
-	smoothViewCheckbox:SizeToContents()
-	smoothViewCheckbox:SetPos(50, 150)
-	smoothViewCheckbox.OnChange = function(self, value)
-		smoothView:SetBool(value)
-	end
-
-	local readEchoes = GetConVar("echoes_showread")
-
-	local readEchoesCheckbox = vgui.Create("DCheckBoxLabel", self)
-	readEchoesCheckbox:SetText("Show read Echoes")
-	readEchoesCheckbox:SetValue(readEchoes:GetBool())
-	readEchoesCheckbox:SizeToContents()
-	readEchoesCheckbox:SetPos(50, 175)
-	readEchoesCheckbox.OnChange = function(self, value)
-		readEchoes:SetBool(value)
-	end
-
-	local dlights = GetConVar("echoes_dlights")
-
-	local dlightsCheckbox = vgui.Create("DCheckBoxLabel", self)
-	dlightsCheckbox:SetText("Enable dynamic lights")
-	dlightsCheckbox:SetValue(dlights:GetBool())
-	dlightsCheckbox:SizeToContents()
-	dlightsCheckbox:SetPos(50, 200)
-	dlightsCheckbox.OnChange = function(self, value)
-		dlights:SetBool(value)
-	end
-
-	local windowFlash = GetConVar("echoes_windowflash")
-
-	local windowFlashCheckbox = vgui.Create("DCheckBoxLabel", self)
-	windowFlashCheckbox:SetText("Flash game window when a new Echo is created")
-	windowFlashCheckbox:SetValue(windowFlash:GetBool())
-	windowFlashCheckbox:SizeToContents()
-	windowFlashCheckbox:SetPos(50, 225)
-	windowFlashCheckbox.OnChange = function(self, value)
-		windowFlash:SetBool(value)
-	end
-
-	local disableReadSys = GetConVar("echoes_disablereadsys")
-
-	local disableReadSysCheckbox = vgui.Create("DCheckBoxLabel", self)
-	disableReadSysCheckbox:SetText("Disable Echo 'read' system")
-	disableReadSysCheckbox:SetValue(disableReadSys:GetBool())
-	disableReadSysCheckbox:SizeToContents()
-	disableReadSysCheckbox:SetPos(50, 250)
-	disableReadSysCheckbox.OnChange = function(self, value)
-		disableReadSys:SetBool(value)
-	end
-
-	local disableSigning = GetConVar("echoes_disablesigning")
-
-	local disableSigningCheckbox = vgui.Create("DCheckBoxLabel", self)
-	disableSigningCheckbox:SetText("Disable author signing")
-	disableSigningCheckbox:SetValue(disableSigning:GetBool())
-	disableSigningCheckbox:SizeToContents()
-	disableSigningCheckbox:SetPos(50, 275)
-	disableSigningCheckbox.OnChange = function(self, value)
-		disableSigning:SetBool(value)
-	end
-
-	local speed = GetConVar("echoes_speed")
-
-	local speedSlider = vgui.Create("DNumSlider", self)
-	speedSlider:SetText("Movement Speed")
-	speedSlider:SetMin(1)
-	speedSlider:SetMax(1000)
-	speedSlider:SetDecimals(0)
-	speedSlider:SetValue(speed:GetInt())
-	speedSlider:SetWide(self:GetWide() - 100)
-	speedSlider:SetPos(50, 300)
-	speedSlider.OnValueChanged = function(self, value)
-		speed:SetInt(value)
-	end
-
-	local renderDist = GetConVar("echoes_renderdist")
-
-	local renderDistSlider = vgui.Create("DNumSlider", self)
-	renderDistSlider:SetText("Render Distance")
-	renderDistSlider:SetMin(10000)
-	renderDistSlider:SetMax(100000000)
-	renderDistSlider:SetDecimals(0)
-	renderDistSlider:SetValue(renderDist:GetInt())
-	renderDistSlider:SetWide(self:GetWide() - 100)
-	renderDistSlider:SetPos(50, 325)
-	renderDistSlider.OnValueChanged = function(self, value)
-		renderDist:SetInt(value)
-	end
+	CreateSlider("Movement Speed", GetConVar("echoes_speed"), 1, 1000, 0)
+	CreateSlider("Render Distance", GetConVar("echoes_renderdist"), 10000, 100000000, 0)
 
 	local deleteAll = vgui.Create("DButton", self)
 	deleteAll:SetSize(self:GetWide() * 0.5, 30)

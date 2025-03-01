@@ -58,6 +58,7 @@ function PANEL:Init()
 		- Updated credits list.
 		- Marked installed maps green in the map list.
 		- Added option to detect and disable signing in Echoes.
+		- Added GabeN mode.
 	]])
 
 	local close = vgui.Create("DButton", self)

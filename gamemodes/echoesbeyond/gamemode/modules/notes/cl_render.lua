@@ -3,12 +3,26 @@ CreateClientConVar("echoes_showread", "1")
 CreateClientConVar("echoes_renderdist", "25000000")
 CreateClientConVar("echoes_disablereadsys", "0")
 CreateClientConVar("echoes_disablesigning", "0")
+CreateClientConVar("echoes_gabenmode", "0")
 
 cvars.AddChangeCallback("echoes_disablesigning", function(name, old, new)
 	for i = 1, #echoes do
 		echoes[i].cachedText = nil
 	end
 end, "echoes_disablesigning")
+
+local gabenSounds = {
+	"/gaben/al_node",
+	"/gaben/ep1_node",
+	"/gaben/ep2_node",
+	"/gaben/hl2_node",
+	"/gaben/l4d2_node",
+	"/gaben/l4d_node",
+	"/gaben/lc_node",
+	"/gaben/p1_node",
+	"/gaben/p2_node",
+	"/gaben/tf2_node"
+}
 
 local echoMat = Material("echoesbeyond/echo.png", "mips")
 local echoBlankMat = Material("echoesbeyond/echo_blank.png", "mips")
@@ -110,7 +124,11 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 				if (!echo.soundActive) then
 					echo.soundActive = true
 
-					EchoSound("echo_activate", echo.special and math.random(115, 125) or echo.explicit and math.random(65, 75) or math.random(95, 105))
+					if (GetConVar("echoes_gabenmode"):GetBool()) then
+						EchoSound(table.Random(gabenSounds), nil, 0.75)
+					else
+						EchoSound("echo_activate", echo.special and math.random(115, 125) or echo.explicit and math.random(65, 75) or math.random(95, 105))
+					end
 				end
 
 				if (active == 1 and !bOwner and !echo.read and !echo.special) then
