@@ -98,8 +98,6 @@ function PANEL:Init()
 end
 
 function PANEL:ListMaps(filter)
-	print("Listing maps...")
-	debug.Trace()
 	for _, entry in pairs(self.mapList) do
 		entry:Remove()
 	end

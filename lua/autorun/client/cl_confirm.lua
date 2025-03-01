@@ -17,7 +17,7 @@ function PANEL:Init()
 
 	self:AlphaTo(255, 0.25)
 
-	EchoSound("whoosh", nil, 0.75)
+	LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 100, 0.75)
 
 	self.title = vgui.Create("DLabel", self)
 	self.title:SetFont("DermaLarge")
@@ -32,25 +32,25 @@ function PANEL:Init()
 	self.subTitle:CenterHorizontal()
 	self.subTitle:SetY(60)
 
-	self.submit = vgui.Create("DButton", self)
-	self.submit:SetSize(self:GetWide() * 0.3, 30)
-	self.submit:SetText("Confirm")
-	self.submit:SetFont("CreditsText")
-	self.submit:SetColor(Color(175, 175, 175))
-	self.submit:CenterHorizontal()
-	self.submit:SetY(125)
-	self.submit.Paint = function(this, width, height)
+	self.confirm = vgui.Create("DButton", self)
+	self.confirm:SetSize(self:GetWide() * 0.3, 30)
+	self.confirm:SetText("Confirm")
+	self.confirm:SetFont("CreditsText")
+	self.confirm:SetColor(Color(175, 175, 175))
+	self.confirm:CenterHorizontal()
+	self.confirm:SetY(125)
+	self.confirm.Paint = function(this, width, height)
 		surface.SetDrawColor(this:IsDown() and Color(100, 100, 100) or this:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
 		surface.DrawRect(0, 0, width, height)
 	end
-	self.submit.DoClick = function()
+	self.confirm.DoClick = function()
 		if (self.callback) then
 			self.callback()
 		end
 
 		self:Close()
 
-		EchoSound("button_click")
+		LocalPlayer():EmitSound("echoesbeyond/button_click.wav")
 	end
 
 	self.cancel = vgui.Create("DButton", self)
@@ -67,7 +67,7 @@ function PANEL:Init()
 	self.cancel.DoClick = function()
 		self:Close()
 
-		EchoSound("button_click")
+		LocalPlayer():EmitSound("echoesbeyond/button_click.wav")
 	end
 end
 
@@ -88,7 +88,7 @@ function PANEL:Close()
 		self:Remove()
 	end)
 
-	EchoSound("whoosh", 90, 0.75)
+	LocalPlayer():EmitSound("echoesbeyond/whoosh.wav", 75, 90, 0.75)
 end
 
 function PANEL:OnKeyCodePressed(key)
@@ -121,7 +121,7 @@ function EchoesConfirm(title, text, callback)
 end
 
 -- Close when pressing escape
-hook.Add("OnPauseMenuShow", "entry_OnPauseMenuShow", function()
+hook.Add("OnPauseMenuShow", "confirm_OnPauseMenuShow", function()
 	if (!IsValid(echoConfirmation)) then return end
 
 	echoConfirmation:Close()
