@@ -57,7 +57,8 @@ function PANEL:Init()
 		- Added a teleport button to the Personal Echoes menu.
 		- Updated credits list.
 		- Marked installed maps green in the map list.
-		- Added option to detect and disable signing in Echoes.
+		- Added option to detect and disable signage in Echoes.
+		- Added a popup for when a player plays sandbox with Echoes Beyond installed.
 		- Added GabeN mode.
 		- Compressed music files to save space.
 		- Added Party Mode for Echo milstones.

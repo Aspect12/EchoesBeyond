@@ -125,7 +125,7 @@ function PANEL:ListMaps(filter)
 			draw.SimpleText(amount .. " Echoes", "DermaDefault", width - 10, height / 2, this.textColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 
 			local installed = self.installedMaps[name]
-			this.textColor = LerpColor(FrameTime() * (installed and 3 or 1), this.textColor, installed and Color(75, 200, 75) or Color(200, 200, 200))
+			this.textColor = LerpColor(FrameTime() * (installed and 3 or 1), this.textColor, installed and Color(100, 200, 100) or Color(200, 200, 200))
 		end
 		entry.textColor = Color(200, 200, 200)
 
