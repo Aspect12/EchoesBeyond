@@ -113,7 +113,6 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 
 		local loading = echo.loading
 
-		-- Activate echo if within activation distance
 		if (((echo.explicit and profanity) or !echo.explicit) and !loading) then
 			if (echoDistSqr < activationDist) then
 				local active = math.min(echo.active + frameTime * 3, 1)
@@ -152,6 +151,10 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 			end
 		end
 
+		if (partyMode) then
+			echo.drawPos = LerpVector(frameTime * 3, echo.drawPos, echo.pos + (echo.partyOffset or Vector(0, 0, 0)))
+		end
+
 		local alpha = (math.Clamp((echoDistSqr - echoFadeDist / 2) / echoFadeDist, 0, 1) * 255) * echo.init
 
 		local special = echo.special
@@ -168,9 +171,9 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 
 			if (dLight) then
 				dLight.Pos = echo.drawPos
-				dLight.r = r
-				dLight.g = g
-				dLight.b = b
+				dLight.r = partyMode and echo.partyColor and echo.partyColor.r or r
+				dLight.g = partyMode and echo.partyColor and echo.partyColor.g or g
+				dLight.b = partyMode and echo.partyColor and echo.partyColor.b or b
 				dLight.Brightness = 3
 				dLight.Size = 256 * (((lightRenderDist - echoDistSqr) / lightRenderDist) * echo.init) * (alpha / 255)
 				dLight.Decay = 1000
@@ -217,7 +220,7 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 		local bDraw = !read and !loading and (special and (200 + 55 * active) or explicit and (50 + 205 * active) or bOwner and (255 * active) or 255) or (100 + 155 * active)
 
 		cam.Start3D2D(echo.drawPos, echo.angle, 0.1)
-			surface.SetDrawColor(rDraw, gDraw, bDraw, alpha)
+			surface.SetDrawColor(partyMode and echo.partyColor or Color(rDraw, gDraw, bDraw, alpha))
 			surface.SetMaterial((loading or active > 0) and echoBlankMat or echoMat)
 			surface.DrawTexturedRect(-96, -96, 192, 192)
 

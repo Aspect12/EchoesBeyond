@@ -8,6 +8,7 @@ writtenEchoes = writtenEchoes or {} -- Echoes on the map written by the player
 readEchoCount = readEchoCount or 0 -- Amount of echoes read by the player
 globalEchoCount = globalEchoCount or 0 -- Total amount of echoes, ditto
 userCount = userCount or 0 -- Total amount of users, ditto
+partyMode = partyMode or false -- Whether party mode is on
 nextEcho = nextEcho or 0 -- Time a new echo can be made
 mapList = mapList or {} -- List of maps with echoes
 echoes = echoes or {} -- Echoes on the map
@@ -163,6 +164,44 @@ function FetchStats()
 			mainMenu:UpdateStats(data.user_count, data.note_count, data.map_count, data.maps)
 		end
 
+		if (globalEchoCount != 0 and globalEchoCount < data.note_count) then
+			local previousCount = math.floor(globalEchoCount / 1000) * 1000
+			local newCount = math.floor(data.note_count / 1000) * 1000
+
+			if (newCount > previousCount) then
+				EchoNotify("A new milestone has been reached! " .. newCount .. " Echoes have been written! Engage party mode!")
+
+				timer.Simple(3, function()
+					partyMode = true
+
+					StopMusic()
+					timer.Remove("echoesMusic")
+					surface.PlaySound("echoesbeyond/music/km_party.mp3")
+
+					timer.Simple(19, function()
+						EchoNotify("Thank you all for your continued support!")
+					end)
+
+					timer.Create("echoesPartyColor", 0.5, 0, function()
+						for i = 1, #echoes do
+							local echo = echoes[i]
+							echo.partyColor = Color(math.random(255), math.random(255), math.random(255))
+							echo.partyOffset = Vector(math.random(-20, 20), math.random(-20, 20), math.random(-20, 20))
+						end
+					end)
+
+					timer.Simple(61, function() -- Duration of the party music
+						partyMode = false
+						timer.Remove("echoesPartyColor")
+
+						if (!GetConVar("echoes_music"):GetBool()) then return end
+
+						PlayMusic()
+					end)
+				end)
+			end
+		end
+
 		userCount = data.user_count
 		globalEchoCount = data.note_count
 		mapCount = data.map_count
@@ -199,6 +238,6 @@ hook.Add("InitPostEntity", "echoes_fetch_InitPostEntity", function()
 	FetchOwnEchoes()
 	FetchInfo()
 
-	-- Fetch echoes & info every minute
-	timer.Create("echoesFetchEchoes", 60, 0, function() FetchEchoes() FetchInfo() end)
+	-- Fetch echoes, info, and stats every minute
+	timer.Create("echoesFetchEchoes", 60, 0, function() FetchEchoes() FetchInfo() FetchStats() end)
 end)

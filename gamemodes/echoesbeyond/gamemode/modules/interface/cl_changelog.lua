@@ -60,6 +60,7 @@ function PANEL:Init()
 		- Added option to detect and disable signing in Echoes.
 		- Added GabeN mode.
 		- Compressed music files to save space.
+		- Added Party Mode for Echo milstones.
 	]])
 
 	local close = vgui.Create("DButton", self)
