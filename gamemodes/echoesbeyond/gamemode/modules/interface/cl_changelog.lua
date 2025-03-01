@@ -59,6 +59,7 @@ function PANEL:Init()
 		- Marked installed maps green in the map list.
 		- Added option to detect and disable signing in Echoes.
 		- Added GabeN mode.
+		- Compressed music files to save space.
 	]])
 
 	local close = vgui.Create("DButton", self)

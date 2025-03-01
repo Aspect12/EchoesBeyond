@@ -15,7 +15,7 @@ local songs = {
 	"echoesbeyond/music/eo_a_sunset.mp3",
 	"echoesbeyond/music/eo_below_the clouds.mp3",
 	"echoesbeyond/music/eo_dead_metal.mp3",
-	"echoesbeyond/music/eo_it's_expanding.mp3",
+	"echoesbeyond/music/eo_its_expanding.mp3",
 	"echoesbeyond/music/eo_monolith.mp3",
 	"echoesbeyond/music/eo_red_ocean.mp3",
 	"echoesbeyond/music/eo_reflect.mp3",

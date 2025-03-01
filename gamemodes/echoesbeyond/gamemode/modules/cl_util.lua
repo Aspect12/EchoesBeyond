@@ -42,9 +42,6 @@ function GenerateHex()
 end
 
 function EchoSound(path, pitch, volume)
-	print(path)
-	print(pitch)
-	print(volume)
 	LocalPlayer():EmitSound("echoesbeyond/" .. path .. ".wav", 75, pitch or math.random(95, 105), volume or 1)
 end
 
