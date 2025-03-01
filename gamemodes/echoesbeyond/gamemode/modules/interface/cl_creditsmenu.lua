@@ -2,7 +2,24 @@
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
 local flatgrassGrey, flatgrassColor, fgWidth, fgHeight = Material("echoesbeyond/flatgrass_greyscale.png", "smooth"), Material("echoesbeyond/flatgrass_color.png", "smooth"), 1000, 373
 
+local y = 80
+
+local function AddCredit(text1, text2)
+	local label1 = vgui.Create("DLabel", creditsMenu)
+	label1:SetText(text1)
+	label1:SizeToContents()
+	label1:SetPos(30, y)
+
+	local label2 = vgui.Create("DLabel", creditsMenu)
+	label2:SetText(text2)
+	label2:SizeToContents()
+	label2:SetPos(creditsMenu:GetWide() - 30 - label2:GetWide(), y)
+
+	y = y + 20
+end
+
 local PANEL = {}
+
 
 function PANEL:Init()
 	if (IsValid(creditsMenu)) then
@@ -10,6 +27,7 @@ function PANEL:Init()
 	end
 
 	creditsMenu = self
+	y = 80
 
 	self.flatgrassSaturation = 0
 
@@ -29,95 +47,16 @@ function PANEL:Init()
 	title:CenterHorizontal()
 	title:SetY(20)
 
-	local remedy = vgui.Create("DLabel", self)
-	remedy:SetText("Max Payne 1 (Remedy)")
-	remedy:SizeToContents()
-	remedy:SetPos(30, 80)
-
-	local remedy2 = vgui.Create("DLabel", self)
-	remedy2:SetText("Notification Sound")
-	remedy2:SizeToContents()
-	remedy2:SetPos(self:GetWide() - 30 - remedy2:GetWide(), 80)
-
-	local L7D = vgui.Create("DLabel", self)
-	L7D:SetText("Catherine (L7D)")
-	L7D:SizeToContents()
-	L7D:SetPos(30, 100)
-
-	local L7D2 = vgui.Create("DLabel", self)
-	L7D2:SetText("Menu Movement Sound")
-	L7D2:SizeToContents()
-	L7D2:SetPos(self:GetWide() - 30 - L7D2:GetWide(), 100)
-
-	local sony = vgui.Create("DLabel", self)
-	sony:SetText("PlayStation 2 (Sony Computer Entertainment)")
-	sony:SizeToContents()
-	sony:SetPos(30, 120)
-
-	local sony2 = vgui.Create("DLabel", self)
-	sony2:SetText("Echo Sounds")
-	sony2:SizeToContents()
-	sony2:SetPos(self:GetWide() - 30 - sony2:GetWide(), 120)
-
-	local exbleative = vgui.Create("DLabel", self)
-	exbleative:SetText("Exo One (Exbleative)")
-	exbleative:SizeToContents()
-	exbleative:SetPos(30, 140)
-
-	local exbleative2 = vgui.Create("DLabel", self)
-	exbleative2:SetText("Music")
-	exbleative2:SizeToContents()
-	exbleative2:SetPos(self:GetWide() - 30 - exbleative2:GetWide(), 140)
-
-	local cloudSixteen = vgui.Create("DLabel", self)
-	cloudSixteen:SetText("Clockwork (CloudSixteen)")
-	cloudSixteen:SizeToContents()
-	cloudSixteen:SetPos(30, 160)
-
-	local cloudSixteen2 = vgui.Create("DLabel", self)
-	cloudSixteen2:SetText("Vignette Texture")
-	cloudSixteen2:SizeToContents()
-	cloudSixteen2:SetPos(self:GetWide() - 30 - cloudSixteen2:GetWide(), 160)
-
-	local aspect = vgui.Create("DLabel", self)
-	aspect:SetText("Aspect™")
-	aspect:SizeToContents()
-	aspect:SetPos(30, 180)
-
-	local aspect2 = vgui.Create("DLabel", self)
-	aspect2:SetText("Clientside Development")
-	aspect2:SizeToContents()
-	aspect2:SetPos(self:GetWide() - 30 - aspect2:GetWide(), 180)
-
-	local pancakes = vgui.Create("DLabel", self)
-	pancakes:SetText("Pancakes")
-	pancakes:SizeToContents()
-	pancakes:SetPos(30, 200)
-
-	local pancakes2 = vgui.Create("DLabel", self)
-	pancakes2:SetText("Serverside Development")
-	pancakes2:SizeToContents()
-	pancakes2:SetPos(self:GetWide() - 30 - pancakes2:GetWide(), 200)
-
-	local friends = vgui.Create("DLabel", self)
-	friends:SetText("Friends")
-	friends:SizeToContents()
-	friends:SetPos(30, 220)
-
-	local friends2 = vgui.Create("DLabel", self)
-	friends2:SetText("Feedback, ideas, support, and testing")
-	friends2:SizeToContents()
-	friends2:SetPos(self:GetWide() - 30 - friends2:GetWide(), 220)
-
-	local badActors = vgui.Create("DLabel", self)
-	badActors:SetText("Bad Actors")
-	badActors:SizeToContents()
-	badActors:SetPos(30, 240)
-
-	local badActors2 = vgui.Create("DLabel", self)
-	badActors2:SetText("Valuable web security experience")
-	badActors2:SizeToContents()
-	badActors2:SetPos(self:GetWide() - 30 - badActors2:GetWide(), 240)
+	AddCredit("Max Payne 1 (Remedy)", "Notification Sound")
+	AddCredit("Catherine (L7D)", "Menu Movement Sound")
+	AddCredit("PlayStation 2 (Sony Computer Entertainment)", "Echo Sounds")
+	AddCredit("Exo One (Exbleative)", "Background Music")
+	AddCredit("Clockwork (CloudSixteen)", "Vignette Texture")
+	AddCredit("Gabe Newell (Valve Software)", "GabeN Mode Sounds")
+	AddCredit("Aspect™", "Clientside Development")
+	AddCredit("Pancakes", "Serverside Development")
+	AddCredit("Friends", "Feedback, ideas, support, and testing")
+	AddCredit("Bad Actors", "Valuable web security experience")
 
 	local fgHeight = (fgHeight / fgWidth) * self:GetWide()
 
