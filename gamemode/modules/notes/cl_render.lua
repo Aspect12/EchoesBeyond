@@ -2,6 +2,13 @@
 CreateClientConVar("echoes_showread", "1")
 CreateClientConVar("echoes_renderdist", "25000000")
 CreateClientConVar("echoes_disablereadsys", "0")
+CreateClientConVar("echoes_disablesigning", "0")
+
+cvars.AddChangeCallback("echoes_disablesigning", function(name, old, new)
+	for i = 1, #echoes do
+		echoes[i].cachedText = nil
+	end
+end, "echoes_disablesigning")
 
 local echoMat = Material("echoesbeyond/echo.png", "mips")
 local echoBlankMat = Material("echoesbeyond/echo_blank.png", "mips")
@@ -155,7 +162,13 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 
 		-- Cache wrapped text to avoid recalculations
 		if (!echo.cachedText) then
-			local words = string.Explode(" ", echo.text)
+			local text = echo.text
+
+			if (GetConVar("echoes_disablesigning"):GetBool()) then
+				text = RemoveSigning(text)
+			end
+
+			local words = string.Explode(" ", text)
 			local lines = {}
 			local line = ""
 

@@ -55,6 +55,9 @@ function PANEL:Init()
 	changelog:SetText([[
 		- Re-added 'special' Echo attribute.
 		- Added a teleport button to the Personal Echoes menu.
+		- Updated credits list.
+		- Marked installed maps green in the map list.
+		- Added option to detect and disable signing in Echoes.
 	]])
 
 	local close = vgui.Create("DButton", self)

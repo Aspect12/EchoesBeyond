@@ -132,6 +132,17 @@ function PANEL:Init()
 		disableReadSys:SetBool(value)
 	end
 
+	local disableSigning = GetConVar("echoes_disablesigning")
+
+	local disableSigningCheckbox = vgui.Create("DCheckBoxLabel", self)
+	disableSigningCheckbox:SetText("Disable author signing")
+	disableSigningCheckbox:SetValue(disableSigning:GetBool())
+	disableSigningCheckbox:SizeToContents()
+	disableSigningCheckbox:SetPos(50, 275)
+	disableSigningCheckbox.OnChange = function(self, value)
+		disableSigning:SetBool(value)
+	end
+
 	local speed = GetConVar("echoes_speed")
 
 	local speedSlider = vgui.Create("DNumSlider", self)
@@ -141,7 +152,7 @@ function PANEL:Init()
 	speedSlider:SetDecimals(0)
 	speedSlider:SetValue(speed:GetInt())
 	speedSlider:SetWide(self:GetWide() - 100)
-	speedSlider:SetPos(50, 275)
+	speedSlider:SetPos(50, 300)
 	speedSlider.OnValueChanged = function(self, value)
 		speed:SetInt(value)
 	end
@@ -155,7 +166,7 @@ function PANEL:Init()
 	renderDistSlider:SetDecimals(0)
 	renderDistSlider:SetValue(renderDist:GetInt())
 	renderDistSlider:SetWide(self:GetWide() - 100)
-	renderDistSlider:SetPos(50, 300)
+	renderDistSlider:SetPos(50, 325)
 	renderDistSlider.OnValueChanged = function(self, value)
 		renderDist:SetInt(value)
 	end
