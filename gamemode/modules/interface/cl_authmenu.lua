@@ -170,7 +170,7 @@ function PANEL:Init()
 			end)
 		end)
 
-		timer.Create("echoAuthCheck", 1, 300, function()
+		timer.Create("echoesAuthCheck", 1, 300, function()
 			http.Fetch("https://resonance.flatgrass.net/login/finish?ticket=" .. ticket, function(body, _, _, code)
 				if (code != 200) then return end
 

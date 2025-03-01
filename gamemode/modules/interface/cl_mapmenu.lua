@@ -12,6 +12,19 @@ function PANEL:Init()
 	mapMenu = self
 
 	self.mapList = {}
+	self.installedMaps = {}
+
+	for _, map in pairs(file.Find("maps/*.bsp", "GAME")) do
+		self.installedMaps[string.StripExtension(map)] = true
+	end
+
+	timer.Create("echoesMapUpdater", 1, 0, function()
+		self.installedMaps = {}
+
+		for _, map in pairs(file.Find("maps/*.bsp", "GAME")) do
+			self.installedMaps[string.StripExtension(map)] = true
+		end
+	end)
 
 	self:SetSize(ScrW() / 4, ScrH() / 1.5)
 	self:Center()
@@ -45,8 +58,12 @@ function PANEL:Init()
 	searchBar:SetSize(self:GetWide() - 20, 20)
 	searchBar:SetPos(10, 100)
 	searchBar:SetPlaceholderText("Search for a map...")
+	searchBar.oldValue = ""
 	searchBar.OnChange = function(this)
 		local search = this:GetValue():lower()
+		if (search == this.oldValue) then return end
+
+		this.oldValue = search
 
 		self:ListMaps(search)
 	end
@@ -81,6 +98,8 @@ function PANEL:Init()
 end
 
 function PANEL:ListMaps(filter)
+	print("Listing maps...")
+	debug.Trace()
 	for _, entry in pairs(self.mapList) do
 		entry:Remove()
 	end
@@ -107,7 +126,8 @@ function PANEL:ListMaps(filter)
 			local amount = mapList[name] or amount
 			draw.SimpleText(amount .. " Echoes", "DermaDefault", width - 10, height / 2, this.textColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 
-			this.textColor = LerpColor(FrameTime(), this.textColor, Color(200, 200, 200))
+			local installed = self.installedMaps[name]
+			this.textColor = LerpColor(FrameTime() * (installed and 3 or 1), this.textColor, installed and Color(75, 200, 75) or Color(200, 200, 200))
 		end
 		entry.textColor = Color(200, 200, 200)
 
@@ -117,7 +137,6 @@ function PANEL:ListMaps(filter)
 		mapName:Dock(LEFT)
 		mapName:SetContentAlignment(4)
 		mapName:SetPaintBackground(false)
-		mapName:SetTextColor(color_white)
 		mapName.Think = function(this)
 			if (this:IsHovered()) then
 				this:SetTextColor(Color(0, 125, 255))
@@ -150,7 +169,7 @@ function PANEL:UpdateMaps(newMaps)
 		if (!entry) then continue end
 		if (mapList[name] == amount) then continue end
 
-		entry.textColor = Color(50, 150, 255)
+		entry.textColor = self.installedMaps[name] and Color(25, 200, 25) or Color(50, 150, 255)
 	end
 end
 
@@ -169,6 +188,8 @@ function PANEL:OnKeyCodePressed(key)
 end
 
 function PANEL:Close(bNoSound)
+	timer.Remove("echoesMapUpdater")
+
 	self:AlphaTo(0, 0.25, 0, function()
 		self:Remove()
 	end)

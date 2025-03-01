@@ -25,7 +25,7 @@ function PlayMusic()
 	local soundPath = songs[math.random(#songs)]
 	local soundDuration = SoundDuration(soundPath) + 10
 
-	timer.Create("echoes_music", soundDuration, 1, function()
+	timer.Create("echoesMusic", soundDuration, 1, function()
 		PlayMusic()
 	end)
 
