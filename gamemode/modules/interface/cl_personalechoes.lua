@@ -188,6 +188,8 @@ function PANEL:ListEchoes(filter)
 					self.deleting = true
 					self:ListEchoes(self.searchBar:GetValue())
 
+					if (!IsValid(self)) then return end
+					
 					EchoNotify("Echo deleted successfully.")
 				end, function(error)
 					EchoNotify(error)
