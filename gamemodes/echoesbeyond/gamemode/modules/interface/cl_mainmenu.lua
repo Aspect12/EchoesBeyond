@@ -6,6 +6,7 @@ local settingsMat = Material("echoesbeyond/settings.png", "smooth")
 local reportMat = Material("echoesbeyond/report.png", "smooth")
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
 local creditsMat = Material("echoesbeyond/credits.png", "smooth")
+local changelogMat = Material("echoesbeyond/changelog.png", "smooth")
 
 local PANEL = {}
 
@@ -148,6 +149,21 @@ function PANEL:Init()
 		else
 			vgui.Create("echoCreditsMenu")
 		end
+	end
+
+	local changelogOption = vgui.Create("DButton", self)
+	changelogOption:SetSize(48, 48)
+	changelogOption:SetPos(10, self:GetTall() - 48 - 10)
+	changelogOption:SetText("")
+	changelogOption.Paint = function(self, width, height)
+		surface.SetDrawColor(self:IsDown() and Color(100, 100, 100) or self:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
+		surface.SetMaterial(changelogMat)
+		surface.DrawTexturedRect(0, 0, width, height)
+	end
+	changelogOption.DoClick = function()
+		EchoSound("button_click")
+
+		vgui.Create("echoChangelog")
 	end
 
 	local maps = {}

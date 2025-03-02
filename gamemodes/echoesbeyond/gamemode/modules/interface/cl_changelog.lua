@@ -55,6 +55,7 @@ function PANEL:Init()
 	changelog:SetText([[
 		- Improved Echo position tracking during creation.
 		- Fixed a string formatting bug.
+		- Made the changelog accessible through the main menu.
 	]])
 
 	local close = vgui.Create("DButton", self)
