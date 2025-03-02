@@ -4,39 +4,76 @@ if (SERVER) then
 	util.AddNetworkString("echoValidateEchoes")
 
 	net.Receive("echoValidateEchoes", function(_, client)
-		local echoes = net.ReadTable()
-		local response = {}
+		local echoList = net.ReadTable()
+		local voidResponse = {}
+		local airResponse = {}
 
-		for i = 1, #echoes do
-			local echo = echoes[i]
+		for i = 1, #echoList do
+			local echo = echoList[i]
 			local echoID = echo.id
 			local echoPos = echo.pos
 
-			if (util.IsInWorld(echoPos)) then continue end
+			local trace = util.TraceLine({
+				start = echoPos,
+				endpos = echoPos + Vector(0, 0, -9999999)
+			})
 
-			response[echoID] = true
+			if (util.IsInWorld(echoPos)) then
+				if (echoPos:DistToSqr(trace.HitPos) <= 1050) then continue end
+				airResponse[echoID] = trace.HitPos + Vector(0, 0, 32)
+			else
+				voidResponse[echoID] = true
+			end
 		end
 
 		net.Start("echoValidateEchoes")
-			net.WriteTable(response)
+			net.WriteTable(voidResponse)
+			net.WriteTable(airResponse)
 		net.Send(client)
 	end)
 else
+	CreateClientConVar("echoes_enablevoidechoes", "0")
+	CreateClientConVar("echoes_enableairechoes", "0")
+
+	cvars.AddChangeCallback("echoes_enableairechoes", function(name, old, new)
+		for _, echo in pairs(echoes) do
+			if (!echo.airPos) then continue end
+
+			if (new == "1") then
+				echo.pos = echo.ogPos
+			else
+				echo.pos = echo.airPos
+			end
+		end
+	end, "echoes_enableairechoes")
+
 	net.Receive("echoValidateEchoes", function()
-		local response = net.ReadTable()
-		if (table.Count(response) == 0) then return end
+		local voidResponse = net.ReadTable()
 
-		local newEchoes = {}
+		-- Hide echoes in the void
+		if (table.Count(voidResponse) > 0) then
+			for i = 1, #echoes do
+				local echo = echoes[i]
+				if (!voidResponse[echo.id]) then continue end
 
-		for i = 1, #echoes do
-			local echo = echoes[i]
-			local echoID = echo.id
-
-			if (response[echoID]) then continue end
-
-			newEchoes[#newEchoes + 1] = echo
+				echo.inVoid = true
+			end
 		end
 
-		echoes = newEchoes
+		local airResponse = net.ReadTable()
+
+		-- Make echoes in the air fall to the ground
+		if (table.Count(airResponse) > 0) then
+			local enableAir = GetConVar("echoes_enableairechoes"):GetBool()
+
+			for _, echo in pairs(echoes) do
+				local airPos = airResponse[echo.id]
+				if (!airPos or echo.airPos) then continue end
+
+				echo.ogPos = echo.pos
+				echo.airPos = airPos
+				echo.pos = !enableAir and airPos or echo.pos
+			end
+		end
 	end)
 end
