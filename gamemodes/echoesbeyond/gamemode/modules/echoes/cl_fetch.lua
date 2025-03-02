@@ -210,7 +210,7 @@ function FetchStats()
 						vignetteColor = Color(math.random(255), math.random(255), math.random(255))
 					end)
 
-					timer.Create("echoesParty", 245, 1, function() -- Duration of the party music
+					timer.Create("echoesParty", 255, 1, function() -- Duration of the party music
 						partyMode = false
 						timer.Remove("echoesPartyColor")
 						LocalPlayer():StopSound("echoesbeyond/music/km_who_likes_to_party.mp3")
