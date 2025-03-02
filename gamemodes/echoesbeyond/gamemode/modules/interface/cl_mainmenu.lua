@@ -166,6 +166,25 @@ function PANEL:Init()
 		vgui.Create("echoChangelog")
 	end
 
+	if (endPartyEnabled) then
+		local endParty = vgui.Create("DButton", self)
+		endParty:SetSize(self:GetWide() * 0.25, 30)
+		endParty:SetText("End Party Mode")
+		endParty:SetFont("CreditsText")
+		endParty:SetColor(Color(175, 175, 175))
+		endParty:Center()
+		endParty.Paint = function(this, width, height)
+			surface.SetDrawColor(this:IsDown() and Color(100, 100, 100) or this:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
+			surface.DrawRect(0, 0, width, height)
+		end
+		endParty.DoClick = function(this)
+			this:Remove()
+			timer.Adjust("echoesParty", 0)
+
+			EchoNotify("Party mode disabled.")
+		end
+	end
+
 	local maps = {}
 	self.ownMapCount = 0
 
@@ -205,6 +224,11 @@ function PANEL:Paint(width, height)
 	surface.SetDrawColor(255, 255, 255, 5)
 	surface.SetMaterial(echoMat)
 	surface.DrawTexturedRectRotated(width / 2, height / 2 + 5 * breatheLayer, height / 1.5, height / 1.5, 0)
+
+	if (endPartyEnabled) then
+		surface.SetDrawColor(0, 0, 0, 200)
+		surface.DrawRect(0, 0, width, height)
+	end
 
 	local echoCount = #echoes
 	local frameTime = FrameTime()

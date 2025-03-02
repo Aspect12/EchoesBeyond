@@ -4,6 +4,7 @@ CreateClientConVar("echoes_windowflash", "1")
 
 -- Initialize globals
 mapCount = mapCount or 0 -- Total amount of maps with echoes, used in the main menu
+endPartyEnabled = endPartyEnabled or false -- Whether the party mode can be ended
 writtenEchoes = writtenEchoes or {} -- Echoes on the map written by the player
 readEchoCount = readEchoCount or 0 -- Amount of echoes read by the player
 globalEchoCount = globalEchoCount or 0 -- Total amount of echoes, ditto
@@ -189,23 +190,36 @@ function FetchStats()
 
 					StopMusic()
 					timer.Remove("echoesMusic")
-					surface.PlaySound("echoesbeyond/music/km_party.mp3")
 
-					timer.Simple(19, function()
+					timer.Simple(20, function()
 						EchoNotify("Thank you all for your continued support!")
 					end)
 
-					timer.Create("echoesPartyColor", 0.5, 0, function()
+					timer.Simple(40, function()
+						EchoNotify("Click the 'End Party Mode' button in the main menu to stop at any time.")
+
+						endPartyEnabled = true
+					end)
+
+					LocalPlayer():EmitSound("echoesbeyond/music/km_who_likes_to_party.mp3")
+
+					timer.Create("echoesPartyColor", 0, 0, function()
+						timer.Adjust("echoesPartyColor", 0.5)
+
 						for i = 1, #echoes do
 							local echo = echoes[i]
 							echo.partyColor = Color(math.random(255), math.random(255), math.random(255))
 							echo.partyOffset = Vector(math.random(-20, 20), math.random(-20, 20), math.random(-20, 20))
 						end
+
+						vignetteColor = Color(math.random(255), math.random(255), math.random(255))
 					end)
 
-					timer.Simple(61, function() -- Duration of the party music
+					timer.Create("echoesParty", 245, 1, function() -- Duration of the party music
 						partyMode = false
 						timer.Remove("echoesPartyColor")
+						LocalPlayer():StopSound("echoesbeyond/music/km_who_likes_to_party.mp3")
+						endPartyEnabled = false
 
 						if (!GetConVar("echoes_music"):GetBool()) then return end
 

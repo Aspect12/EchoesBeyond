@@ -2,7 +2,7 @@
 -- A simple changelog menu
 local PANEL = {}
 local vignette = Material("echoesbeyond/vignette.png")
-local changelogID = "miniiaiaia"
+local changelogID = "cheeseeater"
 
 function PANEL:Init()
 	if (IsValid(changeLog)) then
@@ -57,6 +57,7 @@ function PANEL:Init()
 		- Fixed a string formatting bug.
 		- Made the changelog accessible through the main menu.
 		- Echoes outside the world are now auto-removed. (Sorry!)
+		- Increased party mode duration & added 'stop' button to the main menu.
 	]])
 
 	local close = vgui.Create("DButton", self)
