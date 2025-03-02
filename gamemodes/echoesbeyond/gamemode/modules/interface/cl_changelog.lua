@@ -29,7 +29,7 @@ function PANEL:Init()
 	title:SetY(20)
 
 	local subTitle = vgui.Create("DLabel", self)
-	subTitle:SetText("Here's what is new since your last visit:")
+	subTitle:SetText("Here's what is new in the latest update:")
 	subTitle:SizeToContents()
 	subTitle:CenterHorizontal()
 	subTitle:SetY(55)
@@ -53,15 +53,7 @@ function PANEL:Init()
 	end
 
 	changelog:SetText([[
-		- Re-added 'special' Echo attribute.
-		- Added a teleport button to the Personal Echoes menu.
-		- Updated credits list.
-		- Marked installed maps green in the map list.
-		- Added option to detect and disable signage in Echoes.
-		- Added a popup for when a player plays sandbox with Echoes Beyond installed.
-		- Added GabeN mode.
-		- Compressed music files to save space.
-		- Added Party Mode for Echo milstones.
+		- Improved Echo position tracking during creation.
 		- Fixed a string formatting bug.
 	]])
 

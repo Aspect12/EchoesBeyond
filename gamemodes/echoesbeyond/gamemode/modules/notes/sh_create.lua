@@ -33,6 +33,8 @@ if (SERVER) then
 		net.Send(client)
 	end)
 else
+	createPos = vector_origin
+
 	function CreateEcho(message)
 		message = string.Trim(message)
 		if (message == "") then return end
@@ -50,7 +52,6 @@ else
 		end
 
 		local client = LocalPlayer()
-		local position = client:GetPos() + Vector(0, 0, 32)
 		local isOffensive = IsOffensive(message)
 		local curTime = CurTime()
 
@@ -59,13 +60,13 @@ else
 			angle = Angle(0, 0, 90),
 			creationTime = curTime,
 			soundActive = false,
-			drawPos = position,
+			drawPos = createPos,
 			explicit = false,
 			special = false,
 			isOwner = false,
 			failed = false,
 			loading = true,
-			pos = position,
+			pos = createPos,
 			readTime = 0,
 			id = curTime,
 			read = false,
@@ -78,7 +79,7 @@ else
 
 		http.Post("https://resonance.flatgrass.net/note/create", {
 			map = game.GetMap(),
-			pos = position.x .. "," .. position.y .. "," .. position.z,
+			pos = createPos.x .. "," .. createPos.y .. "," .. createPos.z,
 			comment = message
 		}, function(body, _, _, code)
 			if (code != 200) then
@@ -132,6 +133,7 @@ else
 		end
 
 		local client = LocalPlayer()
+		createPos = client:GetPos() + Vector(0, 0, 32)
 
 		-- Prevent creating echoes too close to other echoes
 		for _, echo in ipairs(echoes) do
