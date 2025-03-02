@@ -82,12 +82,12 @@ function FetchEchoes()
 
 			local position = Vector(tonumber(newEcho.position[1]), tonumber(newEcho.position[2]), tonumber(newEcho.position[3]))
 
+			if (exists) then continue end
+
 			newEchoes[#newEchoes + 1] = {
 				id = newEcho.id,
 				pos = position
 			}
-
-			if (exists) then continue end
 
 			local text = newEcho.comment
 			local read = table.HasValue(readEchoes, newEcho.id)
@@ -122,6 +122,28 @@ function FetchEchoes()
 
 				break
 			end
+		end
+
+		-- Split the newEchoes table into two if it's too large
+		if (#newEchoes > 1000) then
+			local newEchoes1 = {}
+			local newEchoes2 = {}
+
+			for i = 1, #newEchoes do
+				if (i <= 1000) then
+					newEchoes1[#newEchoes1 + 1] = newEchoes[i]
+				else
+					newEchoes2[#newEchoes2 + 1] = newEchoes[i]
+				end
+			end
+
+			newEchoes = newEchoes1
+
+			timer.Simple(1, function()
+				net.Start("echoValidateEchoes")
+					net.WriteTable(newEchoes2)
+				net.SendToServer()
+			end)
 		end
 
 		net.Start("echoValidateEchoes")
