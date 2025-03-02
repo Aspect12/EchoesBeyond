@@ -59,6 +59,7 @@ function PANEL:Init()
 		- Echoes outside the world are now auto-removed. (Sorry!)
 		- Increased party mode duration & added 'stop' button to the main menu.
 		- Vignette color now changes during party mode.
+		- Added an option to toggle whether to allow Echoes in the void.
 	]])
 
 	local close = vgui.Create("DButton", self)

@@ -40,13 +40,10 @@ function FetchEchoes()
 			end
 		end
 
-		if (IsValid(mainMenu)) then
-			mainMenu:UpdateStats(nil, #echoData)
-		end
-
 		readEchoCount = 0
 
 		local deletedEchoes = table.Copy(echoes) -- Copy of the echoes table to check for deleted echoes
+		local newEchoes = {}
 
 		for i = 1, #echoData do
 			local newEcho = echoData[i]
@@ -83,9 +80,15 @@ function FetchEchoes()
 				readEchoCount = readEchoCount + 1
 			end
 
+			local position = Vector(tonumber(newEcho.position[1]), tonumber(newEcho.position[2]), tonumber(newEcho.position[3]))
+
+			newEchoes[#newEchoes + 1] = {
+				id = newEcho.id,
+				pos = position
+			}
+
 			if (exists) then continue end
 
-			local position = Vector(tonumber(newEcho.position[1]), tonumber(newEcho.position[2]), tonumber(newEcho.position[3]))
 			local text = newEcho.comment
 			local read = table.HasValue(readEchoes, newEcho.id)
 			local isSpecial = string.StartsWith(text, "!&") and newEcho.admin
@@ -121,17 +124,8 @@ function FetchEchoes()
 			end
 		end
 
-		local payload = {}
-
-		for i = 1, #echoes do
-			payload[#payload + 1] = {
-				id = echoes[i].id,
-				pos = echoes[i].pos
-			}
-		end
-
 		net.Start("echoValidateEchoes")
-			net.WriteTable(payload)
+			net.WriteTable(newEchoes)
 		net.SendToServer()
 	end, function(error)
 		EchoNotify(error)

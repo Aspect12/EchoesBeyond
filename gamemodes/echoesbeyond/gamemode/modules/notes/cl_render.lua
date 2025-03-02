@@ -48,6 +48,7 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 	local breathLayer = math.sin(curTimeSpeed) * 0.5
 	local activationOffset = Vector(0, 0, 24 + breathLayer)
 	local readOffset = Vector(0, 0, 20)
+	local renderVoidEchoes = GetConVar("echoes_enablevoidechoes"):GetBool()
 
 	surface.SetFont("CenterPrintText")
 
@@ -56,10 +57,13 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 	local fixedI = 1
 
 	for i = 1, #echoes do
-		local distToSqr = clientPos:DistToSqr(echoes[i].pos)
+		local echo = echoes[i]
+		local distToSqr = clientPos:DistToSqr(echo.pos)
 		if (distToSqr > cutOffDist) then continue end
 
-		sortedEchoes[fixedI] = echoes[i]
+		if (echo.inVoid and !renderVoidEchoes) then continue end
+
+		sortedEchoes[fixedI] = echo
 		sortedEchoes[fixedI].distSqr = distToSqr
 
 		fixedI = fixedI + 1
@@ -124,7 +128,7 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 					echo.soundActive = true
 
 					if (GetConVar("echoes_gabenmode"):GetBool()) then
-						EchoSound(table.Random(gabenSounds), nil, 0.75)
+						EchoSound(table.Random(gabenIntroSounds), nil, 0.75)
 					else
 						EchoSound("echo_activate", echo.special and math.random(115, 125) or echo.explicit and math.random(65, 75) or math.random(95, 105))
 					end

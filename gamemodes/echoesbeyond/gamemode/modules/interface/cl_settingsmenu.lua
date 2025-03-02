@@ -91,6 +91,8 @@ function PANEL:Init()
 
 		EchoSound(table.Random(gabenSounds), nil, 0.75)
 	end)
+	CreateCheckbox("Hide author signatures", GetConVar("echoes_disablesigning"))
+	CreateCheckbox("Enable void Echoes", GetConVar("echoes_enablevoidechoes"))
 
 	CreateSlider("Movement Speed", GetConVar("echoes_speed"), 1, 1000, 0)
 	CreateSlider("Render Distance", GetConVar("echoes_renderdist"), 10000, 100000000, 0)

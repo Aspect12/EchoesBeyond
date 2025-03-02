@@ -1,4 +1,5 @@
 
+-- Validates new Echoes
 if (SERVER) then
 	util.AddNetworkString("echoValidateEchoes")
 
