@@ -20,7 +20,7 @@ end)
 local vignette = Material("echoesbeyond/vignette.png")
 
 hook.Add("HUDPaint", "interface_HUDPaint", function()
-	surface.SetDrawColor(color_black)
+	surface.SetDrawColor(vignetteColor)
 	surface.SetMaterial(vignette)
 	surface.DrawTexturedRect(0, 0, ScrW(), ScrH())
 end)

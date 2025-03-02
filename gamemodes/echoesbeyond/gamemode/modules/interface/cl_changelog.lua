@@ -58,6 +58,7 @@ function PANEL:Init()
 		- Made the changelog accessible through the main menu.
 		- Echoes outside the world are now auto-removed. (Sorry!)
 		- Increased party mode duration & added 'stop' button to the main menu.
+		- Vignette color now changes during party mode.
 	]])
 
 	local close = vgui.Create("DButton", self)

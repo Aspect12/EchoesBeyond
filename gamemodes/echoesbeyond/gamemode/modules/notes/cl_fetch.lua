@@ -8,6 +8,7 @@ endPartyEnabled = endPartyEnabled or false -- Whether the party mode can be ende
 writtenEchoes = writtenEchoes or {} -- Echoes on the map written by the player
 readEchoCount = readEchoCount or 0 -- Amount of echoes read by the player
 globalEchoCount = globalEchoCount or 0 -- Total amount of echoes, ditto
+vignetteColor = vignetteColor or color_black -- Vignette color
 userCount = userCount or 0 -- Total amount of users, ditto
 partyMode = partyMode or false -- Whether party mode is on
 nextEcho = nextEcho or 0 -- Time a new echo can be made
@@ -219,6 +220,7 @@ function FetchStats()
 						partyMode = false
 						timer.Remove("echoesPartyColor")
 						LocalPlayer():StopSound("echoesbeyond/music/km_who_likes_to_party.mp3")
+						vignetteColor = color_black
 						endPartyEnabled = false
 
 						if (!GetConVar("echoes_music"):GetBool()) then return end
