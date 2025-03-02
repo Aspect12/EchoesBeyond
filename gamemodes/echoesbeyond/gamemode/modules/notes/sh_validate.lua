@@ -33,7 +33,7 @@ if (SERVER) then
 	end)
 else
 	CreateClientConVar("echoes_enablevoidechoes", "0")
-	CreateClientConVar("echoes_enableairechoes", "0")
+	CreateClientConVar("echoes_enableairechoes", "1")
 
 	cvars.AddChangeCallback("echoes_enableairechoes", function(name, old, new)
 		for _, echo in pairs(echoes) do
