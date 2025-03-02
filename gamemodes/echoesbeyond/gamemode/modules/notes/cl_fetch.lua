@@ -118,6 +118,19 @@ function FetchEchoes()
 				break
 			end
 		end
+
+		local payload = {}
+
+		for i = 1, #echoes do
+			payload[#payload + 1] = {
+				id = echoes[i].id,
+				pos = echoes[i].pos
+			}
+		end
+
+		net.Start("echoValidateEchoes")
+			net.WriteTable(payload)
+		net.SendToServer()
 	end, function(error)
 		EchoNotify(error)
 	end)

@@ -1,9 +1,9 @@
 
 -- Handles teleporting
 if (SERVER) then
-	util.AddNetworkString("echoesTeleport")
+	util.AddNetworkString("echoTeleport")
 
-	net.Receive("echoesTeleport", function(_, client)
+	net.Receive("echoTeleport", function(_, client)
 		local pos = net.ReadVector()
 
 		client:SetPos(pos)
@@ -17,7 +17,7 @@ else
 
 		if (teleportData.map != game.GetMap()) then return end
 
-		net.Start("echoesTeleport")
+		net.Start("echoTeleport")
 			net.WriteVector(teleportData.pos)
 		net.SendToServer()
 

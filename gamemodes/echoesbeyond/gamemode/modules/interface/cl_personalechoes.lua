@@ -189,7 +189,7 @@ function PANEL:ListEchoes(filter)
 					self:ListEchoes(self.searchBar:GetValue())
 
 					if (!IsValid(self)) then return end
-					
+
 					EchoNotify("Echo deleted successfully.")
 				end, function(error)
 					EchoNotify(error)
@@ -220,7 +220,7 @@ function PANEL:ListEchoes(filter)
 					end
 				end)
 			else
-				net.Start("echoesTeleport")
+				net.Start("echoTeleport")
 					net.WriteVector(echo.position)
 				net.SendToServer()
 			end

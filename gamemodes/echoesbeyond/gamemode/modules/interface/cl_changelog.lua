@@ -56,6 +56,7 @@ function PANEL:Init()
 		- Improved Echo position tracking during creation.
 		- Fixed a string formatting bug.
 		- Made the changelog accessible through the main menu.
+		- Echoes outside the world are now auto-removed. (Sorry!)
 	]])
 
 	local close = vgui.Create("DButton", self)
