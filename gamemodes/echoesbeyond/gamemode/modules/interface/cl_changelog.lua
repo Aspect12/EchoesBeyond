@@ -60,6 +60,7 @@ function PANEL:Init()
 		- Vignette color now changes during party mode.
 		- Added an option to toggle whether to allow Echoes in the void.
 		- Added an option to toggle whether to allow floating Echoes.
+		- Made text wrapping more consistent.
 	]])
 
 	local close = vgui.Create("DButton", self)

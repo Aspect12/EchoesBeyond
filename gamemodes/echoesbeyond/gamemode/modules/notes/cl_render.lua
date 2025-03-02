@@ -11,7 +11,16 @@ cvars.AddChangeCallback("echoes_disablesigning", function(name, old, new)
 	end
 end, "echoes_disablesigning")
 
-local gabenSounds = {
+local gabenNodeSounds = {
+	"/gaben/al_intro",
+	"/gaben/hl2_intro",
+	"/gaben/l4d2_intro",
+	"/gaben/l4d_intro",
+	"/gaben/lc_intro",
+	"/gaben/p2_intro"
+}
+
+local gabenIntroSounds = {
 	"/gaben/al_node",
 	"/gaben/ep1_node",
 	"/gaben/ep2_node",
@@ -23,6 +32,12 @@ local gabenSounds = {
 	"/gaben/p2_node",
 	"/gaben/tf2_node"
 }
+
+cvars.AddChangeCallback("echoes_gabenmode", function(name, old, new)
+	if (new == "0") then return end
+
+	EchoSound(table.Random(gabenNodeSounds), nil, 0.75)
+end, "echoes_gabenmode")
 
 local echoMat = Material("echoesbeyond/echo.png", "mips")
 local echoBlankMat = Material("echoesbeyond/echo_blank.png", "mips")
@@ -50,7 +65,7 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 	local readOffset = Vector(0, 0, 20)
 	local renderVoidEchoes = GetConVar("echoes_enablevoidechoes"):GetBool()
 
-	surface.SetFont("CenterPrintText")
+	surface.SetFont("TargetID") -- Set the font for text size calculations
 
 	-- Create a shallow copy of echoes and sort by distance (squared)
 	local sortedEchoes = {}

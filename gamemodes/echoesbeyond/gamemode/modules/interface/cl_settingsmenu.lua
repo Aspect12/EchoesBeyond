@@ -5,16 +5,7 @@ local vignette = Material("echoesbeyond/vignette.png", "smooth")
 local PANEL = {}
 local y = 100
 
-local gabenSounds = {
-	"/gaben/al_intro",
-	"/gaben/hl2_intro",
-	"/gaben/l4d2_intro",
-	"/gaben/l4d_intro",
-	"/gaben/lc_intro",
-	"/gaben/p2_intro"
-}
-
-local function CreateCheckbox(text, convar, callback)
+local function CreateCheckbox(text, convar)
 	local checkbox = vgui.Create("DCheckBoxLabel", settingsMenu)
 	checkbox:SetText(text)
 	checkbox:SetValue(convar:GetBool())
@@ -22,10 +13,6 @@ local function CreateCheckbox(text, convar, callback)
 	checkbox:SetPos(50, y)
 	checkbox.OnChange = function(self, value)
 		convar:SetBool(value)
-
-		if (callback) then
-			callback(value)
-		end
 	end
 
 	y = y + 25
@@ -85,13 +72,8 @@ function PANEL:Init()
 	CreateCheckbox("Enable dynamic lights", GetConVar("echoes_dlights"))
 	CreateCheckbox("Flash game window when a new Echo is created", GetConVar("echoes_windowflash"))
 	CreateCheckbox("Disable Echo 'read' system", GetConVar("echoes_disablereadsys"))
-	CreateCheckbox("Disable author signing", GetConVar("echoes_disablesigning"))
-	CreateCheckbox("Enable GabeN mode", GetConVar("echoes_gabenmode"), function(value)
-		if (!value) then return end
-
-		EchoSound(table.Random(gabenSounds), nil, 0.75)
-	end)
 	CreateCheckbox("Hide author signatures", GetConVar("echoes_disablesigning"))
+	CreateCheckbox("Enable GabeN mode", GetConVar("echoes_gabenmode"))
 	CreateCheckbox("Enable void Echoes", GetConVar("echoes_enablevoidechoes"))
 	CreateCheckbox("Enable floating Echoes", GetConVar("echoes_enableairechoes"))
 
