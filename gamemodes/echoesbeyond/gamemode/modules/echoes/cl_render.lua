@@ -110,7 +110,7 @@ end
 
 local camera_data = { 
 	cx = 0, cy = 0, cz = 0,
-	fx = 0, fy = 0, fz = 0,
+	fx = 0, fy = 0, fz = 0
 }
 
 local function echo_distance_sort_func(a,b) return a.distSqr > b.distSqr end
@@ -228,17 +228,14 @@ local function compute_echo_mtx(mtx, pos, rot, size, z_offset)
 
 end
 
-hook.Add("CalcView", "echoes_update_camera_data", function(ply, org, ang, fov)
+hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDepth, bDrawingSkybox)
+	if (bDrawingDepth or bDrawingSkybox) then return end
 
+	local org, ang = EyePos(), EyeAngles()
 	local fwd = ang:Forward()
 	local d = camera_data
 	d.cx, d.cy, d.cz = __vunpack(org)
 	d.fx, d.fy, d.fz = __vunpack(fwd)
-
-end)
-
-hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDepth, bDrawingSkybox)
-	if (bDrawingDepth or bDrawingSkybox) then return end
 
 	local client = LocalPlayer()
 	local clientPos = client:GetShootPos()
