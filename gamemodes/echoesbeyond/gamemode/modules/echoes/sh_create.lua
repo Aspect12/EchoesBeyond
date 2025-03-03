@@ -60,7 +60,7 @@ else
 			angle = Angle(0, 0, 90),
 			creationTime = curTime,
 			soundActive = false,
-			drawPos = createPos,
+			drawPos = Vector(createPos),
 			explicit = false,
 			special = false,
 			isOwner = false,

@@ -100,7 +100,7 @@ function FetchEchoes()
 				readTime = read and 0,
 				special = isSpecial,
 				soundActive = false,
-				drawPos = position,
+				drawPos = Vector(position),
 				isOwner = isOwner,
 				id = newEcho.id,
 				pos = position,
