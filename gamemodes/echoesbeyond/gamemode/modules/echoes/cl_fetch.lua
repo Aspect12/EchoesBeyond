@@ -111,7 +111,7 @@ function FetchEchoes()
 			}
 		end
 
-		send_echoes_to_validate(newEchoes)
+		ValidateEchoes(newEchoes)
 
 		-- Remove echoes that were deleted
 		for i = 1, #deletedEchoes do
@@ -125,7 +125,6 @@ function FetchEchoes()
 				break
 			end
 		end
-
 	end, function(error)
 		EchoNotify(error)
 	end)
