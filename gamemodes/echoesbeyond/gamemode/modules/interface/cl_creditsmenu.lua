@@ -20,7 +20,6 @@ end
 
 local PANEL = {}
 
-
 function PANEL:Init()
 	if (IsValid(creditsMenu)) then
 		creditsMenu:Remove()
@@ -56,6 +55,7 @@ function PANEL:Init()
 	AddCredit("Kevin MacLeod", "Party Song")
 	AddCredit("Aspect™", "Clientside Development")
 	AddCredit("Pancakes", "Serverside Development")
+	AddCredit("Zak", "Performance Improvements")
 	AddCredit("Friends", "Feedback, ideas, support, and testing")
 	AddCredit("Bad Actors", "Valuable web security experience")
 

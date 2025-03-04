@@ -1,4 +1,17 @@
 
+local __vtab = FindMetaTable("Vector")
+local __vunpack = __vtab.Unpack
+local __vset = __vtab.Set
+local __vadd = __vtab.Add
+local __vsetunpacked = __vtab.SetUnpacked
+
+local __mtab = FindMetaTable("VMatrix")
+local __msetunpacked = __mtab.SetUnpacked
+
+local echo_mtx = Matrix()
+local __cos = math.cos
+local __sin = math.sin
+
 CreateClientConVar("echoes_showread", "1")
 CreateClientConVar("echoes_renderdist", "25000000")
 CreateClientConVar("echoes_disablereadsys", "0")
@@ -46,9 +59,181 @@ local echoDotSingleMat = Material("echoesbeyond/echo_dot_single.png", "mips")
 local lightRenderDist = 3000000 -- How far the dynamic light should render
 local activationDist = 6500 -- How close the player should be to activate the echo
 local echoFadeDist = 2500 -- How far the echo should start fading
+local echoToGroundFrac = 0
+
+local function GetEchoPosition(echo)
+	local x, y, z = __vunpack(echo.pos)
+
+	return x, y, z - (echo.airHeight or 0) * echoToGroundFrac
+end
+
+local function ComputeSqrEchoDist(origin)
+	local v = Vector()
+
+	for i = 1, #echoes do
+		local echo = echoes[i]
+		local x, y, z = GetEchoPosition(echo)
+
+		__vsetunpacked(v,x, y, z)
+		echo.distSqr = origin:DistToSqr(v)
+	end
+end
+
+local function UpdateEchoTextCache(inEchoes)
+	local disableSigning = GetConVar("echoes_disablesigning"):GetBool()
+
+	for _, echo in ipairs(inEchoes) do
+		if (echo.cachedText) then continue end -- Already cached
+
+		-- Cache wrapped text to avoid recalculations
+		local text = echo.text
+
+		if (disableSigning) then text = RemoveSigning(text) end
+
+		local words = string.Explode(" ", text)
+		local lines = {}
+		local line = ""
+
+		for j = 1, #words do
+			local word = words[j]
+
+			if (surface.GetTextSize(line .. " " .. word) > 512) then
+				table.insert(lines, line)
+
+				line = word
+			else
+				line = (line == ""and word or line .. " " .. word)
+			end
+		end
+
+		table.insert(lines, line)
+
+		for j = 1, math.floor(#lines / 2)do
+			lines[j], lines[#lines - j + 1] = lines[#lines - j + 1], lines[j]
+		end
+
+		echo.cachedText = lines
+	end
+end
+
+local cameraData = { 
+	cx = 0, cy = 0, cz = 0,
+	fx = 0, fy = 0, fz = 0
+}
+
+local function EchoDistSortFunc(a,b) return a.distSqr > b.distSqr end
+local function GetSortedVisibleEchoes()
+	local renderVoidEchoes = GetConVar("echoes_enablevoidechoes"):GetBool()
+	local cutOffDist = GetConVar("echoes_renderdist"):GetInt()
+	local sortedEchoes = {}
+	local cdata = cameraData
+	local cx, cy, cz = cdata.cx, cdata.cy, cdata.cz
+	local fx, fy, fz = cdata.fx, cdata.fy, cdata.fz
+
+	for _, echo in ipairs(echoes) do
+		if (echo.distSqr > cutOffDist) then continue end
+		if (echo.inVoid and !renderVoidEchoes) then continue end
+
+		local x, y, z = GetEchoPosition(echo)
+		local dot = ((cx-x) * fx + (cy-y) * fy + (cz-z) * fz)
+
+		if (dot > 0) then continue end -- Don't bother with anything behind the camera
+
+		sortedEchoes[#sortedEchoes+1] = echo
+	end
+
+	table.sort(sortedEchoes, EchoDistSortFunc)
+
+	return sortedEchoes
+end
+
+local function UpdateEchoRotations(inEchoes, dt)
+	local lerpFactor = math.Clamp(dt * 5, 0, 1)
+	local cdata = cameraData
+	local cx, cy, cz = cdata.cx, cdata.cy, cdata.cz
+
+	for _, echo in ipairs(inEchoes) do
+		local px, py, pz = GetEchoPosition(echo)
+		local a = math.atan2(px - cx, py - cy)
+		local b = echo._angle or 0
+		local d = ((a - b) + math.pi) % (math.pi * 2) - math.pi
+		local t = b + (d < math.pi and d or d - (math.pi * 2))
+
+		echo._angle = b * (1-lerpFactor) + t * lerpFactor
+	end
+end
+
+local function UpdateEchoInteractions(inEchoes, curTimeSpeed, dt)
+	local disableReadSys = GetConVar("echoes_disablereadsys"):GetBool()
+	local breathLayer = math.sin(curTimeSpeed) * 0.5
+	local activeZOffset = 24 + breathLayer
+	local readZOffset = 20
+
+	local gabenMode = GetConVar("echoes_gabenmode"):GetBool()
+
+	for _, echo in ipairs(inEchoes) do
+		echo.z_offset = echo.z_offset or 0
+		local read = echo.read and !disableReadSys
+
+		if (((echo.explicit and profanity) or !echo.explicit) and !echo.loading) then
+			if (echo.distSqr < activationDist) then
+				local active = math.min(echo.active + dt * 3, 1)
+
+				echo.active = active
+				echo.z_offset = Lerp(dt * 3, echo.z_offset, activeZOffset)
+
+				if (!echo.soundActive) then
+					echo.soundActive = true
+
+					if (gabenMode) then
+						EchoSound(table.Random(gabenIntroSounds), nil, 0.75)
+					else
+						EchoSound("echo_activate", echo.special and math.random(115, 125) or echo.explicit and math.random(65, 75) or math.random(95, 105))
+					end
+				end
+
+				if (active == 1 and !bOwner and !echo.read and !echo.special) then
+					local savedData = file.ReadOrCreate("echoesbeyond/readechoes.txt")
+					savedData[#savedData + 1] = echo.id
+
+					echo.read = true
+
+					readEchoCount = readEchoCount + 1
+
+					file.CreateDir("echoesbeyond")
+					file.Write("echoesbeyond/readechoes.txt", util.TableToJSON(savedData))
+				end
+			else
+				echo.active = math.max(echo.active - dt * 0.5, 0)
+				echo.z_offset = Lerp(dt * 1.5, echo.z_offset, (read and -readZOffset or 0))
+
+				if (echo.soundActive) then
+					echo.soundActive = false
+				end
+			end
+		end
+	end
+end
+
+local function ComputeEchoMtx(mtx, pos, rot, size, z_offset)
+    local px, py, pz = __vunpack(pos)
+	local c,s = __cos(rot), __sin(rot)
+
+    __msetunpacked(mtx,
+    c * size, 0 * size, s * size, px,
+    -s * size, 0 * size, c * size, py,
+    0 * size, -1 * size, 0 * size, pz + (z_offset or 0),
+    0,0,0,1)
+end
 
 hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDepth, bDrawingSkybox)
 	if (bDrawingDepth or bDrawingSkybox) then return end
+
+	local org, ang = EyePos(), EyeAngles()
+	local fwd = ang:Forward()
+	local d = cameraData
+	d.cx, d.cy, d.cz = __vunpack(org)
+	d.fx, d.fy, d.fz = __vunpack(fwd)
 
 	local client = LocalPlayer()
 	local clientPos = client:GetShootPos()
@@ -56,39 +241,33 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 	local curTime = CurTime()
 	local profanity = GetConVar("echoes_profanity"):GetBool()
 	local showRead = GetConVar("echoes_showread"):GetBool()
-	local cutOffDist = GetConVar("echoes_renderdist"):GetInt()
 	local disableReadSys = GetConVar("echoes_disablereadsys"):GetBool()
 	local lerpFactor = math.Clamp(frameTime * 5, 0, 1)
 	local curTimeSpeed = curTime * 1.5
-	local breathLayer = math.sin(curTimeSpeed) * 0.5
-	local activationOffset = Vector(0, 0, 24 + breathLayer)
 	local readOffset = Vector(0, 0, 20)
-	local renderVoidEchoes = GetConVar("echoes_enablevoidechoes"):GetBool()
+	local showDlights = GetConVar("echoes_dlights"):GetBool()
+	local enableAir = GetConVar("echoes_enableairechoes"):GetBool()
+	local drawColor = Color(0, 0, 0)
+
+	echoToGroundFrac = Lerp(frameTime * 2, echoToGroundFrac, enableAir and 0 or 1)
+
+	-- Compute squared distance to all echoes
+	ComputeSqrEchoDist(clientPos)
+
+	-- Update interactions with all echoes (relies on computed distances)
+	UpdateEchoInteractions(echoes, curTimeSpeed, frameTime)
+
+	-- Create a shallow copy of echoes and sort by distance (squared)
+	local sortedEchoes = GetSortedVisibleEchoes()
+	local echoCount = #sortedEchoes
+
+	UpdateEchoRotations(sortedEchoes, frameTime)
+	UpdateEchoTextCache(sortedEchoes)
 
 	surface.SetFont("TargetID") -- Set the font for text size calculations
 
-	-- Create a shallow copy of echoes and sort by distance (squared)
-	local sortedEchoes = {}
-	local fixedI = 1
-
-	for i = 1, #echoes do
-		local echo = echoes[i]
-		local distToSqr = clientPos:DistToSqr(echo.pos)
-		if (distToSqr > cutOffDist) then continue end
-
-		if (echo.inVoid and !renderVoidEchoes) then continue end
-
-		sortedEchoes[fixedI] = echo
-		sortedEchoes[fixedI].distSqr = distToSqr
-
-		fixedI = fixedI + 1
-	end
-
-	table.sort(sortedEchoes, function(a, b)
-		return a.distSqr > b.distSqr
-	end)
-
-	local echoCount = #sortedEchoes
+	render.PushFilterMag(TEXFILTER.ANISOTROPIC)
+	render.PushFilterMin(TEXFILTER.ANISOTROPIC)
 
 	for i = 1, echoCount do
 		local echo = sortedEchoes[i]
@@ -99,18 +278,9 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 
 		if (echo.creationTime > curTime) then continue end
 
-		local echoDistSqr = clientPos:DistToSqr(echo.pos)
+		local echoDistSqr = echo.distSqr
 		local read = echo.read and !disableReadSys
 		local bOwner = echo.isOwner
-
-		-- Update angle (smooth rotation)
-		local ang = (clientPos - echo.pos):Angle()
-
-		ang:RotateAroundAxis(ang:Forward(), 90)
-		ang:RotateAroundAxis(ang:Right(), -90)
-		ang = Angle(ang.p, ang.y, 90)
-
-		echo.angle = LerpAngle(lerpFactor, echo.angle, ang)
 
 		-- Update initialization factor based on explicit flag and profanity setting
 		if (read and !showRead) then
@@ -131,62 +301,29 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 		if (echo.init == 0) then continue end -- Skip rendering if echo is not initialized
 
 		local loading = echo.loading
+		echo.z_offset = echo.z_offset or 0
 
-		if (((echo.explicit and profanity) or !echo.explicit) and !loading) then
-			if (echoDistSqr < activationDist) then
-				local active = math.min(echo.active + frameTime * 3, 1)
-
-				echo.active = active
-				echo.drawPos = LerpVector(frameTime * 3, echo.drawPos, echo.pos + activationOffset)
-
-				if (!echo.soundActive) then
-					echo.soundActive = true
-
-					if (GetConVar("echoes_gabenmode"):GetBool()) then
-						EchoSound(table.Random(gabenIntroSounds), nil, 0.75)
-					else
-						EchoSound("echo_activate", echo.special and math.random(115, 125) or echo.explicit and math.random(65, 75) or math.random(95, 105))
-					end
-				end
-
-				if (active == 1 and !bOwner and !echo.read and !echo.special) then
-					local savedData = file.ReadOrCreate("echoesbeyond/readechoes.txt")
-					savedData[#savedData + 1] = echo.id
-
-					echo.read = true
-
-					readEchoCount = readEchoCount + 1
-
-					file.CreateDir("echoesbeyond")
-					file.Write("echoesbeyond/readechoes.txt", util.TableToJSON(savedData))
-				end
-			else
-				echo.active = math.max(echo.active - frameTime * 0.5, 0)
-				echo.drawPos = LerpVector(frameTime * 1.5, echo.drawPos, echo.pos - (read and readOffset or Vector(0, 0, 0)))
-
-				if (echo.soundActive) then
-					echo.soundActive = false
-				end
-			end
-		end
+		local ex,ey,ez = GetEchoPosition(echo)
+		__vsetunpacked(echo.drawPos, ex,ey,ez + echo.z_offset)
 
 		if (partyMode) then
-			echo.drawPos = LerpVector(frameTime * 3, echo.drawPos, echo.pos + (echo.partyOffset or Vector(0, 0, 0)))
+			echo.partyOffsetLerp = echo.partyOffsetLerp or Vector()
+			echo.partyOffsetLerp = LerpVector(frameTime * 3, echo.partyOffsetLerp, (echo.partyOffset or Vector(0, 0, 0)))
+			__vadd(echo.drawPos, echo.partyOffsetLerp)
 		end
 
 		local alpha = (math.Clamp((echoDistSqr - echoFadeDist / 2) / echoFadeDist, 0, 1) * 255) * echo.init
-
 		local special = echo.special
 		local active = echo.active
 		local explicit = echo.explicit
 
 		-- Render dynamic light if within render distance (using echo.pos for distance)
-		if (echoDistSqr <= lightRenderDist and GetConVar("echoes_dlights"):GetBool() and i >= (echoCount - (32 - dLightCount))) then -- Source can only handle 32 dynamic lights, so that's the
+		if (echoDistSqr <= lightRenderDist and showDlights and i >= (echoCount - (32 - dLightCount))) then -- Source can only handle 32 dynamic lights, so that's the
 			local r = !read and !loading and (special and 255 or explicit and 255 or bOwner and 255 or (100 + 155 * active)) or (25 + 230 * active) -- limit we use, minus the number of map-created dynamic lights
 			local g = !read and !loading and (special and (255 * active) or explicit and (25 + 230 * active) or bOwner and 255 or 255) or (25 + 230 * active)
 			local b = !read and !loading and (special and 255 or explicit and (25 + 230 * active) or bOwner and (255 * active) or 255) or (25 + 230 * active)
 
-			local dLight = DynamicLight(i)
+			local dLight = DynamicLight(echo.id)
 
 			if (dLight) then
 				dLight.Pos = echo.drawPos
@@ -200,78 +337,61 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 			end
 		end
 
-		-- Cache wrapped text to avoid recalculations
-		if (!echo.cachedText) then
-			local text = echo.text
-
-			if (GetConVar("echoes_disablesigning"):GetBool()) then
-				text = RemoveSigning(text)
-			end
-
-			local words = string.Explode(" ", text)
-			local lines = {}
-			local line = ""
-
-			for j = 1, #words do
-				local word = words[j]
-
-				if (surface.GetTextSize(line .. " " .. word) > 512) then
-					table.insert(lines, line)
-
-					line = word
-				else
-					line = (line == ""and word or line .. " " .. word)
-				end
-			end
-
-			table.insert(lines, line)
-
-			for j = 1, math.floor(#lines / 2)do
-				lines[j], lines[#lines - j + 1] = lines[#lines - j + 1], lines[j]
-			end
-
-			echo.cachedText = lines
-		end
-
 		-- Draw the echo's texture and text
 		local rDraw = !read and !loading and (special and (200 + 55 * active) or explicit and 255 or bOwner and 255 or (150 + 105 * active)) or (100 + 155 * active)
 		local gDraw = !read and !loading and (special and (255 * active) or explicit and (50 + 205 * active) or bOwner and 255 or 255) or (100 + 155 * active)
 		local bDraw = !read and !loading and (special and (200 + 55 * active) or explicit and (50 + 205 * active) or bOwner and (255 * active) or 255) or (100 + 155 * active)
 
-		cam.Start3D2D(echo.drawPos, echo.angle, 0.1)
-			surface.SetDrawColor(partyMode and echo.partyColor or Color(rDraw, gDraw, bDraw, alpha))
-			surface.SetMaterial((loading or active > 0) and echoBlankMat or echoMat)
-			surface.DrawTexturedRect(-96, -96, 192, 192)
+		drawColor:SetUnpacked(rDraw, gDraw, bDraw, alpha)
 
-			if (loading) then
-				surface.SetDrawColor(0, 0, 0, alpha)
-				surface.SetMaterial(echoDotsMat)
-				surface.DrawTexturedRectRotated(0, 0, 192, 192, curTime * -350)
-			end
+		-- Main echo
+		ComputeEchoMtx(echo_mtx, echo.drawPos, echo._angle, 0.1)
+		cam.PushModelMatrix(echo_mtx, true)
 
-			if (alpha == 0 or active == 0) then cam.End3D2D() continue end
+		surface.SetDrawColor(partyMode and echo.partyColor or drawColor)
+		surface.SetMaterial((loading or active > 0) and echoBlankMat or echoMat)
+		surface.DrawTexturedRect(-96, -96, 192, 192)
 
+		if (loading) then
+			surface.SetDrawColor(0, 0, 0, alpha)
+			surface.SetMaterial(echoDotsMat)
+			surface.DrawTexturedRectRotated(0, 0, 192, 192, curTime * -350)
+		end
+
+		if (alpha != 0 and active != 0) then
 			cam.IgnoreZ(true)
+
 			for j = 1, #echo.cachedText do
 				draw.SimpleText(echo.cachedText[j], "TargetID", 1, -(150 + j * 15), Color(0, 0, 0, math.min(active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 				draw.SimpleText(echo.cachedText[j], "TargetID", 0, -(151 + j * 15), Color(255, 255, 255, math.min(active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			end
+
 			cam.IgnoreZ(false)
-		cam.End3D2D()
+		end
 
-		surface.SetMaterial(echoDotSingleMat)
+		cam.PopModelMatrix()
 
-		-- I don't like this, but it's the only way they can be smooth.
-		cam.Start3D2D(echo.drawPos + Vector(0, 0, (0.5 * math.sin(curTimeSpeed)) * active), echo.angle, 0.1)
-			surface.DrawTexturedRect(-124, -96, 192, 192)
-		cam.End3D2D()
+		-- Animated dots
+		if (alpha != 0 and active != 0) then
+			-- Scaled down matrix for better integer coordinate animation
+			ComputeEchoMtx(echo_mtx, echo.drawPos, echo._angle, 0.01)
+			cam.PushModelMatrix(echo_mtx, true)
 
-		cam.Start3D2D(echo.drawPos + Vector(0, 0, (0.5 * math.sin(curTimeSpeed + 20)) * active), echo.angle, 0.1)
-			surface.DrawTexturedRect(-96, -96, 192, 192)
-		cam.End3D2D()
+			surface.SetMaterial(echoDotSingleMat)
 
-		cam.Start3D2D(echo.drawPos + Vector(0, 0, (0.5 * math.sin(curTimeSpeed + 40)) * active), echo.angle, 0.1)
-			surface.DrawTexturedRect(-68, -96, 192, 192)
-		cam.End3D2D()
+			local z = (0.5 * math.sin(curTimeSpeed)) * active * 100
+			surface.DrawTexturedRect(-1240, -960 + z, 1920, 1920)
+
+			local z = (0.5 * math.sin(curTimeSpeed + 20)) * active * 100
+			surface.DrawTexturedRect(-960, -960 + z, 1920, 1920)
+
+			local z = (0.5 * math.sin(curTimeSpeed + 40)) * active * 100
+			surface.DrawTexturedRect(-680, -960 + z, 1920, 1920)
+
+			cam.PopModelMatrix()
+		end
 	end
+
+	render.PopFilterMag()
+	render.PopFilterMin()
 end)

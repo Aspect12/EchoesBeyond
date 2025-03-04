@@ -100,7 +100,7 @@ function FetchEchoes()
 				readTime = read and 0,
 				special = isSpecial,
 				soundActive = false,
-				drawPos = position,
+				drawPos = Vector(position),
 				isOwner = isOwner,
 				id = newEcho.id,
 				pos = position,
@@ -110,6 +110,8 @@ function FetchEchoes()
 				init = 0
 			}
 		end
+
+		ValidateEchoes(newEchoes)
 
 		-- Remove echoes that were deleted
 		for i = 1, #deletedEchoes do
@@ -123,32 +125,6 @@ function FetchEchoes()
 				break
 			end
 		end
-
-		-- Split the newEchoes table into two if it's too large
-		if (#newEchoes > 1000) then
-			local newEchoes1 = {}
-			local newEchoes2 = {}
-
-			for i = 1, #newEchoes do
-				if (i <= 1000) then
-					newEchoes1[#newEchoes1 + 1] = newEchoes[i]
-				else
-					newEchoes2[#newEchoes2 + 1] = newEchoes[i]
-				end
-			end
-
-			newEchoes = newEchoes1
-
-			timer.Simple(1, function()
-				net.Start("echoValidateEchoes")
-					net.WriteTable(newEchoes2)
-				net.SendToServer()
-			end)
-		end
-
-		net.Start("echoValidateEchoes")
-			net.WriteTable(newEchoes)
-		net.SendToServer()
 	end, function(error)
 		EchoNotify(error)
 	end)
