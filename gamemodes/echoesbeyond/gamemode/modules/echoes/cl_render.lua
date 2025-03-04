@@ -58,12 +58,23 @@ local echoDotSingleMat = Material("echoesbeyond/echo_dot_single.png", "mips")
 local lightRenderDist = 3000000 -- How far the dynamic light should render
 local activationDist = 6500 -- How close the player should be to activate the echo
 local echoFadeDist = 2500 -- How far the echo should start fading
+local echoToGroundFrac = 0
+
+local function get_echo_position(echo)
+
+	local x,y,z = __vunpack(echo.pos)
+	return x,y,z - (echo.airHeight or 0) * echoToGroundFrac
+
+end
 
 local function compute_squared_echo_distances(origin)
 
+	local v = Vector()
 	for i = 1, #echoes do
 		local echo = echoes[i]
-		echo.distSqr = origin:DistToSqr(echo.pos)
+		local x,y,z = get_echo_position(echo)
+		__vsetunpacked(v,x,y,z)
+		echo.distSqr = origin:DistToSqr(v)
 	end
 
 end
@@ -127,7 +138,7 @@ local function get_sorted_visible_echoes()
 
 		if (echo.distSqr > cutOffDist) then continue end
 		if (echo.inVoid and !renderVoidEchoes) then continue end
-		local x,y,z = __vunpack(echo.pos)
+		local x,y,z = get_echo_position(echo)
 		local dot = ((cx-x) * fx + (cy-y) * fy + (cz-z) * fz)
 
 		-- Don't bother with anything behind the camera
@@ -149,7 +160,7 @@ local function update_echo_rotations(in_echoes, dt)
 	local cx, cy, cz = cdata.cx, cdata.cy, cdata.cz
 	for _, echo in ipairs(in_echoes) do
 
-		local px,py,pz = __vunpack(echo.pos)
+		local px,py,pz = get_echo_position(echo)
 		local a = math.atan2(px - cx, py - cy)
 		local b = echo._angle or 0
 		local d = ( (a - b) + math.pi ) % (math.pi * 2) - math.pi
@@ -248,6 +259,9 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 	local curTimeSpeed = curTime * 1.5
 	local readOffset = Vector(0, 0, 20)
 	local showDlights = GetConVar("echoes_dlights"):GetBool()
+	local enableAir = GetConVar("echoes_enableairechoes"):GetBool()
+
+	echoToGroundFrac = Lerp(frameTime * 2, echoToGroundFrac, enableAir and 0 or 1)
 
 	local offset_vector = Vector()
 	local draw_color = Color(0,0,0)
@@ -304,9 +318,8 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 		local loading = echo.loading
 		echo.z_offset = echo.z_offset or 0
 
-		__vsetunpacked(offset_vector, 0, 0, echo.z_offset)
-		__vset(echo.drawPos, echo.pos)
-		__vadd(echo.drawPos, offset_vector)
+		local ex,ey,ez = get_echo_position(echo)
+		__vsetunpacked(echo.drawPos, ex,ey,ez + echo.z_offset)
 
 		if (partyMode) then
 			echo.partyOffsetLerp = echo.partyOffsetLerp or Vector()
