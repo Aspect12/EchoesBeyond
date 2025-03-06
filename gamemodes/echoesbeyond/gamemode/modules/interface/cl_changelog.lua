@@ -2,7 +2,7 @@
 -- A simple changelog menu
 local PANEL = {}
 local vignette = Material("echoesbeyond/vignette.png")
-local changelogID = "rendering"
+local changelogID = "kazfix"
 
 function PANEL:Init()
 	if (IsValid(changeLog)) then
@@ -53,8 +53,8 @@ function PANEL:Init()
 	end
 
 	changelog:SetText([[
-		- Improved Echo rendering performance (Thanks Zak!)
-		- Improved Echo validation system (Thanks Zak!) 
+		- Fixed own Echoes being marked as read (Thanks Kaz!)
+		- Fixed offensive Echoes being unreadable (Thanks Kaz!)
 	]])
 
 	local close = vgui.Create("DButton", self)
