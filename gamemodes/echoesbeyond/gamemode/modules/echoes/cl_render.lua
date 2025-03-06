@@ -168,12 +168,12 @@ local function UpdateEchoInteractions(inEchoes, curTimeSpeed, dt)
 	local breathLayer = math.sin(curTimeSpeed) * 0.5
 	local activeZOffset = 24 + breathLayer
 	local readZOffset = 20
-
 	local gabenMode = GetConVar("echoes_gabenmode"):GetBool()
 
 	for _, echo in ipairs(inEchoes) do
 		echo.z_offset = echo.z_offset or 0
 		local read = echo.read and !disableReadSys
+		local bOwner = echo.isOwner
 
 		if (((echo.explicit and profanity) or !echo.explicit) and !echo.loading) then
 			if (echo.distSqr < activationDist) then
@@ -281,6 +281,7 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 		local echoDistSqr = echo.distSqr
 		local read = echo.read and !disableReadSys
 		local bOwner = echo.isOwner
+		if read and bOwner then read = false end
 
 		-- Update initialization factor based on explicit flag and profanity setting
 		if (read and !showRead) then
