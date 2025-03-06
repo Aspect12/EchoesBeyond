@@ -169,6 +169,7 @@ local function UpdateEchoInteractions(inEchoes, curTimeSpeed, dt)
 	local activeZOffset = 24 + breathLayer
 	local readZOffset = 20
 	local gabenMode = GetConVar("echoes_gabenmode"):GetBool()
+	local profanity = GetConVar("echoes_profanity"):GetBool()
 
 	for _, echo in ipairs(inEchoes) do
 		echo.z_offset = echo.z_offset or 0
