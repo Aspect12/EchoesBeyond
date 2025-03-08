@@ -317,6 +317,7 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 			__vadd(echo.drawPos, echo.partyOffsetLerp)
 			lastPartyModeTime = curTime
 		elseif lastPartyModeTime ~= 0 and curTime - lastPartyModeTime < 10 then -- for about 10 seconds after partymode, lerp party offset back to 0
+			echo.partyOffsetLerp = echo.partyOffsetLerp or Vector()
 			__vmul(echo.partyOffsetLerp, math.max(1 - frameTime * 3, 0))
 			__vadd(echo.drawPos, echo.partyOffsetLerp)
 		end
