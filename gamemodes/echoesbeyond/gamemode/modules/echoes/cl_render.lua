@@ -3,6 +3,7 @@ local __vtab = FindMetaTable("Vector")
 local __vunpack = __vtab.Unpack
 local __vset = __vtab.Set
 local __vadd = __vtab.Add
+local __vmul = __vtab.Mul
 local __vsetunpacked = __vtab.SetUnpacked
 
 local __mtab = FindMetaTable("VMatrix")
@@ -227,6 +228,8 @@ local function ComputeEchoMtx(mtx, pos, rot, size, z_offset)
     0,0,0,1)
 end
 
+local lastPartyModeTime = 0
+
 hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDepth, bDrawingSkybox)
 	if (bDrawingDepth or bDrawingSkybox) then return end
 
@@ -252,6 +255,8 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 
 	echoToGroundFrac = Lerp(frameTime * 2, echoToGroundFrac, enableAir and 0 or 1)
 
+	surface.SetFont("TargetID") -- Set the font for text size calculations
+
 	-- Compute squared distance to all echoes
 	ComputeSqrEchoDist(clientPos)
 
@@ -264,8 +269,6 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 
 	UpdateEchoRotations(sortedEchoes, frameTime)
 	UpdateEchoTextCache(sortedEchoes)
-
-	surface.SetFont("TargetID") -- Set the font for text size calculations
 
 	render.PushFilterMag(TEXFILTER.ANISOTROPIC)
 	render.PushFilterMin(TEXFILTER.ANISOTROPIC)
@@ -311,6 +314,11 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 		if (partyMode) then
 			echo.partyOffsetLerp = echo.partyOffsetLerp or Vector()
 			echo.partyOffsetLerp = LerpVector(frameTime * 3, echo.partyOffsetLerp, (echo.partyOffset or Vector(0, 0, 0)))
+			__vadd(echo.drawPos, echo.partyOffsetLerp)
+			lastPartyModeTime = curTime
+		elseif lastPartyModeTime ~= 0 and curTime - lastPartyModeTime < 10 then -- for about 10 seconds after partymode, lerp party offset back to 0
+			echo.partyOffsetLerp = echo.partyOffsetLerp or Vector()
+			__vmul(echo.partyOffsetLerp, math.max(1 - frameTime * 3, 0))
 			__vadd(echo.drawPos, echo.partyOffsetLerp)
 		end
 
