@@ -255,6 +255,8 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 
 	echoToGroundFrac = Lerp(frameTime * 2, echoToGroundFrac, enableAir and 0 or 1)
 
+	surface.SetFont("TargetID") -- Set the font for text size calculations
+
 	-- Compute squared distance to all echoes
 	ComputeSqrEchoDist(clientPos)
 
@@ -267,8 +269,6 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 
 	UpdateEchoRotations(sortedEchoes, frameTime)
 	UpdateEchoTextCache(sortedEchoes)
-
-	surface.SetFont("TargetID") -- Set the font for text size calculations
 
 	render.PushFilterMag(TEXFILTER.ANISOTROPIC)
 	render.PushFilterMin(TEXFILTER.ANISOTROPIC)
