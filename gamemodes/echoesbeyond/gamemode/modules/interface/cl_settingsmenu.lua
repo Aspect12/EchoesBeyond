@@ -95,7 +95,13 @@ function PANEL:Init()
 		EchoesConfirm("Delete all data", "This will delete all of your data from Echoes Beyond, including all Echoes. Are you sure?", function()
 			http.Fetch("https://resonance.flatgrass.net/nuke", function(body, _, _, code)
 				if (code != 200) then
-					EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
+					if (code == 401) then
+						EchoNotify("Your authentication token has expired. Please log in again.")
+
+						authToken = nil
+					else
+						EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
+					end
 
 					return
 				end

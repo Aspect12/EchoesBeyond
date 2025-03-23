@@ -133,21 +133,25 @@ end
 function FetchOwnEchoes()
 	http.Fetch("https://resonance.flatgrass.net/note/mine", function(body, _, _, code)
 		if (authToken) then
-			if (code != 200) then
-				EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
+			if (code != 401) then
+				if (code != 200) then
+					EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
 
-				return
+					return
+				end
+
+				local data = util.JSONToTable(body) or {}
+				local echoData = data.notes
+				if (!echoData) then return end
+
+				for i = 1, #echoData do
+					echoData[i].position = Vector(tonumber(echoData[i].position[1]), tonumber(echoData[i].position[2]), tonumber(echoData[i].position[3]))
+				end
+
+				writtenEchoes = echoData
+			else
+				authToken = nil -- Invalidate the auth token to log the player out
 			end
-
-			local data = util.JSONToTable(body) or {}
-			local echoData = data.notes
-			if (!echoData) then return end
-
-			for i = 1, #echoData do
-				echoData[i].position = Vector(tonumber(echoData[i].position[1]), tonumber(echoData[i].position[2]), tonumber(echoData[i].position[3]))
-			end
-
-			writtenEchoes = echoData
 		end
 
 		FetchEchoes()
@@ -237,6 +241,12 @@ function FetchInfo()
 	if (!authToken) then return end
 
 	http.Fetch("https://resonance.flatgrass.net/info?map=" .. game.GetMap(), function(body, _, _, code)
+		if (code == 401) then
+			authToken = nil
+
+			return
+		end
+
 		if (code != 200) then
 			EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
 

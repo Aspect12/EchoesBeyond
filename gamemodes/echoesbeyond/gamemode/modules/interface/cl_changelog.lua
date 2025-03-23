@@ -2,7 +2,7 @@
 -- A simple changelog menu
 local PANEL = {}
 local vignette = Material("echoesbeyond/vignette.png")
-local changelogID = "kazfix2"
+local changelogID = "sessiontokens"
 
 function PANEL:Init()
 	if (IsValid(changeLog)) then
@@ -53,8 +53,8 @@ function PANEL:Init()
 	end
 
 	changelog:SetText([[
-		- Fixed party mode end sequence (Thanks Kaz!)
-		- Made word wrapping more accurate (Thanks Kaz!)
+		- Backend security improvements
+		- Fixed custom speed not being set on map load
 	]])
 
 	local close = vgui.Create("DButton", self)

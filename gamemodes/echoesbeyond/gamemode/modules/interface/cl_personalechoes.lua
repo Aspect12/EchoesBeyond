@@ -169,7 +169,13 @@ function PANEL:ListEchoes(filter)
 			EchoesConfirm("Delete Echo", "Are you sure you want to delete this Echo? This action is irreversible.", function()
 				http.Fetch("https://resonance.flatgrass.net/note/delete?id=" .. echo.id, function(body, _, _, code)
 					if (code != 200) then
-						EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
+						if (code == 401) then
+							EchoNotify("Your authentication token has expired. Please log in again.")
+
+							authToken = nil
+						else
+							EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
+						end
 
 						return
 					end
