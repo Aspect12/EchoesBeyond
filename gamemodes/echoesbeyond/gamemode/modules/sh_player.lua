@@ -45,6 +45,13 @@ else
 	hook.Add("PrePlayerDraw", "player_PrePlayerDraw", function(client)
 		return true
 	end)
+
+	-- Set the speed on load
+	hook.Add("InitPostEntity", "player_InitPostEntity", function()
+		net.Start("echoSetSpeed")
+			net.WriteFloat(GetConVar("echoes_speed"):GetInt())
+		net.SendToServer()
+	end)
 end
 
 -- Disable footstep sounds
