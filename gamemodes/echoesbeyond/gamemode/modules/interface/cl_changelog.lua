@@ -54,6 +54,7 @@ function PANEL:Init()
 
 	changelog:SetText([[
 		- Expanded false-positive profanity filter list.
+		- Removed unfinished 'report menu'.
 	]])
 
 	local close = vgui.Create("DButton", self)
