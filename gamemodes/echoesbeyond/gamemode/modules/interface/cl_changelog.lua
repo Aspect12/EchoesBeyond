@@ -57,6 +57,7 @@ function PANEL:Init()
 		- Removed unfinished 'report menu'.
 		- Fixed some derma skin conflicts.
 		- Removed a redundant scoreboard hiding hook.
+		- Fixed music not properly stopping when disabled.
 	]])
 
 	local close = vgui.Create("DButton", self)
