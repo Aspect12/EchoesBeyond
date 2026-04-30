@@ -93,7 +93,7 @@ function PANEL:Init()
 		surface.DrawRect(0, 0, width, height)
 	end
 	deleteAll.DoClick = function()
-		EchoesConfirm("Delete all data", "This will delete all of your data from Echoes Beyond, including all Echoes. Are you sure?", function()
+		EchoesConfirm("Delete all data", "This will delete all of your data from Echoes Beyond, including all echoes. This action is irreversible. Are you sure?", function()
 			http.Fetch("https://resonance.flatgrass.net/nuke", function(body, _, _, code)
 				if (code != 200) then
 					if (code == 401) then

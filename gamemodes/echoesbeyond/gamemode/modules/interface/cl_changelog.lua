@@ -63,6 +63,7 @@ function PANEL:Init()
 		- Moved Echoes to the player's eye level for easier reading in tight spaces. (Ty EB+!)
 		- Made Echoes activate based on view direction by default. (Ty EB+!)
 		- Updated changelog menu icon.
+		- Added map list filter for showing only installed maps. (Ty EB+!)
 	]])
 
 	local close = vgui.Create("DButton", self)

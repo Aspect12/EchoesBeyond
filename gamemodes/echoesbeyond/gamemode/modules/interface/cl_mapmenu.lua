@@ -76,9 +76,12 @@ function PANEL:Init()
 
 	searchBar:RequestFocus()
 
+	local filterHeight = 35
+	local filterMargin = 10
+
 	self.mapListPanel = vgui.Create("DScrollPanel", self)
 	self.mapListPanel:SetPos(10, 130)
-	self.mapListPanel:SetSize(self:GetWide() - 20, self:GetTall() - 140)
+	self.mapListPanel:SetSize(self:GetWide() - 20, self:GetTall() - 140 - filterHeight - filterMargin)
 	self.mapListPanel.Paint = function(this, width, height)
 		surface.SetDrawColor(0, 0, 0, 100)
 		surface.DrawRect(0, 0, this:GetWide(), this:GetTall())
@@ -93,6 +96,23 @@ function PANEL:Init()
 	end
 	self.mapListPanel.VBar.btnUp.Paint = function() end
 	self.mapListPanel.VBar.btnDown.Paint = function() end
+
+	local filterPanel = vgui.Create("DPanel", self)
+	filterPanel:SetSize(self:GetWide() - 20, filterHeight)
+	filterPanel:SetPos(10, self:GetTall() - filterHeight - filterMargin)
+	filterPanel.Paint = function(this, width, height)
+		surface.SetDrawColor(35, 35, 35)
+		surface.DrawRect(0, 0, width, height)
+	end
+
+	self.showLocalCheck = vgui.Create("DCheckBoxLabel", filterPanel)
+	self.showLocalCheck:SetText("Show installed maps only")
+	self.showLocalCheck:SetPos(10, 9)
+	self.showLocalCheck:SizeToContents()
+	self.showLocalCheck:SetTextColor(Color(200, 200, 200))
+	self.showLocalCheck.OnChange = function(this, val)
+		self:ListMaps(searchBar:GetValue())
+	end
 
 	self:ListMaps()
 end
@@ -109,11 +129,27 @@ function PANEL:ListMaps(filter)
 		filter = filter != "" and filter
 	end
 
+	local showLocal = self.showLocalCheck and self.showLocalCheck:GetChecked()
+	local mapPairs = {}
 	self.mapList = {}
 
 	for name, amount in SortedPairsByValue(mapList, true) do
-		if (filter and !name:lower():find(filter:lower())) then continue end
-		if (!filter and amount < 10) then continue end
+		mapPairs[#mapPairs + 1] = {name = name, amount = amount}
+	end
+
+	for _, v in ipairs(mapPairs) do
+		local name = v.name
+		local amount = v.amount
+
+		if (filter) then
+			local norm_filter = filter:lower():gsub("[%s_]", "")
+			local norm_name = name:lower():gsub("[%s_]", "")
+
+			if (!norm_name:find(norm_filter, 1, true)) then continue end
+		end
+
+		if (!filter and !showLocal and amount < 10) then continue end
+		if (showLocal and !self.installedMaps[name]) then continue end
 
 		local entry = vgui.Create("DPanel", self.mapListPanel)
 		entry:Dock(TOP)
