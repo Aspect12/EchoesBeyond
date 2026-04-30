@@ -25,10 +25,11 @@ function PANEL:Init()
 		- Added map list filter for showing only installed maps. (Ty EB+!)
 		- Improved changelog panel to dynamically resize based on content.
 		- Added more echo statistics to the main menu. (Ty EB+!)
+		- Added echo dots animation to main menu.
 	]]
 
 	-- Compute height from line count so the panel grows to fit the content
-	local lineHeight = 11
+	local lineHeight = 13
 	local lineCount = 1
 
 	for _ in changelogText:gmatch("\n") do lineCount = lineCount + 1 end

@@ -1,6 +1,8 @@
 
 -- The main menu
 local echoMat = Material("echoesbeyond/echo_simple.png", "smooth")
+local echoBlankMat = Material("echoesbeyond/echo_simple_blank.png", "smooth")
+local echoDotSingleMat = Material("echoesbeyond/echo_simple_dot_single.png", "smooth")
 local mapMat = Material("echoesbeyond/map.png", "smooth")
 local settingsMat = Material("echoesbeyond/settings.png", "smooth")
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
@@ -197,11 +199,23 @@ function PANEL:Paint(width, height)
 	surface.SetMaterial(vignette)
 	surface.DrawTexturedRect(0, 0, width, height)
 
-	local breatheLayer = math.sin(CurTime() * 1.5)
+	local curTimeSpeed = CurTime() * 1.5
+	local breatheLayer = math.sin(curTimeSpeed)
+
+	local dotSize = height / 1.5
+	local dotHSpacing = dotSize * (280 / 1920)
+	local dotBobAmp = dotSize * (50 / 1920)
+	local dotBaseY = height / 2 + 5 * breatheLayer
 
 	surface.SetDrawColor(255, 255, 255, 5)
-	surface.SetMaterial(echoMat)
-	surface.DrawTexturedRectRotated(width / 2, height / 2 + 5 * breatheLayer, height / 1.5, height / 1.5, 0)
+	surface.SetMaterial(echoBlankMat)
+	surface.DrawTexturedRectRotated(width / 2, dotBaseY, dotSize, dotSize, 0)
+
+	surface.SetDrawColor(25, 25, 25)
+	surface.SetMaterial(echoDotSingleMat)
+	surface.DrawTexturedRectRotated(width / 2 - dotHSpacing, dotBaseY + dotBobAmp * math.sin(curTimeSpeed), dotSize, dotSize, 0)
+	surface.DrawTexturedRectRotated(width / 2, dotBaseY + dotBobAmp * math.sin(curTimeSpeed + 20), dotSize, dotSize, 0)
+	surface.DrawTexturedRectRotated(width / 2 + dotHSpacing, dotBaseY + dotBobAmp * math.sin(curTimeSpeed + 40), dotSize, dotSize, 0)
 
 	if (endPartyEnabled) then
 		surface.SetDrawColor(0, 0, 0, 200)

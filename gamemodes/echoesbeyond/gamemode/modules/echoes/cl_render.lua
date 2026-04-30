@@ -271,7 +271,7 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 	local curTime = CurTime()
 	local profanity = GetConVar("echoes_profanity"):GetBool()
 	local showRead = GetConVar("echoes_showread"):GetBool()
-	local disableReadSys = GetConVar("echoes_disablereadsys")
+	local disableReadSys = GetConVar("echoes_disablereadsys"):GetBool()
 	local curTimeSpeed = curTime * 1.5
 	local showDlights = GetConVar("echoes_dlights"):GetBool()
 	local enableAir = GetConVar("echoes_enableairechoes"):GetBool()
