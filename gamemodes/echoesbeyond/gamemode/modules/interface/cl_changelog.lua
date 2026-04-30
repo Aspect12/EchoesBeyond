@@ -25,7 +25,7 @@ function PANEL:Init()
 		- Added map list filter for showing only installed maps. (Ty EB+!)
 		- Improved changelog panel to dynamically resize based on content.
 		- Added more echo statistics to the main menu. (Ty EB+!)
-		- Added echo dots animation to main menu.
+		- Minor cosmetic UI improvements.
 	]]
 
 	-- Compute height from line count so the panel grows to fit the content

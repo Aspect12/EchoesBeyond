@@ -1,5 +1,6 @@
 
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
+local mapMat = Material("echoesbeyond/map.png", "smooth")
 
 -- The map menu
 local PANEL = {}
@@ -213,6 +214,15 @@ function PANEL:Paint(width, height)
 
 	surface.SetMaterial(vignette)
 	surface.DrawTexturedRect(0, 0, width, height)
+end
+
+function PANEL:PaintOver(width, height)
+	local size = math.min(width / 2, height / 2)
+	local breatheLayer = math.sin(CurTime() * 1.5)
+
+	surface.SetDrawColor(255, 255, 255, 1)
+	surface.SetMaterial(mapMat)
+	surface.DrawTexturedRectRotated(width / 2, height / 2 + 5 * breatheLayer, size, size, 0)
 end
 
 function PANEL:OnKeyCodePressed(key)

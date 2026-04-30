@@ -1,8 +1,10 @@
 
 -- The main menu
 local echoMat = Material("echoesbeyond/echo_simple.png", "smooth")
-local echoBlankMat = Material("echoesbeyond/echo_simple_blank.png", "smooth")
-local echoDotSingleMat = Material("echoesbeyond/echo_simple_dot_single.png", "smooth")
+local echoSimpleBlankMat = Material("echoesbeyond/echo_simple_blank.png", "smooth")
+local echoBlankMat = Material("echoesbeyond/echo_blank.png", "smooth")
+local echoDotSimpleMat = Material("echoesbeyond/echo_simple_dot_single.png", "smooth")
+local echoDotSingleMat = Material("echoesbeyond/echo_dot_single.png", "smooth")
 local mapMat = Material("echoesbeyond/map.png", "smooth")
 local settingsMat = Material("echoesbeyond/settings.png", "smooth")
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
@@ -145,6 +147,30 @@ function PANEL:Init()
 		vgui.Create("echoChangelog")
 	end
 
+	local maps = {}
+	self.ownMapCount = 0
+
+	for i = 1, #writtenEchoes do
+		local map = writtenEchoes[i].map
+		if (maps[map]) then continue end
+
+		maps[map] = true
+	end
+
+	self.ownMapCount = table.Count(maps)
+	self.ownReadCount = #file.ReadOrCreate("echoesbeyond/readechoes.txt")
+
+	local panelW, panelH = self:GetSize()
+	local echoSize = panelH / 1.5
+	local hoverZone = vgui.Create("DPanel", self)
+
+	hoverZone:SetSize(echoSize, echoSize)
+	hoverZone:SetPos(panelW / 2 - echoSize / 2, panelH / 2 - echoSize / 2)
+	hoverZone:SetPaintBackground(false)
+	hoverZone.OnCursorEntered = function() self.echoHovered = true EchoSound("echo_activate", 60, 0.05) end
+	hoverZone.OnCursorExited = function() self.echoHovered = false EchoSound("echo_activate", 50, 0.05) end
+	hoverZone.OnMousePressed = function() self.clickTime = CurTime() EchoSound("echo_create", math.random(75, 125), 0.5) end
+
 	if (endPartyEnabled) then
 		local endParty = vgui.Create("DButton", self)
 		endParty:SetSize(self:GetWide() * 0.25, 30)
@@ -163,19 +189,6 @@ function PANEL:Init()
 			EchoNotify("Party mode disabled.")
 		end
 	end
-
-	local maps = {}
-	self.ownMapCount = 0
-
-	for i = 1, #writtenEchoes do
-		local map = writtenEchoes[i].map
-		if (maps[map]) then continue end
-
-		maps[map] = true
-	end
-
-	self.ownMapCount = table.Count(maps)
-	self.ownReadCount = #file.ReadOrCreate("echoesbeyond/readechoes.txt")
 end
 
 function PANEL:UpdateStats(newUserCount, newEchoCount, newMapCount, newMaps)
@@ -199,23 +212,41 @@ function PANEL:Paint(width, height)
 	surface.SetMaterial(vignette)
 	surface.DrawTexturedRect(0, 0, width, height)
 
-	local curTimeSpeed = CurTime() * 1.5
-	local breatheLayer = math.sin(curTimeSpeed)
+	local frameTime = FrameTime()
+	local hoverLerp = Lerp(frameTime * 4, self.hoverLerp or 0, self.echoHovered and 1 or 0)
+	self.hoverLerp = hoverLerp
+
+	local clickPulse = math.max(0, 1 - (CurTime() - (self.clickTime or -math.huge)) * 4)
+
+	self.animTime = (self.animTime or 0) + frameTime * 1.5 * hoverLerp
+	local curTimeSpeed = self.animTime
+
+	local breatheLayer = math.sin(curTimeSpeed) * hoverLerp
 
 	local dotSize = height / 1.5
 	local dotHSpacing = dotSize * (280 / 1920)
 	local dotBobAmp = dotSize * (50 / 1920)
 	local dotBaseY = height / 2 + 5 * breatheLayer
 
-	surface.SetDrawColor(255, 255, 255, 5)
+	surface.SetDrawColor(255, 255, 255, math.floor(5 * (1 - hoverLerp) + 3 * clickPulse))
+	surface.SetMaterial(echoSimpleBlankMat)
+	surface.DrawTexturedRectRotated(width / 2, dotBaseY, dotSize, dotSize, 0)
+
+	surface.SetDrawColor(255, 255, 255, math.floor(10 * hoverLerp + 3 * clickPulse))
 	surface.SetMaterial(echoBlankMat)
 	surface.DrawTexturedRectRotated(width / 2, dotBaseY, dotSize, dotSize, 0)
 
-	surface.SetDrawColor(25, 25, 25)
+	surface.SetDrawColor(25, 25, 25, math.floor(255 * (1 - hoverLerp)))
+	surface.SetMaterial(echoDotSimpleMat)
+	surface.DrawTexturedRectRotated(width / 2 - dotHSpacing, dotBaseY + dotBobAmp * math.sin(curTimeSpeed) * hoverLerp, dotSize, dotSize, 0)
+	surface.DrawTexturedRectRotated(width / 2, dotBaseY + dotBobAmp * math.sin(curTimeSpeed + 20) * hoverLerp, dotSize, dotSize, 0)
+	surface.DrawTexturedRectRotated(width / 2 + dotHSpacing, dotBaseY + dotBobAmp * math.sin(curTimeSpeed + 40) * hoverLerp, dotSize, dotSize, 0)
+
+	surface.SetDrawColor(25, 25, 25, math.floor(255 * hoverLerp))
 	surface.SetMaterial(echoDotSingleMat)
-	surface.DrawTexturedRectRotated(width / 2 - dotHSpacing, dotBaseY + dotBobAmp * math.sin(curTimeSpeed), dotSize, dotSize, 0)
-	surface.DrawTexturedRectRotated(width / 2, dotBaseY + dotBobAmp * math.sin(curTimeSpeed + 20), dotSize, dotSize, 0)
-	surface.DrawTexturedRectRotated(width / 2 + dotHSpacing, dotBaseY + dotBobAmp * math.sin(curTimeSpeed + 40), dotSize, dotSize, 0)
+	surface.DrawTexturedRectRotated(width / 2 - dotHSpacing, dotBaseY + dotBobAmp * math.sin(curTimeSpeed) * hoverLerp, dotSize, dotSize, 0)
+	surface.DrawTexturedRectRotated(width / 2, dotBaseY + dotBobAmp * math.sin(curTimeSpeed + 20) * hoverLerp, dotSize, dotSize, 0)
+	surface.DrawTexturedRectRotated(width / 2 + dotHSpacing, dotBaseY + dotBobAmp * math.sin(curTimeSpeed + 40) * hoverLerp, dotSize, dotSize, 0)
 
 	if (endPartyEnabled) then
 		surface.SetDrawColor(0, 0, 0, 200)
@@ -223,7 +254,6 @@ function PANEL:Paint(width, height)
 	end
 
 	local echoCount = #echoes
-	local frameTime = FrameTime()
 	local writeRep = math.Round((#writtenEchoes / globalEchoCount) * 100, 2)
 	local readPercent = globalEchoCount > 0 and math.Round((self.ownReadCount / globalEchoCount) * 100, 2) or 0
 
