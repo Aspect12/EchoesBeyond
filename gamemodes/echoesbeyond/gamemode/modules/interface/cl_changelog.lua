@@ -55,6 +55,7 @@ function PANEL:Init()
 	changelog:SetText([[
 		- Expanded false-positive profanity filter list.
 		- Removed unfinished 'report menu'.
+		- Fixed some derma skin conflicts.
 	]])
 
 	local close = vgui.Create("DButton", self)
