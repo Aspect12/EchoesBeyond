@@ -56,6 +56,7 @@ function PANEL:Init()
 	AddCredit("Aspect™", "Clientside Development")
 	AddCredit("Pancakes", "Serverside Development")
 	AddCredit("Kaz", "Performance Improvements")
+	AddCredit("IntellectualPotato", "Echoes Beyond+ Features")
 	AddCredit("Friends", "Feedback, ideas, support, and testing")
 	AddCredit("Bad Actors", "Valuable web security experience")
 

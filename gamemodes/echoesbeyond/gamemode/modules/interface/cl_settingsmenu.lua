@@ -76,6 +76,7 @@ function PANEL:Init()
 	CreateCheckbox("Enable GabeN mode", GetConVar("echoes_gabenmode"))
 	CreateCheckbox("Enable void Echoes", GetConVar("echoes_enablevoidechoes"))
 	CreateCheckbox("Enable floating Echoes", GetConVar("echoes_enableairechoes"))
+	CreateCheckbox("Activate Echoes by distance", GetConVar("echoes_distactivate"))
 
 	CreateSlider("Movement Speed", GetConVar("echoes_speed"), 1, 1000, 0)
 	CreateSlider("Render Distance", GetConVar("echoes_renderdist"), 10000, 100000000, 0)

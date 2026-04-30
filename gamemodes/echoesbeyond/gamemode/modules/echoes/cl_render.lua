@@ -18,6 +18,7 @@ CreateClientConVar("echoes_renderdist", "25000000")
 CreateClientConVar("echoes_disablereadsys", "0")
 CreateClientConVar("echoes_disablesigning", "0")
 CreateClientConVar("echoes_gabenmode", "0")
+CreateClientConVar("echoes_distactivate", "0")
 
 cvars.AddChangeCallback("echoes_disablesigning", function(name, old, new)
 	for i = 1, #echoes do
@@ -171,6 +172,13 @@ local function UpdateEchoInteractions(inEchoes, curTimeSpeed, dt)
 	local readZOffset = 20
 	local gabenMode = GetConVar("echoes_gabenmode"):GetBool()
 	local profanity = GetConVar("echoes_profanity"):GetBool()
+	local distActivate = GetConVar("echoes_distactivate"):GetBool()
+	local threshold
+
+	if (!distActivate) then
+		local fov = GetConVar("fov_desired"):GetFloat()
+		threshold = math.cos(math.rad(fov / 2 - 10)) -- 10 degree buffer
+	end
 
 	for _, echo in ipairs(inEchoes) do
 		echo.z_offset = echo.z_offset or 0
@@ -178,7 +186,24 @@ local function UpdateEchoInteractions(inEchoes, curTimeSpeed, dt)
 		local bOwner = echo.isOwner
 
 		if (((echo.explicit and profanity) or !echo.explicit) and !echo.loading) then
-			if (echo.distSqr < activationDist) then
+			local inView = true
+
+			-- Determine if the player is looking at the echo independently of vertical angle
+			if (!distActivate) then
+				local x, y, _ = GetEchoPosition(echo)
+				local cdata = cameraData
+				local dx, dy = x - cdata.cx, y - cdata.cy
+				local dist2d = math.sqrt(dx * dx + dy * dy)
+				local fdist2d = math.sqrt(cdata.fx * cdata.fx + cdata.fy * cdata.fy)
+
+				if (dist2d > 0 and fdist2d > 0) then
+					local dot = (dx * cdata.fx + dy * cdata.fy) / (dist2d * fdist2d)
+
+					inView = dot >= threshold
+				end
+			end
+
+			if (echo.distSqr < activationDist and inView) then
 				local active = math.min(echo.active + dt * 3, 1)
 				local heightDiff = EyePos().z - echo.pos.z - 32
 
