@@ -58,6 +58,7 @@ function PANEL:Init()
 		- Fixed some derma skin conflicts.
 		- Removed a redundant scoreboard hiding hook.
 		- Fixed music not properly stopping when disabled.
+		- Hide viewmodels.
 	]])
 
 	local close = vgui.Create("DButton", self)

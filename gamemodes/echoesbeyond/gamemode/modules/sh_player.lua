@@ -46,6 +46,11 @@ else
 		return true
 	end)
 
+	-- Don't render the player's viewmodel
+	hook.Add("PreDrawViewModel", "player_PreDrawViewModel", function()
+		return true
+	end)
+
 	-- Set the speed on load
 	hook.Add("InitPostEntity", "player_InitPostEntity", function()
 		net.Start("echoSetSpeed")

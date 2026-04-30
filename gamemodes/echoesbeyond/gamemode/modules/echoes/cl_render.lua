@@ -117,7 +117,7 @@ local function UpdateEchoTextCache(inEchoes)
 	end
 end
 
-local cameraData = { 
+local cameraData = {
 	cx = 0, cy = 0, cz = 0,
 	fx = 0, fy = 0, fz = 0
 }
@@ -218,14 +218,14 @@ local function UpdateEchoInteractions(inEchoes, curTimeSpeed, dt)
 end
 
 local function ComputeEchoMtx(mtx, pos, rot, size, z_offset)
-    local px, py, pz = __vunpack(pos)
+	local px, py, pz = __vunpack(pos)
 	local c,s = __cos(rot), __sin(rot)
 
-    __msetunpacked(mtx,
-    c * size, 0 * size, s * size, px,
-    -s * size, 0 * size, c * size, py,
-    0 * size, -1 * size, 0 * size, pz + (z_offset or 0),
-    0,0,0,1)
+	__msetunpacked(mtx,
+	c * size, 0 * size, s * size, px,
+	-s * size, 0 * size, c * size, py,
+	0 * size, -1 * size, 0 * size, pz + (z_offset or 0),
+	0,0,0,1)
 end
 
 local lastPartyModeTime = 0
