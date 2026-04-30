@@ -1,6 +1,6 @@
 
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
-local flatgrassGrey, flatgrassColor, fgWidth = Material("echoesbeyond/flatgrass_greyscale.png", "smooth"), Material("echoesbeyond/flatgrass_color.png", "smooth"), 1000
+local flatgrassGrey, flatgrassColor, fgWidth, fgHeight = Material("echoesbeyond/flatgrass_greyscale.png", "smooth"), Material("echoesbeyond/flatgrass_color.png", "smooth"), 1000, 373
 
 local y = 80
 
@@ -60,10 +60,10 @@ function PANEL:Init()
 	AddCredit("Friends", "Feedback, ideas, support, and testing")
 	AddCredit("Bad Actors", "Valuable web security experience")
 
-	local fgHeight = (fgHeight / fgWidth) * self:GetWide()
+	local fgPanelHeight = (fgHeight / fgWidth) * self:GetWide()
 
 	local flatgrassPanel = vgui.Create("DButton", self)
-	flatgrassPanel:SetSize(self:GetWide(), fgHeight)
+	flatgrassPanel:SetSize(self:GetWide(), fgPanelHeight)
 	flatgrassPanel:SetPos(0, self:GetTall() - flatgrassPanel:GetTall())
 	flatgrassPanel:SetText("")
 	flatgrassPanel.Paint = function(this, width, height)
