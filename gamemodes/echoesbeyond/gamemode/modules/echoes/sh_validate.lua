@@ -35,7 +35,7 @@ if (SERVER) then
 			net.WriteUInt(numEchoes, 12)
 
 			-- each response echo is 28 bits
-			for i = 1, numEchoes do				
+			for i = 1, numEchoes do
 				net.WriteBool(voidResponse[i] == true) --1 bit
 				net.WriteUInt(airResponse[i] or 0, 15) --15 bits (max 32767 units [max map size along any axis])
 			end
@@ -97,11 +97,11 @@ else
 
 		-- Spin up request pump to send pending requests
 		if (numPendingRequests == 0) then
-			hook.Add("Think", requestHookName, ServiceBatchQueue) 
+			hook.Add("Think", requestHookName, ServiceBatchQueue)
 		end
 
 		local base = 0
-		
+
 		-- Queue up as many batches as needed
 		while base <= #inEchoes do
 			local batch = {}
@@ -152,8 +152,8 @@ else
 		request.received = true
 
 		-- Stop request pump once everything has been received
-		if (numPendingRequests == 0) then
-			hook.Remove("Think", requestHookName, ServiceBatchQueue)
-		end
+		if (numPendingRequests != 0) then return end
+
+		hook.Remove("Think", requestHookName, ServiceBatchQueue)
 	end)
 end

@@ -69,6 +69,8 @@ local wordList = {
 -- This is silly, but I'm not sure how else to do this
 local exemptWords = {
 	"jacksepticeye",
+	"inconspicuous",
+	"shenanigans",
 	"underground",
 	"especially",
 	"satisfies",
@@ -82,10 +84,17 @@ local exemptWords = {
 	"running",
 	"getting",
 	"spooky",
+	"spice",
 	"pitch",
 	"fight",
+	"spicy",
+	"funni",
 	"flag",
-	"frag"
+	"frag",
+	"game",
+	"pick",
+	"keys",
+	"get"
 }
 
 -- Helper function to remove repeated characters from a string
