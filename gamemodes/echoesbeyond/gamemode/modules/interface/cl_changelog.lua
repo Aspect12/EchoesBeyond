@@ -24,6 +24,7 @@ function PANEL:Init()
 		- Updated changelog menu icon.
 		- Added map list filter for showing only installed maps. (Ty EB+!)
 		- Improved changelog panel to dynamically resize based on content.
+		- Added more echo statistics to the main menu. (Ty EB+!)
 	]]
 
 	-- Compute height from line count so the panel grows to fit the content

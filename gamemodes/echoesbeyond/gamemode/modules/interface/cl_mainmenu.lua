@@ -173,6 +173,7 @@ function PANEL:Init()
 	end
 
 	self.ownMapCount = table.Count(maps)
+	self.ownReadCount = #file.ReadOrCreate("echoesbeyond/readechoes.txt")
 end
 
 function PANEL:UpdateStats(newUserCount, newEchoCount, newMapCount, newMaps)
@@ -209,10 +210,12 @@ function PANEL:Paint(width, height)
 
 	local echoCount = #echoes
 	local frameTime = FrameTime()
+	local writeRep = math.Round((#writtenEchoes / globalEchoCount) * 100, 2)
+	local readPercent = globalEchoCount > 0 and math.Round((self.ownReadCount / globalEchoCount) * 100, 2) or 0
 
 	draw.SimpleText("There " .. (echoCount == 1 and "is" or "are") .. " currently " .. echoCount .. " echo" .. (echoCount == 1 and "" or "es") .. " on this map. You have read " .. readEchoCount .. " of them.", "DermaDefault", width / 2, height - 70, self.colorStats1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-	draw.SimpleText("You have written " .. #writtenEchoes .. " echo" .. (#writtenEchoes == 1 and "" or "es") .. " across " .. self.ownMapCount .. (self.ownMapCount == 1 and " map." or " different maps."), "DermaDefault", width / 2, height - 50, Color(200, 200, 200), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-	draw.SimpleText("There are currently " .. globalEchoCount .. " total echoes across " .. mapCount .. " different maps from " .. userCount .. " different users.", "DermaDefault", width / 2, height - 30, self.colorStats3, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+	draw.SimpleText("You have written " .. #writtenEchoes .. " echo" .. (#writtenEchoes == 1 and "" or "es") .. " across " .. self.ownMapCount .. (self.ownMapCount == 1 and " map. " or " different maps. " .. "You represent " .. writeRep .. "% of all echoes."), "DermaDefault", width / 2, height - 50, Color(200, 200, 200), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+	draw.SimpleText("There are currently " .. globalEchoCount .. " echoes across " .. mapCount .. " maps from " .. userCount .. " users. You have read " .. self.ownReadCount .. " (" .. readPercent .. "%) of them.", "DermaDefault", width / 2, height - 30, self.colorStats3, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 
 	self.colorStats1, self.colorStats3 = LerpColor(frameTime, self.colorStats1, Color(200, 200, 200)), LerpColor(frameTime, self.colorStats3, Color(200, 200, 200))
 end

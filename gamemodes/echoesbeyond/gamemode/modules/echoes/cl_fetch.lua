@@ -76,7 +76,7 @@ function FetchEchoes()
 				break
 			end
 
-			if (read or isOwner) then
+			if (read) then
 				readEchoCount = readEchoCount + 1
 			end
 
