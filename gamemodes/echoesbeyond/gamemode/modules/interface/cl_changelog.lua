@@ -17,8 +17,8 @@ function PANEL:Init()
 		- Fixed some derma skin conflicts.
 		- Removed a redundant scoreboard hiding hook.
 		- Fixed music not properly stopping when disabled.
-		- Hide player viewmodels.
-		- Block weapon/SWEP usage.
+		- Hid player viewmodels.
+		- Blocked weapon/SWEP usage.
 		- Moved Echoes to the player's eye level for easier reading in tight spaces. (Ty EB+!)
 		- Made Echoes activate based on view direction by default. (Ty EB+!)
 		- Updated changelog menu icon.
@@ -26,6 +26,7 @@ function PANEL:Init()
 		- Improved changelog panel to dynamically resize based on content.
 		- Added more echo statistics to the main menu. (Ty EB+!)
 		- Minor cosmetic UI improvements.
+		- Added echo translation system. (Ty EB+!)
 	]]
 
 	-- Compute height from line count so the panel grows to fit the content

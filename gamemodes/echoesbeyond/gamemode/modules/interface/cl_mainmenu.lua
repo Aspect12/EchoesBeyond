@@ -76,6 +76,20 @@ function PANEL:Init()
 	subTitle:CenterHorizontal()
 	subTitle:SetY(55)
 
+	local reloadBind = string.upper(input.LookupBinding("+reload") or "r")
+	local createHint = vgui.Create("DLabel", self)
+	createHint:SetText("Press '" .. reloadBind .. "' to write an echo.")
+	createHint:SizeToContents()
+	createHint:CenterHorizontal()
+	createHint:SetY(75)
+
+	local walkBind, useBind = string.upper(input.LookupBinding("+walk") or "alt"), string.upper(input.LookupBinding("+use") or "e")
+	local translateHint = vgui.Create("DLabel", self)
+	translateHint:SetText("Press '" .. walkBind .. "+" .. useBind .. "' to translate an echo.")
+	translateHint:SizeToContents()
+	translateHint:CenterHorizontal()
+	translateHint:SetY(95)
+
 	local mapOption = vgui.Create("DButton", self)
 	mapOption:SetSize(48, 48)
 	mapOption:SetPos(10, 10)
@@ -205,8 +219,8 @@ function PANEL:Init()
 	hoverZone:SetSize(echoSize, echoSize)
 	hoverZone:SetPos(panelW / 2 - echoSize / 2, panelH / 2 - echoSize / 2)
 	hoverZone:SetPaintBackground(false)
-	hoverZone.OnCursorEntered = function() self.echoHovered = true EchoSound("echo_activate", 60, 0.05) end
-	hoverZone.OnCursorExited = function() self.echoHovered = false EchoSound("echo_activate", 50, 0.05) end
+	hoverZone.OnCursorEntered = function() self.echoHovered = true EchoSound("echo_activate", 60, 0.1) end
+	hoverZone.OnCursorExited = function() self.echoHovered = false EchoSound("echo_activate", 50, 0.1) end
 	hoverZone.OnMousePressed = function() self.clickTime = CurTime() EchoSound("echo_create", math.random(75, 125), 0.5) end
 
 	if (endPartyEnabled) then
