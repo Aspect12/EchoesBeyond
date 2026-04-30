@@ -62,6 +62,7 @@ function PANEL:Init()
 		- Block weapon/SWEP usage.
 		- Moved Echoes to the player's eye level for easier reading in tight spaces. (Ty EB+!)
 		- Made Echoes activate based on view direction by default. (Ty EB+!)
+		- Updated changelog menu icon.
 	]])
 
 	local close = vgui.Create("DButton", self)
