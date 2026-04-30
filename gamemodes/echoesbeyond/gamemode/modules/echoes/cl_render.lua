@@ -180,9 +180,10 @@ local function UpdateEchoInteractions(inEchoes, curTimeSpeed, dt)
 		if (((echo.explicit and profanity) or !echo.explicit) and !echo.loading) then
 			if (echo.distSqr < activationDist) then
 				local active = math.min(echo.active + dt * 3, 1)
+				local heightDiff = EyePos().z - echo.pos.z - 32
 
 				echo.active = active
-				echo.z_offset = Lerp(dt * 3, echo.z_offset, activeZOffset)
+				echo.z_offset = Lerp(dt * 3, echo.z_offset, activeZOffset + heightDiff)
 
 				if (!echo.soundActive) then
 					echo.soundActive = true
