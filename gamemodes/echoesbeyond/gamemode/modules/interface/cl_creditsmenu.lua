@@ -37,7 +37,7 @@ function PANEL:Init()
 	self:MakePopup()
 	self:SetAlpha(0)
 
-	self:AlphaTo(255, 0.5)
+	self:AlphaTo(255, 0.25)
 	EchoSound("whoosh", nil, 0.75)
 
 	local title = vgui.Create("DLabel", self)

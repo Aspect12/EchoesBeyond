@@ -33,7 +33,7 @@ function PANEL:Init()
 	self:MakePopup()
 	self:SetAlpha(0)
 
-	self:AlphaTo(255, 0.5)
+	self:AlphaTo(255, 0.25)
 	EchoSound("whoosh", nil, 0.75)
 
 	local title = vgui.Create("DLabel", self)
@@ -57,7 +57,6 @@ function PANEL:Init()
 
 	local searchBar = vgui.Create("DTextEntry", self)
 	searchBar:SetSize(self:GetWide() - 20, 20)
-	searchBar:SetPos(10, 100)
 	searchBar:SetPlaceholderText("Search for a map...")
 	searchBar.oldValue = ""
 	searchBar.OnChange = function(this)
@@ -77,12 +76,20 @@ function PANEL:Init()
 
 	searchBar:RequestFocus()
 
-	local filterHeight = 35
-	local filterMargin = 10
+	self.showLocalCheck = vgui.Create("DCheckBoxLabel", self)
+	self.showLocalCheck:SetText("Show installed maps only")
+	self.showLocalCheck:SetPos(15, 100)
+	self.showLocalCheck:SizeToContents()
+	self.showLocalCheck:SetTextColor(Color(200, 200, 200))
+	self.showLocalCheck.OnChange = function(this, val)
+		self:ListMaps(searchBar:GetValue())
+	end
+
+	searchBar:SetPos(10, 125)
 
 	self.mapListPanel = vgui.Create("DScrollPanel", self)
-	self.mapListPanel:SetPos(10, 130)
-	self.mapListPanel:SetSize(self:GetWide() - 20, self:GetTall() - 140 - filterHeight - filterMargin)
+	self.mapListPanel:SetPos(10, 155)
+	self.mapListPanel:SetSize(self:GetWide() - 20, self:GetTall() - 165)
 	self.mapListPanel.Paint = function(this, width, height)
 		surface.SetDrawColor(0, 0, 0, 100)
 		surface.DrawRect(0, 0, this:GetWide(), this:GetTall())
@@ -97,23 +104,6 @@ function PANEL:Init()
 	end
 	self.mapListPanel.VBar.btnUp.Paint = function() end
 	self.mapListPanel.VBar.btnDown.Paint = function() end
-
-	local filterPanel = vgui.Create("DPanel", self)
-	filterPanel:SetSize(self:GetWide() - 20, filterHeight)
-	filterPanel:SetPos(10, self:GetTall() - filterHeight - filterMargin)
-	filterPanel.Paint = function(this, width, height)
-		surface.SetDrawColor(35, 35, 35)
-		surface.DrawRect(0, 0, width, height)
-	end
-
-	self.showLocalCheck = vgui.Create("DCheckBoxLabel", filterPanel)
-	self.showLocalCheck:SetText("Show installed maps only")
-	self.showLocalCheck:SetPos(10, 9)
-	self.showLocalCheck:SizeToContents()
-	self.showLocalCheck:SetTextColor(Color(200, 200, 200))
-	self.showLocalCheck.OnChange = function(this, val)
-		self:ListMaps(searchBar:GetValue())
-	end
 
 	self:ListMaps()
 end

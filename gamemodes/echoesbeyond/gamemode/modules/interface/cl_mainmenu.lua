@@ -11,6 +11,36 @@ local vignette = Material("echoesbeyond/vignette.png", "smooth")
 local creditsMat = Material("echoesbeyond/credits.png", "smooth")
 local changelogMat = Material("echoesbeyond/changelog.png", "smooth")
 
+-- Creates little 'bridges' between the panels
+local function CreateBridge(side, buttonY, targetPanel)
+	local bridge = vgui.Create("DPanel")
+
+	bridge:SetParent(vgui.GetWorldPanel())
+	bridge:SetPaintBackground(false)
+	bridge:SetSize(10, 48)
+	bridge.Paint = function(self, width, height)
+		surface.SetDrawColor(25, 25, 25)
+		surface.DrawRect(0, 0, width, height)
+	end
+	bridge.Think = function(self)
+		if (!IsValid(mainMenu)) then self:Remove() return end
+
+		local mx, my = mainMenu:GetPos()
+
+		if (side == "left") then
+			self:SetPos(mx - 10, my + buttonY)
+		else
+			self:SetPos(mx + mainMenu:GetWide(), my + buttonY)
+		end
+
+		if (!IsValid(targetPanel)) then return end
+
+		self:SetAlpha(targetPanel:GetAlpha())
+	end
+
+	return bridge
+end
+
 local PANEL = {}
 
 function PANEL:Init()
@@ -51,7 +81,7 @@ function PANEL:Init()
 	mapOption:SetPos(10, 10)
 	mapOption:SetText("")
 	mapOption.Paint = function(self, width, height)
-		surface.SetDrawColor(self:IsDown() and Color(100, 100, 100) or self:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
+		surface.SetDrawColor(self:IsDown() and Color(100, 100, 100) or (self:IsHovered() or IsValid(mapMenu)) and Color(75, 75, 75) or Color(50, 50, 50))
 		surface.SetMaterial(mapMat)
 		surface.DrawTexturedRect(0, 0, width, height)
 	end
@@ -64,6 +94,8 @@ function PANEL:Init()
 			mapMenu:Close()
 		else
 			vgui.Create("echoMapMenu")
+			local bridge = CreateBridge("left", 10, mapMenu)
+			mapMenu.OnRemove = function() if (IsValid(bridge)) then bridge:Remove() end end
 		end
 	end
 
@@ -72,7 +104,7 @@ function PANEL:Init()
 	personalEchoes:SetPos(10, 48 + 20)
 	personalEchoes:SetText("")
 	personalEchoes.Paint = function(self, width, height)
-		surface.SetDrawColor(self:IsDown() and Color(100, 100, 100) or self:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
+		surface.SetDrawColor(self:IsDown() and Color(100, 100, 100) or (self:IsHovered() or IsValid(personalEchoesMenu)) and Color(75, 75, 75) or Color(50, 50, 50))
 		surface.SetMaterial(echoMat)
 		surface.DrawTexturedRect(-7, -7, width + 14, height + 14)
 	end
@@ -85,6 +117,8 @@ function PANEL:Init()
 			personalEchoesMenu:Close()
 		else
 			vgui.Create("echoPersonalEchoesMenu")
+			local bridge = CreateBridge("left", 68, personalEchoesMenu)
+			personalEchoesMenu.OnRemove = function() if (IsValid(bridge)) then bridge:Remove() end end
 		end
 	end
 
@@ -93,7 +127,7 @@ function PANEL:Init()
 	settingsOption:SetPos(self:GetWide() - 48 - 10, 10)
 	settingsOption:SetText("")
 	settingsOption.Paint = function(self, width, height)
-		surface.SetDrawColor(self:IsDown() and Color(100, 100, 100) or self:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
+		surface.SetDrawColor(self:IsDown() and Color(100, 100, 100) or (self:IsHovered() or IsValid(settingsMenu)) and Color(75, 75, 75) or Color(50, 50, 50))
 		surface.SetMaterial(settingsMat)
 		surface.DrawTexturedRect(0, 0, width, height)
 	end
@@ -107,6 +141,8 @@ function PANEL:Init()
 			settingsMenu:Close()
 		else
 			vgui.Create("echoSettingsMenu")
+			local bridge = CreateBridge("right", 10, settingsMenu)
+			settingsMenu.OnRemove = function() if (IsValid(bridge)) then bridge:Remove() end end
 		end
 	end
 
@@ -115,7 +151,7 @@ function PANEL:Init()
 	creditsOption:SetPos(self:GetWide() - 48 - 10, self:GetTall() - 48 - 10)
 	creditsOption:SetText("")
 	creditsOption.Paint = function(self, width, height)
-		surface.SetDrawColor(self:IsDown() and Color(100, 100, 100) or self:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
+		surface.SetDrawColor(self:IsDown() and Color(100, 100, 100) or (self:IsHovered() or IsValid(creditsMenu)) and Color(75, 75, 75) or Color(50, 50, 50))
 		surface.SetMaterial(creditsMat)
 		surface.DrawTexturedRect(0, 0, width, height)
 	end
@@ -129,6 +165,8 @@ function PANEL:Init()
 			creditsMenu:Close()
 		else
 			vgui.Create("echoCreditsMenu")
+			local bridge = CreateBridge("right", mainMenu:GetTall() - 48 - 10, creditsMenu)
+			creditsMenu.OnRemove = function() if (IsValid(bridge)) then bridge:Remove() end end
 		end
 	end
 
@@ -137,7 +175,7 @@ function PANEL:Init()
 	changelogOption:SetPos(10, self:GetTall() - 48 - 10)
 	changelogOption:SetText("")
 	changelogOption.Paint = function(self, width, height)
-		surface.SetDrawColor(self:IsDown() and Color(100, 100, 100) or self:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
+		surface.SetDrawColor(self:IsDown() and Color(100, 100, 100) or (self:IsHovered() or IsValid(changeLog)) and Color(75, 75, 75) or Color(50, 50, 50))
 		surface.SetMaterial(changelogMat)
 		surface.DrawTexturedRect(0, 0, width, height)
 	end
