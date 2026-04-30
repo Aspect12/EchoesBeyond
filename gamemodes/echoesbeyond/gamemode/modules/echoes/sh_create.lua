@@ -51,7 +51,6 @@ else
 			return
 		end
 
-		local client = LocalPlayer()
 		local isOffensive = IsOffensive(message)
 		local curTime = CurTime()
 

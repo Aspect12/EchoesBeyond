@@ -143,7 +143,7 @@ function PANEL:ListEchoes(filter)
 		echoText:SetText(echo.comment)
 		echoText:SetMultiline(true)
 		echoText:SetEditable(false)
-		echoText:SetDrawBackground(false)
+		echoText:SetPaintBackground(false)
 		echoText:SetTextColor(Color(200, 200, 200))
 		echoText:SetPaintBackground(false)
 

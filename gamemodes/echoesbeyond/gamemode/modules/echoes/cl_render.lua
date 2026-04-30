@@ -103,13 +103,13 @@ local function UpdateEchoTextCache(inEchoes)
 
 				line = word
 			else
-				line = (line == ""and word or line .. " " .. word)
+				line = (line == "" and word or line .. " " .. word)
 			end
 		end
 
 		table.insert(lines, line)
 
-		for j = 1, math.floor(#lines / 2)do
+		for j = 1, math.floor(#lines / 2) do
 			lines[j], lines[#lines - j + 1] = lines[#lines - j + 1], lines[j]
 		end
 
@@ -140,7 +140,7 @@ local function GetSortedVisibleEchoes()
 
 		if (dot > 0) then continue end -- Don't bother with anything behind the camera
 
-		sortedEchoes[#sortedEchoes+1] = echo
+		sortedEchoes[#sortedEchoes + 1] = echo
 	end
 
 	table.sort(sortedEchoes, EchoDistSortFunc)
@@ -151,10 +151,10 @@ end
 local function UpdateEchoRotations(inEchoes, dt)
 	local lerpFactor = math.Clamp(dt * 5, 0, 1)
 	local cdata = cameraData
-	local cx, cy, cz = cdata.cx, cdata.cy, cdata.cz
+	local cx, cy, _ = cdata.cx, cdata.cy, cdata.cz
 
 	for _, echo in ipairs(inEchoes) do
-		local px, py, pz = GetEchoPosition(echo)
+		local px, py, _ = GetEchoPosition(echo)
 		local a = math.atan2(px - cx, py - cy)
 		local b = echo._angle or 0
 		local d = ((a - b) + math.pi) % (math.pi * 2) - math.pi
@@ -208,7 +208,7 @@ local function UpdateEchoInteractions(inEchoes, curTimeSpeed, dt)
 				end
 			else
 				echo.active = math.max(echo.active - dt * 0.5, 0)
-				echo.z_offset = Lerp(dt * 1.5, echo.z_offset, (read and -readZOffset or 0))
+				echo.z_offset = Lerp(dt * 1.5, echo.z_offset, read and -readZOffset or 0)
 
 				if (echo.soundActive) then
 					echo.soundActive = false
@@ -246,10 +246,8 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 	local curTime = CurTime()
 	local profanity = GetConVar("echoes_profanity"):GetBool()
 	local showRead = GetConVar("echoes_showread"):GetBool()
-	local disableReadSys = GetConVar("echoes_disablereadsys"):GetBool()
-	local lerpFactor = math.Clamp(frameTime * 5, 0, 1)
+	local disableReadSys = GetConVar("echoes_disablereadsys")
 	local curTimeSpeed = curTime * 1.5
-	local readOffset = Vector(0, 0, 20)
 	local showDlights = GetConVar("echoes_dlights"):GetBool()
 	local enableAir = GetConVar("echoes_enableairechoes"):GetBool()
 	local drawColor = Color(0, 0, 0)
@@ -314,10 +312,10 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 
 		if (partyMode) then
 			echo.partyOffsetLerp = echo.partyOffsetLerp or Vector()
-			echo.partyOffsetLerp = LerpVector(frameTime * 3, echo.partyOffsetLerp, (echo.partyOffset or Vector(0, 0, 0)))
+			echo.partyOffsetLerp = LerpVector(frameTime * 3, echo.partyOffsetLerp, echo.partyOffset or vector_origin)
 			__vadd(echo.drawPos, echo.partyOffsetLerp)
 			lastPartyModeTime = curTime
-		elseif lastPartyModeTime ~= 0 and curTime - lastPartyModeTime < 10 then -- for about 10 seconds after partymode, lerp party offset back to 0
+		elseif lastPartyModeTime != 0 and curTime - lastPartyModeTime < 10 then -- for about 10 seconds after partymode, lerp party offset back to 0
 			echo.partyOffsetLerp = echo.partyOffsetLerp or Vector()
 			__vmul(echo.partyOffsetLerp, math.max(1 - frameTime * 3, 0))
 			__vadd(echo.drawPos, echo.partyOffsetLerp)
@@ -393,10 +391,10 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 			local z = (0.5 * math.sin(curTimeSpeed)) * active * 100
 			surface.DrawTexturedRect(-1240, -960 + z, 1920, 1920)
 
-			local z = (0.5 * math.sin(curTimeSpeed + 20)) * active * 100
+			z = (0.5 * math.sin(curTimeSpeed + 20)) * active * 100
 			surface.DrawTexturedRect(-960, -960 + z, 1920, 1920)
 
-			local z = (0.5 * math.sin(curTimeSpeed + 40)) * active * 100
+			z = (0.5 * math.sin(curTimeSpeed + 40)) * active * 100
 			surface.DrawTexturedRect(-680, -960 + z, 1920, 1920)
 
 			cam.PopModelMatrix()

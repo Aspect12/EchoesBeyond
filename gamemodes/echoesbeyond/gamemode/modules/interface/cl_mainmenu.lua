@@ -3,7 +3,6 @@
 local echoMat = Material("echoesbeyond/echo_simple.png", "smooth")
 local mapMat = Material("echoesbeyond/map.png", "smooth")
 local settingsMat = Material("echoesbeyond/settings.png", "smooth")
-local reportMat = Material("echoesbeyond/report.png", "smooth")
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
 local creditsMat = Material("echoesbeyond/credits.png", "smooth")
 local changelogMat = Material("echoesbeyond/changelog.png", "smooth")

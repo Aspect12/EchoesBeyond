@@ -1,6 +1,6 @@
 
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
-local flatgrassGrey, flatgrassColor, fgWidth, fgHeight = Material("echoesbeyond/flatgrass_greyscale.png", "smooth"), Material("echoesbeyond/flatgrass_color.png", "smooth"), 1000, 373
+local flatgrassGrey, flatgrassColor, fgWidth = Material("echoesbeyond/flatgrass_greyscale.png", "smooth"), Material("echoesbeyond/flatgrass_color.png", "smooth"), 1000
 
 local y = 80
 

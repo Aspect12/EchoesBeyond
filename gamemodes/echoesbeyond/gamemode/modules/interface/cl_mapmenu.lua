@@ -121,7 +121,7 @@ function PANEL:ListMaps(filter)
 		entry:SetTall(20)
 		entry:DockMargin(0, 0, 0, 5)
 		entry.Paint = function(this, width, height)
-			local amount = mapList[name] or amount
+			amount = mapList[name] or amount
 			draw.SimpleText(amount .. " Echoes", "DermaDefault", width - 10, height / 2, this.textColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 
 			local installed = self.installedMaps[name]
