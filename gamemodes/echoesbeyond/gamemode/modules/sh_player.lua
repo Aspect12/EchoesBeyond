@@ -21,9 +21,15 @@ if (SERVER) then
 
 	-- Disable player collisions
 	hook.Add("ShouldCollide", "player_ShouldCollide", function(entity1, entity2)
-		if (entity1:IsPlayer() and entity2:IsPlayer()) then
-			return false
-		end
+		if (!entity1:IsPlayer() or !entity2:IsPlayer()) then return end
+
+		return false
+	end)
+
+	-- Disable attacking
+	hook.Add("StartCommand", "player_StartCommand", function(client, command)
+		command:RemoveKey(IN_ATTACK)
+		command:RemoveKey(IN_ATTACK2)
 	end)
 
 	net.Receive("echoSetSpeed", function(_, client)
