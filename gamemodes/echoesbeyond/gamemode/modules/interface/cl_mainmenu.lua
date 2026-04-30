@@ -262,7 +262,7 @@ vgui.Register("echoMainMenu", PANEL, "EditablePanel")
 hook.Add("ScoreboardShow", "mainmenu_ScoreboardShow", function()
 	vgui.Create("echoMainMenu")
 
-	return false
+	return false -- Hide the default scoreboard
 end)
 
 -- Close when pressing escape

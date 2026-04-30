@@ -56,6 +56,7 @@ function PANEL:Init()
 		- Expanded false-positive profanity filter list.
 		- Removed unfinished 'report menu'.
 		- Fixed some derma skin conflicts.
+		- Removed a redundant scoreboard hiding hook.
 	]])
 
 	local close = vgui.Create("DButton", self)
