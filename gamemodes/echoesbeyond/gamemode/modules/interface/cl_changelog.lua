@@ -11,7 +11,31 @@ function PANEL:Init()
 
 	changeLog = self
 
-	self:SetSize(600, 300)
+	local changelogText = [[
+		- Expanded false-positive profanity filter list.
+		- Removed unfinished 'report menu'.
+		- Fixed some derma skin conflicts.
+		- Removed a redundant scoreboard hiding hook.
+		- Fixed music not properly stopping when disabled.
+		- Hide player viewmodels.
+		- Block weapon/SWEP usage.
+		- Moved Echoes to the player's eye level for easier reading in tight spaces. (Ty EB+!)
+		- Made Echoes activate based on view direction by default. (Ty EB+!)
+		- Updated changelog menu icon.
+		- Added map list filter for showing only installed maps. (Ty EB+!)
+		- Improved changelog panel to dynamically resize based on content.
+	]]
+
+	-- Compute height from line count so the panel grows to fit the content
+	local lineHeight = 11
+	local lineCount = 1
+
+	for _ in changelogText:gmatch("\n") do lineCount = lineCount + 1 end
+
+	local fixedChrome = 135 + 50  -- header area + close button area
+	local panelHeight = math.Clamp(lineCount * lineHeight + fixedChrome, 300, ScrH() * 0.8)
+
+	self:SetSize(600, panelHeight)
 	self:Center()
 	self:MakePopup()
 	self:SetAlpha(0)
@@ -52,19 +76,7 @@ function PANEL:Init()
 		this:DrawTextEntryText(color_white, color_white, color_white)
 	end
 
-	changelog:SetText([[
-		- Expanded false-positive profanity filter list.
-		- Removed unfinished 'report menu'.
-		- Fixed some derma skin conflicts.
-		- Removed a redundant scoreboard hiding hook.
-		- Fixed music not properly stopping when disabled.
-		- Hide player viewmodels.
-		- Block weapon/SWEP usage.
-		- Moved Echoes to the player's eye level for easier reading in tight spaces. (Ty EB+!)
-		- Made Echoes activate based on view direction by default. (Ty EB+!)
-		- Updated changelog menu icon.
-		- Added map list filter for showing only installed maps. (Ty EB+!)
-	]])
+	changelog:SetText(changelogText)
 
 	local close = vgui.Create("DButton", self)
 	close:SetSize(self:GetWide() * 0.3, 30)
