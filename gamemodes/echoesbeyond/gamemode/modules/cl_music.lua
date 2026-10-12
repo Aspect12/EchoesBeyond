@@ -11,9 +11,9 @@ cvars.AddChangeCallback("echoes_music", function(name, old, new)
 end, "echoes_music")
 
 local songs = {
-	"echoesbeyond/music/eo_all_around us.mp3",
 	"echoesbeyond/music/eo_a_sunset.mp3",
-	"echoesbeyond/music/eo_below_the clouds.mp3",
+	"echoesbeyond/music/eo_all_around_us.mp3",
+	"echoesbeyond/music/eo_below_the_clouds.mp3",
 	"echoesbeyond/music/eo_dead_metal.mp3",
 	"echoesbeyond/music/eo_its_expanding.mp3",
 	"echoesbeyond/music/eo_monolith.mp3",
@@ -24,7 +24,12 @@ local songs = {
 	"echoesbeyond/music/eo_the_heights.mp3",
 	"echoesbeyond/music/eo_the_oddity.mp3",
 	"echoesbeyond/music/eo_yesterday.mp3",
-	"echoesbeyond/music/eo_yesterdays.mp3"
+	"echoesbeyond/music/eo_yesterdays.mp3",
+	"echoesbeyond/music/fw_calm_after_the_storm.mp3",
+	"echoesbeyond/music/fw_camp_approach.mp3",
+	"echoesbeyond/music/fw_cottonwood_hike.mp3",
+	"echoesbeyond/music/fw_hidden_away.mp3",
+	"echoesbeyond/music/fw_prologue.mp3"
 }
 
 currentSong = currentSong or nil
