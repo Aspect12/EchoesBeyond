@@ -13,6 +13,7 @@ if (SERVER) then
 		client:SetFriction(0.5)
 		client:GodEnable()
 		client:AllowFlashlight(true)
+		client:DrawShadow(false)
 	end)
 
 	hook.Add("CanPlayerSuicide", "player_CanPlayerSuicide", function(client)
