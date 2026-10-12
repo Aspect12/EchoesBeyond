@@ -14,6 +14,7 @@ function PANEL:Init()
 	local changelogText = [[
 		- Added new music.
 		- Expanded false-positive profanity filter list.
+		- Fixed map searching error.
 	]]
 
 	-- Compute height from line count so the panel grows to fit the content

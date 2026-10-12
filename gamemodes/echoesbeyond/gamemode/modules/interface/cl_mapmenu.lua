@@ -125,7 +125,7 @@ function PANEL:ListMaps(filter)
 	self.mapList = {}
 
 	for name, amount in SortedPairsByValue(mapList, true) do
-		mapPairs[#mapPairs + 1] = {name = name, amount = amount}
+		mapPairs[#mapPairs + 1] = {name = tostring(name), amount = amount}
 	end
 
 	for _, v in ipairs(mapPairs) do
