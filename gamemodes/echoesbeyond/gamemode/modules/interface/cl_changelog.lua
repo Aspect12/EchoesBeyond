@@ -2,7 +2,7 @@
 -- A simple changelog menu
 local PANEL = {}
 local vignette = Material("echoesbeyond/vignette.png")
-local changelogID = "april2026"
+local changelogID = "october2026"
 
 function PANEL:Init()
 	if (IsValid(changeLog)) then
@@ -13,6 +13,9 @@ function PANEL:Init()
 
 	local changelogText = [[
 		- Added new music.
+		- Added gaben mode party song.
+		- Added time travel mode.
+		- Updated text highlight color in entry UI.
 		- Expanded false-positive profanity filter list.
 		- Fixed map searching error.
 	]]
