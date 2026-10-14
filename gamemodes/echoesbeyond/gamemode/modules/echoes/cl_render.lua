@@ -601,14 +601,12 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 		local special = echo.special
 		local active = echo.active
 		local explicit = echo.explicit
-		local translated = echo.originalText != nil
+		local translated = (echo._detectedLang and echo._detectedLang != targetLang) or echo.originalText != nil
 
 		-- Lazily detect the script/language of untranslated echoes (cached on the echo itself)
 		if (echo._detectedLang == nil and !translated) then
 			echo._detectedLang = DetectTextScript(echo.text) or "en" -- "en" = checked, plain ASCII / indeterminate Latin
 		end
-
-		local showTransIcon = ((echo._detectedLang and echo._detectedLang != targetLang) or translated)
 
 		-- Render dynamic light if within render distance (using echo.pos for distance)
 		-- Source can only handle 32 dynamic lights, so that's the limit we use, minus the number of map-created dynamic lights
@@ -659,7 +657,7 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 		end
 
 		-- translate badge
-		if (showTransIcon and alpha != 0) then
+		if (translated and alpha != 0) then
 			local transColor = 100 + 155 * active
 
 			surface.SetDrawColor(loading and Color(transColor, transColor, transColor, alpha) or partyMode and echo.partyColor or drawColor)
@@ -690,7 +688,7 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 			end
 
 			-- translate icon
-			if (showTransIcon and alpha != 0) then
+			if (translated and alpha != 0) then
 				local transColor = 100 + 155 * active
 
 				surface.SetDrawColor(loading and Color(transColor, transColor, transColor, alpha) or partyMode and echo.partyColor or drawColor)

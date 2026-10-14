@@ -18,6 +18,7 @@ function PANEL:Init()
 		- Expanded false-positive profanity filter list.
 		- Fixed map searching error.
 		- Improved echo text visibility.
+		- Made foreign echoes always appear blue.
 	]]
 
 	-- Compute height from line count so the panel grows to fit the content
