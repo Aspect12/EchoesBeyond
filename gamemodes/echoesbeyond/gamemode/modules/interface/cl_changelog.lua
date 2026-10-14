@@ -19,6 +19,7 @@ function PANEL:Init()
 		- Fixed map searching error.
 		- Improved echo text visibility.
 		- Made foreign echoes always appear blue.
+		- Hid floating echoes by default.
 	]]
 
 	-- Compute height from line count so the panel grows to fit the content

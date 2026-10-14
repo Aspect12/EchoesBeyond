@@ -3,6 +3,9 @@
 if (SERVER) then
 	util.AddNetworkString("echoValidateEchoes")
 
+	local ECHO_GROUND_DIST = math.sqrt(1050) -- Distance from the ground at which an echo is normally placed
+	local ECHO_AIR_BUFFER = 20 -- Extra units above the ground before an echo counts as floating
+
 	net.Receive("echoValidateEchoes", function(_, client)
 		local requestID = net.ReadUInt(8)
 		local numEchoes = net.ReadUInt(12)
@@ -20,10 +23,9 @@ if (SERVER) then
 			})
 
 			if (util.IsInWorld(echoPos)) then
-				if (echoPos:DistToSqr(trace.HitPos) <= 1050) then continue end
-				local ground_z = trace.HitPos.z + 32
+				if (echoPos:Distance(trace.HitPos) <= ECHO_GROUND_DIST + ECHO_AIR_BUFFER) then continue end
 
-				airResponse[i] = echoPos.z - ground_z -- echo height off ground
+				airResponse[i] = true
 			else
 				voidResponse[i] = true
 			end
@@ -34,16 +36,16 @@ if (SERVER) then
 			net.WriteUInt(requestID, 8)
 			net.WriteUInt(numEchoes, 12)
 
-			-- each response echo is 28 bits
+			-- each response echo is 2 bits
 			for i = 1, numEchoes do
-				net.WriteBool(voidResponse[i] == true) --1 bit
-				net.WriteUInt(airResponse[i] or 0, 15) --15 bits (max 32767 units [max map size along any axis])
+				net.WriteBool(voidResponse[i] == true)
+				net.WriteBool(airResponse[i] == true)
 			end
 		net.Send(client)
 	end)
 else
 	CreateClientConVar("echoes_enablevoidechoes", "0")
-	CreateClientConVar("echoes_enableairechoes", "1")
+	CreateClientConVar("echoes_enablefloatingechoes", "0")
 
 	-- max transmittable echo requests = 1364 ((65533 - 20 bit header) / 48 bits per echo)
 	local MAX_ECHOES_TO_SEND = 1364
@@ -139,13 +141,13 @@ else
 		-- Get validated data from server and write to each echo
 		for i = 1, numIDs do
 			local inVoid = net.ReadBool()
-			local airHeight = net.ReadUInt(15)
+			local inAir = net.ReadBool()
 
 			local echo = echoesByID[validatedEchoes[i].id]
 			if (echo == nil) then continue end
 
 			echo.inVoid = inVoid
-			echo.airHeight = airHeight
+			echo.inAir = inAir
 		end
 
 		numPendingRequests = numPendingRequests - 1

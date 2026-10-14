@@ -25,7 +25,7 @@ if (SERVER) then
 		-- Prevent creating echoes in the air
 		local tr = util.TraceLine({
 			start = client:GetPos(),
-			endpos = client:GetPos() - Vector(0, 0, 10),
+			endpos = client:GetPos() - Vector(0, 0, 15),
 			mask = MASK_SOLID_BRUSHONLY
 		})
 
