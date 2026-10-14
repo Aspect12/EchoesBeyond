@@ -15,10 +15,9 @@ local __sin = math.sin
 
 CreateClientConVar("echoes_showread", "1")
 CreateClientConVar("echoes_renderdist", "25000000")
-CreateClientConVar("echoes_disablereadsys", "0")
+CreateClientConVar("echoes_readsys", "1")
 CreateClientConVar("echoes_disablesigning", "0")
 CreateClientConVar("echoes_gabenmode", "0")
-CreateClientConVar("echoes_distactivate", "0")
 
 surface.CreateFont("EchoText", {
 	font = "Verdana",
@@ -81,12 +80,11 @@ local echoTranslateMat = Material("echoesbeyond/echo_translate.png", "mips")
 local lightRenderDist = 3000000 -- How far the dynamic light should render
 local activationDist = 6500 -- How close the player should be to activate the echo
 local echoFadeDist = 2500 -- How far the echo should start fading
-local echoToGroundFrac = 0
 
 local function GetEchoPosition(echo)
 	local x, y, z = __vunpack(echo.pos)
 
-	return x, y, z - (echo.airHeight or 0) * echoToGroundFrac
+	return x, y, z
 end
 
 local function ComputeSqrEchoDist(origin)
@@ -144,8 +142,14 @@ local cameraData = {
 }
 
 local function EchoDistSortFunc(a,b) return a.distSqr > b.distSqr end
+
+local function IsEchoHidden(echo, renderVoidEchoes, renderAirEchoes)
+	return echo.timeHidden or (echo.inVoid and !renderVoidEchoes) or (echo.inAir and !renderAirEchoes)
+end
+
 local function GetSortedVisibleEchoes()
 	local renderVoidEchoes = GetConVar("echoes_enablevoidechoes"):GetBool()
+	local renderAirEchoes = GetConVar("echoes_enablefloatingechoes"):GetBool()
 	local cutOffDist = GetConVar("echoes_renderdist"):GetInt()
 	local sortedEchoes = {}
 	local cdata = cameraData
@@ -154,7 +158,7 @@ local function GetSortedVisibleEchoes()
 
 	for _, echo in ipairs(echoes) do
 		if (echo.distSqr > cutOffDist) then continue end
-		if (echo.inVoid and !renderVoidEchoes) then continue end
+		if (IsEchoHidden(echo, renderVoidEchoes, renderAirEchoes)) then continue end
 
 		local x, y, z = GetEchoPosition(echo)
 		local dot = ((cx-x) * fx + (cy-y) * fy + (cz-z) * fz)
@@ -193,41 +197,39 @@ local function UpdateEchoRotations(inEchoes, dt)
 end
 
 local function UpdateEchoInteractions(inEchoes, curTimeSpeed, dt)
-	local disableReadSys = GetConVar("echoes_disablereadsys"):GetBool()
+	local readSys = GetConVar("echoes_readsys"):GetBool()
 	local breathLayer = math.sin(curTimeSpeed) * 0.5
 	local activeZOffset = 24 + breathLayer
 	local readZOffset = 20
 	local gabenMode = GetConVar("echoes_gabenmode"):GetBool()
 	local profanity = GetConVar("echoes_profanity"):GetBool()
-	local distActivate = GetConVar("echoes_distactivate"):GetBool()
-	local threshold
-
-	if (!distActivate) then
-		local fov = GetConVar("fov_desired"):GetFloat()
-		threshold = math.cos(math.rad(fov / 2 - 10)) -- 10 degree buffer
-	end
+	local fov = GetConVar("fov_desired"):GetFloat()
+	local threshold = math.cos(math.rad(fov / 2 - 10)) -- 10 degree buffer
+	local renderVoidEchoes = GetConVar("echoes_enablevoidechoes"):GetBool()
+	local renderAirEchoes = GetConVar("echoes_enablefloatingechoes"):GetBool()
 
 	for _, echo in ipairs(inEchoes) do
 		echo.z_offset = echo.z_offset or 0
-		local read = echo.read and !disableReadSys
+
+		if (IsEchoHidden(echo, renderVoidEchoes, renderAirEchoes)) then continue end
+
+		local read = echo.read and readSys
 		local bOwner = echo.isOwner
 
 		if (((echo.explicit and profanity) or !echo.explicit) and !echo.loading) then
 			local inView = true
 
 			-- Determine if the player is looking at the echo independently of vertical angle
-			if (!distActivate) then
-				local x, y, _ = GetEchoPosition(echo)
-				local cdata = cameraData
-				local dx, dy = x - cdata.cx, y - cdata.cy
-				local dist2d = math.sqrt(dx * dx + dy * dy)
-				local fdist2d = math.sqrt(cdata.fx * cdata.fx + cdata.fy * cdata.fy)
+			local x, y, _ = GetEchoPosition(echo)
+			local cdata = cameraData
+			local dx, dy = x - cdata.cx, y - cdata.cy
+			local dist2d = math.sqrt(dx * dx + dy * dy)
+			local fdist2d = math.sqrt(cdata.fx * cdata.fx + cdata.fy * cdata.fy)
 
-				if (dist2d > 0 and fdist2d > 0) then
-					local dot = (dx * cdata.fx + dy * cdata.fy) / (dist2d * fdist2d)
+			if (dist2d > 0 and fdist2d > 0) then
+				local dot = (dx * cdata.fx + dy * cdata.fy) / (dist2d * fdist2d)
 
-					inView = dot >= threshold
-				end
+				inView = dot >= threshold
 			end
 
 			if (echo.distSqr < activationDist and inView) then
@@ -521,14 +523,11 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 	local gabenMode = GetConVar("echoes_gabenmode"):GetBool()
 	local profanity = GetConVar("echoes_profanity"):GetBool()
 	local showRead = GetConVar("echoes_showread"):GetBool()
-	local disableReadSys = GetConVar("echoes_disablereadsys"):GetBool()
+	local readSys = GetConVar("echoes_readsys"):GetBool()
 	local curTimeSpeed = curTime * 1.5
 	local showDlights = GetConVar("echoes_dlights"):GetBool()
-	local enableAir = GetConVar("echoes_enableairechoes"):GetBool()
 	local drawColor = Color(0, 0, 0)
 	local targetLang = GetTranslateTargetLang()
-
-	echoToGroundFrac = Lerp(frameTime * 2, echoToGroundFrac, enableAir and 0 or 1)
 
 	surface.SetFont("EchoText") -- Set the font for text size calculations
 
@@ -558,7 +557,7 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 		if (echo.creationTime > curTime) then continue end
 
 		local echoDistSqr = echo.distSqr
-		local read = echo.read and !disableReadSys
+		local read = echo.read and readSys
 		local bOwner = echo.isOwner
 		if (read and bOwner) then read = false end
 
@@ -573,7 +572,7 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 		else
 			if ((echo.explicit and !profanity) or echo.failed) then
 				echo.init = math.max(echo.init - frameTime, 0)
-			elseif (echo.init < 1 and ((echo.explicit and profanity) or !echo.explicit) or disableReadSys) then
+			elseif (echo.init < 1 and ((echo.explicit and profanity) or !echo.explicit) or !readSys) then
 				echo.init = math.min(echo.init + frameTime, 1)
 			end
 		end
@@ -781,10 +780,13 @@ hook.Add("Think", "echoes_translate_think", function()
 	if (pressed and !wasTranslatePressed) then
 		local clientPos = client:EyePos()
 		local best, bestDist = nil, activationDist
+		local renderVoidEchoes = GetConVar("echoes_enablevoidechoes"):GetBool()
+		local renderAirEchoes = GetConVar("echoes_enablefloatingechoes"):GetBool()
 
 		for i = 1, #echoes do
 			local echo = echoes[i]
 			if ((echo.active or 0) <= 0.9) then continue end
+			if (IsEchoHidden(echo, renderVoidEchoes, renderAirEchoes)) then continue end
 
 			local d = clientPos:DistToSqr(echo.pos)
 			if (d >= bestDist) then continue end
