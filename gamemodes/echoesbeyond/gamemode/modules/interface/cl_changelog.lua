@@ -17,6 +17,7 @@ function PANEL:Init()
 		- Updated text highlight color in entry UI.
 		- Expanded false-positive profanity filter list.
 		- Fixed map searching error.
+		- Improved echo text visibility.
 	]]
 
 	-- Compute height from line count so the panel grows to fit the content

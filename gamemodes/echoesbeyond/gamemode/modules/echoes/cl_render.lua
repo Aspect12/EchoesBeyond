@@ -20,6 +20,12 @@ CreateClientConVar("echoes_disablesigning", "0")
 CreateClientConVar("echoes_gabenmode", "0")
 CreateClientConVar("echoes_distactivate", "0")
 
+surface.CreateFont("EchoText", {
+	font = "Verdana",
+	size = 17,
+	weight = 700,
+	shadow = true
+})
 cvars.AddChangeCallback("echoes_disablesigning", function(name, old, new)
 	for i = 1, #echoes do
 		echoes[i].cachedText = nil
@@ -524,7 +530,7 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 
 	echoToGroundFrac = Lerp(frameTime * 2, echoToGroundFrac, enableAir and 0 or 1)
 
-	surface.SetFont("TargetID") -- Set the font for text size calculations
+	surface.SetFont("EchoText") -- Set the font for text size calculations
 
 	-- Compute squared distance to all echoes
 	ComputeSqrEchoDist(clientPos)
@@ -706,8 +712,11 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 			cam.IgnoreZ(true)
 
 			for j = 1, #echo.cachedText do
-				draw.SimpleText(echo.cachedText[j], "TargetID", 1, -(150 + j * 15), Color(0, 0, 0, math.min(active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-				draw.SimpleText(echo.cachedText[j], "TargetID", 0, -(151 + j * 15), Color(255, 255, 255, math.min(active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText(echo.cachedText[j], "EchoText", -1, -(151 + j * 15), Color(0, 0, 0, math.min(active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText(echo.cachedText[j], "EchoText", 1, -(151 + j * 15), Color(0, 0, 0, math.min(active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText(echo.cachedText[j], "EchoText", -1, -(149 + j * 15), Color(0, 0, 0, math.min(active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText(echo.cachedText[j], "EchoText", 1, -(149 + j * 15), Color(0, 0, 0, math.min(active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+				draw.SimpleText(echo.cachedText[j], "EchoText", 0, -(150 + j * 15), Color(255, 255, 255, math.min(active * 255, alpha)), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 			end
 
 			cam.IgnoreZ(false)
