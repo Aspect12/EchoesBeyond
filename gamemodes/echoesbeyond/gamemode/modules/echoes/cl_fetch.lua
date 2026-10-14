@@ -64,6 +64,7 @@ function FetchEchoes()
 
 		readEchoCount = 0
 
+		local readChanged = false
 		local deletedEchoes = table.Copy(echoes) -- Copy of the echoes table to check for deleted echoes
 		local newEchoes = {}
 
@@ -98,7 +99,15 @@ function FetchEchoes()
 				break
 			end
 
-			if (read) then
+			local isSpecial = string.StartsWith(newEcho.comment, "!&") and newEcho.admin
+
+			if (isSpecial and !table.HasValue(readEchoes, newEcho.id)) then
+				readEchoes[#readEchoes + 1] = newEcho.id
+				readChanged = true
+			end
+
+			-- Own and special Echoes always count as read
+			if (read or isOwner or isSpecial) then
 				readEchoCount = readEchoCount + 1
 			end
 
@@ -113,8 +122,7 @@ function FetchEchoes()
 
 			local text = newEcho.comment
 			local timestamp = ParseTimestamp(newEcho.created)
-			local isSpecial = string.StartsWith(text, "!&") and newEcho.admin
-			read = table.HasValue(readEchoes, newEcho.id)
+			read = table.HasValue(readEchoes, newEcho.id) and !isSpecial -- Special Echoes are stored as read but shouldn't look read
 			text = isSpecial and string.sub(text, string.StartsWith(text, "!& ") and 4 or 3) or text
 
 			echoes[#echoes + 1] = {
@@ -133,6 +141,11 @@ function FetchEchoes()
 				active = 0,
 				init = 0
 			}
+		end
+
+		if (readChanged) then
+			file.CreateDir("echoesbeyond")
+			file.Write("echoesbeyond/readechoes.txt", util.TableToJSON(readEchoes))
 		end
 
 		local minTime

@@ -18,6 +18,7 @@ function PANEL:Init()
 		- Made foreign echoes always appear blue.
 		- Improved echo text visibility.
 		- Hid floating echoes by default.
+		- Made personal & special Echoes count as read.
 		- Updated text highlight color in entry UI.
 		- Expanded false-positive profanity filter list.
 		- Fixed map searching error.

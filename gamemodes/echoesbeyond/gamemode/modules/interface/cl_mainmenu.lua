@@ -213,7 +213,7 @@ function PANEL:Init()
 	end
 
 	self.ownMapCount = table.Count(maps)
-	self.ownReadCount = #file.ReadOrCreate("echoesbeyond/readechoes.txt")
+	self.ownReadCount = #file.ReadOrCreate("echoesbeyond/readechoes.txt") + #writtenEchoes
 
 	local panelW, panelH = self:GetSize()
 	local echoSize = panelH / 1.5
