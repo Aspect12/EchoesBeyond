@@ -13,6 +13,7 @@ local function CreateCheckbox(text, convar)
 	checkbox:SizeToContents()
 	checkbox:SetPos(50, y)
 	checkbox.OnChange = function(self, value)
+		EchoSound("button_click")
 		convar:SetBool(value)
 	end
 
