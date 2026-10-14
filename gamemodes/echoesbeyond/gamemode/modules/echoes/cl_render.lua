@@ -26,22 +26,34 @@ cvars.AddChangeCallback("echoes_disablesigning", function(name, old, new)
 	end
 end, "echoes_disablesigning")
 
-local gabenNodeSounds = {
+local gabenIntroSounds = {
 	"/gaben/al_intro",
 	"/gaben/hl2_intro",
-	"/gaben/l4d2_intro",
 	"/gaben/l4d_intro",
+	"/gaben/l4d2_intro",
 	"/gaben/lc_intro",
 	"/gaben/p2_intro"
 }
 
-local gabenIntroSounds = {
+local gabenOutroSounds = {
+	"/gaben/al_outro",
+	"/gaben/ep1_outro",
+	"/gaben/ep2_outro",
+	"/gaben/hl2_outro",
+	"/gaben/l4d_outro",
+	"/gaben/l4d2_outro",
+	"/gaben/p1_outro",
+	"/gaben/p2_outro",
+	"/gaben/tf2_outro"
+}
+
+local gabenNodeSounds = {
 	"/gaben/al_node",
 	"/gaben/ep1_node",
 	"/gaben/ep2_node",
 	"/gaben/hl2_node",
-	"/gaben/l4d2_node",
 	"/gaben/l4d_node",
+	"/gaben/l4d2_node",
 	"/gaben/lc_node",
 	"/gaben/p1_node",
 	"/gaben/p2_node",
@@ -49,12 +61,13 @@ local gabenIntroSounds = {
 }
 
 cvars.AddChangeCallback("echoes_gabenmode", function(name, old, new)
-	if (new == "0") then return end
-
-	EchoSound(table.Random(gabenNodeSounds), nil, 0.75)
+	EchoSound(new == "1" and table.Random(gabenIntroSounds) or table.Random(gabenOutroSounds), math.random(95, 105), 0.75)
 end, "echoes_gabenmode")
 
 local echoMat = Material("echoesbeyond/echo.png", "mips")
+local echoMatGaben = Material("echoesbeyond/echo_gaben.png", "mips")
+local echoMatGabenOutline = Material("echoesbeyond/echo_gaben_outline.png", "mips")
+local echoMatGabenBlank = Material("echoesbeyond/echo_gaben_blank.png", "mips")
 local echoBlankMat = Material("echoesbeyond/echo_blank.png", "mips")
 local echoDotsMat = Material("echoesbeyond/echo_dots.png", "mips")
 local echoDotSingleMat = Material("echoesbeyond/echo_dot_single.png", "mips")
@@ -152,10 +165,17 @@ end
 
 local function UpdateEchoRotations(inEchoes, dt)
 	local lerpFactor = math.Clamp(dt * 5, 0, 1)
+	local gabenMode = GetConVar("echoes_gabenmode"):GetBool()
 	local cdata = cameraData
 	local cx, cy, _ = cdata.cx, cdata.cy, cdata.cz
 
 	for _, echo in ipairs(inEchoes) do
+		if (gabenMode and (echo.active > 0.1 or echo.loading)) then
+			echo._angle = ((echo._angle or 0) + dt * math.rad(90)) % (math.pi * 2)
+
+			continue
+		end
+
 		local px, py, _ = GetEchoPosition(echo)
 		local a = math.atan2(px - cx, py - cy)
 		local b = echo._angle or 0
@@ -215,7 +235,7 @@ local function UpdateEchoInteractions(inEchoes, curTimeSpeed, dt)
 					echo.soundActive = true
 
 					if (gabenMode) then
-						EchoSound(table.Random(gabenIntroSounds), nil, 0.75)
+						EchoSound(echo.special and table.Random(gabenIntroSounds) or table.Random(gabenNodeSounds), echo.explicit and math.random(65, 75) or (echo.originalText != nil) and math.random(105, 115) or math.random(95, 105), 0.75)
 					else
 						EchoSound("echo_activate", echo.special and math.random(115, 125) or echo.explicit and math.random(65, 75) or (echo.originalText != nil) and math.random(105, 115) or math.random(95, 105))
 					end
@@ -492,6 +512,7 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 	local clientPos = client:GetShootPos()
 	local frameTime = FrameTime()
 	local curTime = CurTime()
+	local gabenMode = GetConVar("echoes_gabenmode"):GetBool()
 	local profanity = GetConVar("echoes_profanity"):GetBool()
 	local showRead = GetConVar("echoes_showread"):GetBool()
 	local disableReadSys = GetConVar("echoes_disablereadsys"):GetBool()
@@ -533,7 +554,7 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 		local echoDistSqr = echo.distSqr
 		local read = echo.read and !disableReadSys
 		local bOwner = echo.isOwner
-		if read and bOwner then read = false end
+		if (read and bOwner) then read = false end
 
 		-- Update initialization factor based on explicit flag and profanity setting
 		if (read and !showRead) then
@@ -615,17 +636,73 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 		ComputeEchoMtx(echo_mtx, echo.drawPos, echo._angle, 0.1)
 		cam.PushModelMatrix(echo_mtx, true)
 
-		surface.SetDrawColor(partyMode and echo.partyColor or drawColor)
-		surface.SetMaterial((loading or active > 0) and echoBlankMat or echoMat)
+		if (gabenMode) then
+			surface.SetDrawColor(partyMode and echo.partyColor or drawColor)
+			surface.SetMaterial(echoMatGabenOutline)
+			surface.DrawTexturedRect(-96, -96, 192, 192)
+		end
+
+		surface.SetDrawColor(gabenMode and Color(255, 255, 255, alpha) or partyMode and echo.partyColor or drawColor)
+		surface.SetMaterial((loading or active > 0) and (gabenMode and echoMatGabenBlank or echoBlankMat) or (gabenMode and echoMatGaben or echoMat))
 		surface.DrawTexturedRect(-96, -96, 192, 192)
 
 		if (loading) then
 			surface.SetDrawColor(0, 0, 0, alpha)
 			surface.SetMaterial(echoDotsMat)
-			surface.DrawTexturedRectRotated(0, 0, 192, 192, curTime * -350)
+			surface.DrawTexturedRectRotated(0, gabenMode and -16 or 0, 192, 192, curTime * -350)
 		end
 
-		if (alpha != 0 and active != 0) then
+		-- translate badge
+		if (showTransIcon and alpha != 0) then
+			local transColor = 100 + 155 * active
+
+			surface.SetDrawColor(loading and Color(transColor, transColor, transColor, alpha) or partyMode and echo.partyColor or drawColor)
+			surface.SetMaterial(echoTranslateMat)
+			surface.DrawTexturedRect(gabenMode and 32 or 16, gabenMode and -96 or -80, 64, 64)
+		end
+
+		cam.PopModelMatrix()
+
+		-- Opposite side
+		if (gabenMode and (active > 0.01 or loading)) then
+			ComputeEchoMtx(echo_mtx, echo.drawPos, echo._angle + math.pi, 0.1)
+			cam.PushModelMatrix(echo_mtx, true)
+
+			surface.SetDrawColor(partyMode and echo.partyColor or drawColor)
+			surface.SetMaterial(echoMatGabenOutline)
+			surface.DrawTexturedRectUV(-96, -96, 192, 192, 1, 0, 0, 1)
+
+			surface.SetDrawColor(Color(255, 255, 255, alpha))
+			surface.SetMaterial(echoMatGabenBlank)
+			surface.DrawTexturedRectUV(-96, -96, 192, 192, 1, 0, 0, 1)
+
+			-- loading
+			if (loading) then
+				surface.SetDrawColor(0, 0, 0, alpha)
+				surface.SetMaterial(echoDotsMat)
+				surface.DrawTexturedRectRotated(0, gabenMode and -16 or 0, 192, 192, curTime * 350)
+			end
+
+			-- translate icon
+			if (showTransIcon and alpha != 0) then
+				local transColor = 100 + 155 * active
+
+				surface.SetDrawColor(loading and Color(transColor, transColor, transColor, alpha) or partyMode and echo.partyColor or drawColor)
+				surface.SetMaterial(echoTranslateMat)
+				surface.DrawTexturedRectUV(-96, -96, 64, 64, 1, 0, 0, 1)
+			end
+
+			cam.PopModelMatrix()
+		end
+
+		-- Text
+		if (alpha != 0 and active != 0 and echo.cachedText) then
+			local px, py = GetEchoPosition(echo)
+			local faceAngle = math.atan2(px - cameraData.cx, py - cameraData.cy)
+
+			ComputeEchoMtx(echo_mtx, echo.drawPos, faceAngle, 0.1)
+			cam.PushModelMatrix(echo_mtx, true)
+
 			cam.IgnoreZ(true)
 
 			for j = 1, #echo.cachedText do
@@ -634,17 +711,8 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 			end
 
 			cam.IgnoreZ(false)
+			cam.PopModelMatrix()
 		end
-
-		-- translate badge
-		if (showTransIcon and alpha != 0) then
-			local transColor = 100 + 155 * active
-			surface.SetDrawColor(loading and Color(transColor, transColor, transColor, alpha) or partyMode and echo.partyColor or drawColor)
-			surface.SetMaterial(echoTranslateMat)
-			surface.DrawTexturedRect(16, -80, 64, 64)
-		end
-
-		cam.PopModelMatrix()
 
 		-- Animated dots
 		if (alpha != 0 and active != 0) then
@@ -654,14 +722,39 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 
 			surface.SetMaterial(echoDotSingleMat)
 
+			local height = gabenMode and -1120 or -960
+			local distance = gabenMode and 313 or 280
+
 			local z = (0.5 * math.sin(curTimeSpeed)) * active * 100
-			surface.DrawTexturedRect(-1240, -960 + z, 1920, 1920)
+			surface.DrawTexturedRect(-960 - distance, height + z, 1920, 1920)
 
 			z = (0.5 * math.sin(curTimeSpeed + 20)) * active * 100
-			surface.DrawTexturedRect(-960, -960 + z, 1920, 1920)
+			surface.DrawTexturedRect(-960, height + z, 1920, 1920)
 
 			z = (0.5 * math.sin(curTimeSpeed + 40)) * active * 100
-			surface.DrawTexturedRect(-680, -960 + z, 1920, 1920)
+			surface.DrawTexturedRect(-960 + distance, height + z, 1920, 1920)
+
+			cam.PopModelMatrix()
+		end
+
+		-- Animated dots (opposite)
+		if (gabenMode and active > 0.01 and alpha != 0) then
+			ComputeEchoMtx(echo_mtx, echo.drawPos, echo._angle + math.pi, 0.01)
+			cam.PushModelMatrix(echo_mtx, true)
+
+			surface.SetMaterial(echoDotSingleMat)
+
+			local height = gabenMode and -1120 or -960
+			local distance = gabenMode and 313 or 280
+
+			local z = (0.5 * math.sin(curTimeSpeed + 40)) * active * 100
+			surface.DrawTexturedRectUV(-960 - distance, height + z, 1920, 1920, 1, 0, 0, 1)
+
+			z = (0.5 * math.sin(curTimeSpeed + 20)) * active * 100
+			surface.DrawTexturedRectUV(-960, height + z, 1920, 1920, 1, 0, 0, 1)
+
+			z = (0.5 * math.sin(curTimeSpeed)) * active * 100
+			surface.DrawTexturedRectUV(-960 + distance, height + z, 1920, 1920, 1, 0, 0, 1)
 
 			cam.PopModelMatrix()
 		end

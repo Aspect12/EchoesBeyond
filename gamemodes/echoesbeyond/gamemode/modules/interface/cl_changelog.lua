@@ -13,8 +13,7 @@ function PANEL:Init()
 
 	local changelogText = [[
 		- Added new music.
-		- Added gaben mode party song.
-		- Added time travel mode.
+		- Added gaben mode party song, echo skins, and outro sounds.
 		- Updated text highlight color in entry UI.
 		- Expanded false-positive profanity filter list.
 		- Fixed map searching error.

@@ -198,13 +198,17 @@ function FetchStats()
 						endPartyEnabled = true
 					end)
 
-					LocalPlayer():EmitSound("echoesbeyond/music/km_who_likes_to_party.mp3")
+					local partyMusic = GetConVar("echoes_gabenmode"):GetBool() and "echoesbeyond/music/mg_faster_stronger_better_gaben.mp3" or "echoesbeyond/music/km_who_likes_to_party.mp3"
+					local musicDuration = SoundDuration(partyMusic)
+
+					LocalPlayer():EmitSound(partyMusic)
 
 					timer.Create("echoesPartyColor", 0, 0, function()
 						timer.Adjust("echoesPartyColor", 0.5)
 
 						for i = 1, #echoes do
 							local echo = echoes[i]
+
 							echo.partyColor = Color(math.random(255), math.random(255), math.random(255))
 							echo.partyOffset = Vector(math.random(-20, 20), math.random(-20, 20), math.random(-20, 20))
 						end
@@ -212,10 +216,10 @@ function FetchStats()
 						vignetteColor = Color(math.random(255), math.random(255), math.random(255))
 					end)
 
-					timer.Create("echoesParty", 255, 1, function() -- Duration of the party music
+					timer.Create("echoesParty", musicDuration, 1, function() -- Duration of the party music
 						partyMode = false
 						timer.Remove("echoesPartyColor")
-						LocalPlayer():StopSound("echoesbeyond/music/km_who_likes_to_party.mp3")
+						LocalPlayer():StopSound(partyMusic)
 						vignetteColor = color_black
 						endPartyEnabled = false
 

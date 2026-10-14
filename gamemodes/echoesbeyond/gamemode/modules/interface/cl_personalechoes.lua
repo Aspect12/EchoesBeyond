@@ -3,6 +3,7 @@ CreateClientConVar("echoes_personalshowall", "0")
 
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
 local echoMat = Material("echoesbeyond/echo_simple.png", "smooth")
+local echoGabenMat = Material("echoesbeyond/echo_gaben_simple.png", "smooth")
 local deleteMat = Material("echoesbeyond/trash.png", "smooth")
 local teleportMat = Material("echoesbeyond/teleport.png", "smooth")
 
@@ -256,7 +257,7 @@ function PANEL:PaintOver(width, height)
 	local breatheLayer = math.sin(CurTime() * 1.5)
 
 	surface.SetDrawColor(255, 255, 255, 1)
-	surface.SetMaterial(echoMat)
+	surface.SetMaterial(GetConVar("echoes_gabenmode"):GetBool() and echoGabenMat or echoMat)
 	surface.DrawTexturedRectRotated(width / 2, height / 2 + 5 * breatheLayer, size, size, 0)
 end
 

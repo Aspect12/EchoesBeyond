@@ -1,8 +1,11 @@
 
 -- The main menu
 local echoMat = Material("echoesbeyond/echo_simple.png", "smooth")
+local echoGabenMat = Material("echoesbeyond/echo_gaben_simple.png", "smooth")
 local echoSimpleBlankMat = Material("echoesbeyond/echo_simple_blank.png", "smooth")
+local echoGabenSimpleBlankMat = Material("echoesbeyond/echo_gaben_blank_simple.png", "smooth")
 local echoBlankMat = Material("echoesbeyond/echo_blank.png", "smooth")
+local echoGabenBlankMat = Material("echoesbeyond/echo_gaben_blank.png", "smooth")
 local echoDotSimpleMat = Material("echoesbeyond/echo_simple_dot_single.png", "smooth")
 local echoDotSingleMat = Material("echoesbeyond/echo_dot_single.png", "smooth")
 local mapMat = Material("echoesbeyond/map.png", "smooth")
@@ -119,7 +122,7 @@ function PANEL:Init()
 	personalEchoes:SetText("")
 	personalEchoes.Paint = function(self, width, height)
 		surface.SetDrawColor(self:IsDown() and Color(100, 100, 100) or (self:IsHovered() or IsValid(personalEchoesMenu)) and Color(75, 75, 75) or Color(50, 50, 50))
-		surface.SetMaterial(echoMat)
+		surface.SetMaterial(GetConVar("echoes_gabenmode"):GetBool() and echoGabenMat or echoMat)
 		surface.DrawTexturedRect(-7, -7, width + 14, height + 14)
 	end
 	personalEchoes.DoClick = function()
@@ -266,6 +269,8 @@ function PANEL:Paint(width, height)
 
 	local frameTime = FrameTime()
 	local hoverLerp = Lerp(frameTime * 4, self.hoverLerp or 0, self.echoHovered and 1 or 0)
+	local gabenMode = GetConVar("echoes_gabenmode"):GetBool()
+
 	self.hoverLerp = hoverLerp
 
 	local clickPulse = math.max(0, 1 - (CurTime() - (self.clickTime or -math.huge)) * 4)
@@ -278,15 +283,15 @@ function PANEL:Paint(width, height)
 	local dotSize = height / 1.5
 	local dotHSpacing = dotSize * (280 / 1920)
 	local dotBobAmp = dotSize * (50 / 1920)
-	local dotBaseY = height / 2 + 5 * breatheLayer
+	local dotBaseY = ((height / 2) - 10) + (5 * breatheLayer)
 
 	surface.SetDrawColor(255, 255, 255, math.floor(5 * (1 - hoverLerp) + 3 * clickPulse))
-	surface.SetMaterial(echoSimpleBlankMat)
-	surface.DrawTexturedRectRotated(width / 2, dotBaseY, dotSize, dotSize, 0)
+	surface.SetMaterial(gabenMode and echoGabenSimpleBlankMat or echoSimpleBlankMat)
+	surface.DrawTexturedRectRotated(width / 2, dotBaseY + (gabenMode and 30 or 0), dotSize, dotSize, 0)
 
 	surface.SetDrawColor(255, 255, 255, math.floor(10 * hoverLerp + 3 * clickPulse))
-	surface.SetMaterial(echoBlankMat)
-	surface.DrawTexturedRectRotated(width / 2, dotBaseY, dotSize, dotSize, 0)
+	surface.SetMaterial(gabenMode and echoGabenBlankMat or echoBlankMat)
+	surface.DrawTexturedRectRotated(width / 2, dotBaseY + (gabenMode and 30 or 0), dotSize, dotSize, 0)
 
 	surface.SetDrawColor(25, 25, 25, math.floor(255 * (1 - hoverLerp)))
 	surface.SetMaterial(echoDotSimpleMat)
