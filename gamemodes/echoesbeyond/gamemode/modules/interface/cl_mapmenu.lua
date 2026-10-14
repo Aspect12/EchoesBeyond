@@ -4,6 +4,7 @@ local mapMat = Material("echoesbeyond/map.png", "smooth")
 
 -- The map menu
 local PANEL = {}
+local MAPS_PER_BATCH = 100
 
 function PANEL:Init()
 	if (IsValid(mapMenu)) then
@@ -105,6 +106,21 @@ function PANEL:Init()
 	self.mapListPanel.VBar.btnUp.Paint = function() end
 	self.mapListPanel.VBar.btnDown.Paint = function() end
 
+	-- Finish all fade-ins as soon as the scrollbar is grabbed
+	local barPressed = self.mapListPanel.VBar.OnMousePressed
+	local gripPressed = self.mapListPanel.VBar.btnGrip.OnMousePressed
+
+	self.mapListPanel.VBar.OnMousePressed = function(this, ...)
+		self:ShowAllMaps()
+
+		return barPressed(this, ...)
+	end
+	self.mapListPanel.VBar.btnGrip.OnMousePressed = function(this, ...)
+		self:ShowAllMaps()
+
+		return gripPressed(this, ...)
+	end
+
 	self:ListMaps()
 end
 
@@ -113,8 +129,6 @@ function PANEL:ListMaps(filter)
 		entry:Remove()
 	end
 
-	local mapNum = 1
-
 	if (filter) then
 		filter = filter:Trim()
 		filter = filter != "" and filter
@@ -122,7 +136,10 @@ function PANEL:ListMaps(filter)
 
 	local showLocal = self.showLocalCheck and self.showLocalCheck:GetChecked()
 	local mapPairs = {}
+	local pending = {}
 	self.mapList = {}
+	self.listID = (self.listID or 0) + 1
+	self.forceAlpha = false
 
 	for name, amount in SortedPairsByValue(mapList, true) do
 		mapPairs[#mapPairs + 1] = {name = tostring(name), amount = amount}
@@ -142,50 +159,90 @@ function PANEL:ListMaps(filter)
 		if (!filter and !showLocal and amount < 10) then continue end
 		if (showLocal and !self.installedMaps[name]) then continue end
 
-		local entry = vgui.Create("DPanel", self.mapListPanel)
-		entry:Dock(TOP)
-		entry:DockPadding(5, 0, 15, 0)
-		entry:SetTall(20)
-		entry:DockMargin(0, 0, 0, 5)
-		entry.Paint = function(this, width, height)
-			amount = mapList[name] or amount
-			draw.SimpleText(amount .. " Echoes", "DermaDefault", width - 10, height / 2, this.textColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
-
-			local installed = self.installedMaps[name]
-			this.textColor = LerpColor(FrameTime() * (installed and 3 or 1), this.textColor, installed and Color(100, 200, 100) or Color(200, 200, 200))
-		end
-		entry.textColor = Color(200, 200, 200)
-
-		local mapName = vgui.Create("DButton", entry)
-		mapName:SetText(name)
-		mapName:SizeToContents()
-		mapName:Dock(LEFT)
-		mapName:SetContentAlignment(4)
-		mapName:SetPaintBackground(false)
-		mapName.Think = function(this)
-			if (this:IsHovered()) then
-				this:SetTextColor(Color(0, 125, 255))
-			else
-				this:SetTextColor(entry.textColor)
-			end
-		end
-		mapName.DoClick = function(this)
-			if (file.Read("maps/" .. name .. ".bsp", "GAME")) then
-				RunConsoleCommand("changelevel", name)
-			else
-				gui.OpenURL("https://steamcommunity.com/workshop/browse/?appid=4000&searchtext=" .. name .. "&requiredtags%5B%5D=Map&requiredtags%5B%5D=Addon")
-			end
-		end
-
-		entry:SetAlpha(0)
-		entry:AlphaTo(255, 0.25, 0.02 * mapNum)
-		self.mapList[name] = entry
-
-		mapNum = mapNum + 1
+		pending[#pending + 1] = v
 	end
 
-	self.subTitle:SetText("Below is a list of " .. table.Count(self.mapList) .. " maps with Echoes in them.")
+	self.subTitle:SetText("Below is a list of " .. #pending .. " maps with Echoes in them.")
 	self.subTitle:SizeToContents()
+
+	-- Create the labels in batches to avoid a lag spike
+	local listID = self.listID
+	local startTime = CurTime()
+	local index = 1
+
+	local function CreateBatch()
+		if (!IsValid(self) or self.listID != listID) then return end
+
+		local last = math.min(index + MAPS_PER_BATCH - 1, #pending)
+
+		for i = index, last do
+			self:CreateMapEntry(pending[i].name, pending[i].amount, i, startTime)
+		end
+
+		index = last + 1
+
+		if (index <= #pending) then
+			timer.Simple(0.1, CreateBatch)
+		end
+	end
+
+	CreateBatch()
+end
+
+function PANEL:CreateMapEntry(name, amount, mapNum, startTime)
+	local entry = vgui.Create("DPanel", self.mapListPanel)
+	entry:Dock(TOP)
+	entry:DockPadding(5, 0, 15, 0)
+	entry:SetTall(20)
+	entry:DockMargin(0, 0, 0, 5)
+	entry.Paint = function(this, width, height)
+		amount = mapList[name] or amount
+		draw.SimpleText(amount .. " Echoes", "DermaDefault", width - 10, height / 2, this.textColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+
+		local installed = self.installedMaps[name]
+		this.textColor = LerpColor(FrameTime() * (installed and 3 or 1), this.textColor, installed and Color(100, 200, 100) or Color(200, 200, 200))
+	end
+	entry.textColor = Color(200, 200, 200)
+
+	local mapName = vgui.Create("DButton", entry)
+	mapName:SetText(name)
+	mapName:SizeToContents()
+	mapName:Dock(LEFT)
+	mapName:SetContentAlignment(4)
+	mapName:SetPaintBackground(false)
+	mapName.Think = function(this)
+		if (this:IsHovered()) then
+			this:SetTextColor(Color(0, 125, 255))
+		else
+			this:SetTextColor(entry.textColor)
+		end
+	end
+	mapName.DoClick = function(this)
+		if (file.Read("maps/" .. name .. ".bsp", "GAME")) then
+			RunConsoleCommand("changelevel", name)
+		else
+			gui.OpenURL("https://steamcommunity.com/workshop/browse/?appid=4000&searchtext=" .. name .. "&requiredtags%5B%5D=Map&requiredtags%5B%5D=Addon")
+		end
+	end
+
+	if (!self.forceAlpha) then
+		entry:SetAlpha(0)
+		entry:AlphaTo(255, 0.25, math.max(0.02 * mapNum - (CurTime() - startTime), 0))
+	end
+
+	self.mapList[name] = entry
+end
+
+-- Instantly finish all label fade-ins
+function PANEL:ShowAllMaps()
+	self.forceAlpha = true
+
+	for _, entry in pairs(self.mapList) do
+		if (!IsValid(entry)) then continue end
+
+		entry:Stop()
+		entry:SetAlpha(255)
+	end
 end
 
 function PANEL:UpdateMaps(newMaps)

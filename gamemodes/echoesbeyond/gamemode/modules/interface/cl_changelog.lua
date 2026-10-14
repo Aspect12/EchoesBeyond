@@ -22,6 +22,7 @@ function PANEL:Init()
 		- Updated text highlight color in entry UI.
 		- Expanded false-positive profanity filter list.
 		- Fixed map searching error.
+		- Improved map menu performance.
 		- Removed 'Activate Echoes by distance' option.
 	]]
 
