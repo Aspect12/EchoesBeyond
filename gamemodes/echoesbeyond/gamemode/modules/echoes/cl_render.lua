@@ -25,6 +25,23 @@ surface.CreateFont("EchoText", {
 	weight = 700,
 	shadow = true
 })
+
+-- Timestamp of the first Echo created after the addon was migrated to the new serverside codebase
+-- Only used as fallback
+local defaultMinTime = 1740481089
+
+echoTimeMax = os.time() -- The time travel max value, i.e. the current time
+echoTimeMin = echoTimeMin or defaultMinTime -- Timestamp of the first Echo in the current map
+echoTimeLive = true -- Whether the time is set to the current time, or viewing the past
+
+CreateClientConVar("echoes_timetravel_time", tostring(echoTimeMax))
+
+cvars.AddChangeCallback("echoes_timetravel_time", function(name, old, new)
+	echoTimeLive = (tonumber(new) or 0) >= echoTimeMax - echoTimeTolerance
+
+	UpdateEchoTimeVisibility()
+end, "echoes_timetravel_time")
+
 cvars.AddChangeCallback("echoes_disablesigning", function(name, old, new)
 	for i = 1, #echoes do
 		echoes[i].cachedText = nil
@@ -80,6 +97,18 @@ local echoTranslateMat = Material("echoesbeyond/echo_translate.png", "mips")
 local lightRenderDist = 3000000 -- How far the dynamic light should render
 local activationDist = 6500 -- How close the player should be to activate the echo
 local echoFadeDist = 2500 -- How far the echo should start fading
+
+echoTimeTolerance = 128 -- Convars are stored as 32-bit floats, which can only represent unix timestamps in steps of 128 seconds
+
+function UpdateEchoTimeVisibility()
+	local time = GetConVar("echoes_timetravel_time"):GetInt()
+
+	for _, echo in ipairs(echoes) do
+		local visible = echoTimeLive or (echo.timestamp or 0) <= time
+
+		echo.timeHidden = !visible
+	end
+end
 
 local function GetEchoPosition(echo)
 	local x, y, z = __vunpack(echo.pos)
@@ -801,4 +830,48 @@ hook.Add("Think", "echoes_translate_think", function()
 	end
 
 	wasTranslatePressed = pressed
+end)
+
+hook.Add("InitPostEntity", "echoes_timetravel_reset", function()
+	echoTimeMax = os.time()
+	echoTimeLive = true
+
+	GetConVar("echoes_timetravel_time"):SetInt(echoTimeMax)
+
+	UpdateEchoTimeVisibility()
+end)
+
+-- Greyscale the screen while time travelling
+local timeTravelGrey = 0
+local greyTable = {
+	["$pp_colour_addr"] = 0,
+	["$pp_colour_addg"] = 0,
+	["$pp_colour_addb"] = 0,
+	["$pp_colour_brightness"] = 0,
+	["$pp_colour_contrast"] = 1,
+	["$pp_colour_colour"] = 1,
+	["$pp_colour_mulr"] = 0,
+	["$pp_colour_mulg"] = 0,
+	["$pp_colour_mulb"] = 0
+}
+
+hook.Add("RenderScreenspaceEffects", "echoes_timetravel_greyscale", function()
+	local target = 0
+
+	if (!echoTimeLive) then
+		local range = echoTimeMax - echoTimeMin
+
+		if (range > 0) then
+			local time = GetConVar("echoes_timetravel_time"):GetInt()
+
+			target = math.Clamp((echoTimeMax - time) / range, 0, 0.75)
+		end
+	end
+
+	timeTravelGrey = Lerp(math.Clamp(FrameTime() * 8, 0, 0.75), timeTravelGrey, target)
+	if (timeTravelGrey < 0.005) then return end
+
+	greyTable["$pp_colour_colour"] = 1 - timeTravelGrey
+
+	DrawColorModify(greyTable)
 end)

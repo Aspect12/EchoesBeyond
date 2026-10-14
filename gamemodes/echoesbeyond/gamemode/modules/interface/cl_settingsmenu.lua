@@ -20,12 +20,54 @@ local function CreateCheckbox(text, convar)
 	y = y + 25
 end
 
-local function CreateSlider(text, convar, min, max, decimals)
+local timeUnits = {
+	{"month", 2592000},
+	{"week", 604800},
+	{"day", 86400},
+	{"hour", 3600},
+	{"minute", 60},
+	{"second", 1}
+}
+
+-- Describes a unix timestamp relative to now, e.g. "5 minutes ago"
+local function FormatTimeAgo(value, min, max)
+	if (value >= max - echoTimeTolerance) then return "Now (Live)" end
+	if (value <= min + echoTimeTolerance) then return "First Echo Time" end
+
+	local diff = math.max(os.time() - value, 1)
+
+	for i = 1, #timeUnits do
+		local name, seconds = timeUnits[i][1], timeUnits[i][2]
+		if (diff < seconds and i != #timeUnits) then continue end
+
+		local amount = math.max(math.floor(diff / seconds), 1)
+
+		return amount .. " " .. name .. (amount == 1 and "" or "s") .. " ago"
+	end
+end
+
+local function CreateSlider(text, convar, min, max, decimals, formatter)
 	local slider = vgui.Create("DNumSlider", settingsMenu)
 	slider:SetText(text)
 	slider:SetMin(min)
 	slider:SetMax(max)
 	slider:SetDecimals(decimals)
+
+	-- Replace the raw number in the text box with a readable description
+	if (formatter) then
+		local valueChanged = slider.ValueChanged
+
+		slider.TextArea:SetEditable(false)
+		slider.TextArea:SetWide(80)
+		slider.TextArea:SetCursor("arrow")
+
+		slider.ValueChanged = function(self, value)
+			valueChanged(self, value)
+
+			self.TextArea:SetText(formatter(math.Clamp(tonumber(value) or min, min, max), min, max))
+		end
+	end
+
 	slider:SetValue(convar:GetInt())
 	slider:SetWide(settingsMenu:GetWide() - 100)
 	slider:SetPos(50, y)
@@ -81,6 +123,17 @@ function PANEL:Init()
 
 	CreateSlider("Movement Speed", GetConVar("echoes_speed"), 1, 1000, 0)
 	CreateSlider("Render Distance", GetConVar("echoes_renderdist"), 10000, 100000000, 0)
+
+	-- While viewing the present, keep the slider pinned to the current time
+	echoTimeMax = os.time()
+
+	local timeConvar = GetConVar("echoes_timetravel_time")
+
+	if (echoTimeLive) then
+		timeConvar:SetInt(echoTimeMax)
+	end
+
+	CreateSlider("Echo Time Period", timeConvar, echoTimeMin, echoTimeMax, 0, FormatTimeAgo)
 
 	local deleteAll = vgui.Create("DButton", self)
 	deleteAll:SetSize(self:GetWide() * 0.5, 30)

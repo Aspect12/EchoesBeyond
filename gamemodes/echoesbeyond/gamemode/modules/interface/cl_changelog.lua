@@ -14,12 +14,14 @@ function PANEL:Init()
 	local changelogText = [[
 		- Added new music.
 		- Added gaben mode party song, echo skins, and outro sounds.
+		- Added Time Travel setting.
+		- Made foreign echoes always appear blue.
+		- Improved echo text visibility.
+		- Hid floating echoes by default.
 		- Updated text highlight color in entry UI.
 		- Expanded false-positive profanity filter list.
 		- Fixed map searching error.
-		- Improved echo text visibility.
-		- Made foreign echoes always appear blue.
-		- Hid floating echoes by default.
+		- Removed 'Activate Echoes by distance' option.
 	]]
 
 	-- Compute height from line count so the panel grows to fit the content

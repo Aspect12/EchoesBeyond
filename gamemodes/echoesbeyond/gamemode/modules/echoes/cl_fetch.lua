@@ -15,6 +15,28 @@ nextEcho = nextEcho or 0 -- Time a new echo can be made
 mapList = mapList or {} -- List of maps with echoes
 echoes = echoes or {} -- Echoes on the map
 
+-- Converts an ISO 8601 UTC string (e.g. "2025-02-25T10:58:09Z") to a unix timestamp
+-- This fucking sucks and would be better if the server just returned a unix timestamp directly
+local function ParseTimestamp(str)
+	if (isnumber(str)) then return str end
+	if (!isstring(str)) then return 0 end
+
+	local year, month, day, hour, min, sec = str:match("^(%d+)-(%d+)-(%d+)[T ](%d+):(%d+):(%d+)")
+	if (!year) then return tonumber(str) or 0 end
+
+	year, month, day = tonumber(year), tonumber(month), tonumber(day)
+
+	-- Days since the epoch (civil calendar algorithm); avoids os.time, which applies the local timezone
+	local y = month <= 2 and year - 1 or year
+	local era = math.floor(y / 400)
+	local yoe = y - era * 400
+	local doy = math.floor((153 * (month + (month > 2 and -3 or 9)) + 2) / 5) + day - 1
+	local doe = yoe * 365 + math.floor(yoe / 4) - math.floor(yoe / 100) + doy
+	local days = era * 146097 + doe - 719468
+
+	return days * 86400 + tonumber(hour) * 3600 + tonumber(min) * 60 + tonumber(sec)
+end
+
 function FetchEchoes()
 	local map = game.GetMap()
 
@@ -90,6 +112,7 @@ function FetchEchoes()
 			}
 
 			local text = newEcho.comment
+			local timestamp = ParseTimestamp(newEcho.created)
 			local isSpecial = string.StartsWith(text, "!&") and newEcho.admin
 			read = table.HasValue(readEchoes, newEcho.id)
 			text = isSpecial and string.sub(text, string.StartsWith(text, "!& ") and 4 or 3) or text
@@ -101,6 +124,7 @@ function FetchEchoes()
 				special = isSpecial,
 				soundActive = false,
 				drawPos = Vector(position),
+				timestamp = timestamp,
 				isOwner = isOwner,
 				id = newEcho.id,
 				pos = position,
@@ -111,7 +135,22 @@ function FetchEchoes()
 			}
 		end
 
+		local minTime
+
+		for i = 1, #echoData do
+			local created = ParseTimestamp(echoData[i].created)
+
+			if (created > 0 and (!minTime or created < minTime)) then
+				minTime = created
+			end
+		end
+
+		if (minTime) then
+			echoTimeMin = minTime
+		end
+
 		ValidateEchoes(newEchoes)
+		UpdateEchoTimeVisibility()
 
 		-- Remove echoes that were deleted
 		for i = 1, #deletedEchoes do
