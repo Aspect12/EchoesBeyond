@@ -23,7 +23,13 @@ if (SERVER) then
 		end
 
 		-- Prevent creating echoes in the air
-		if (!client:IsOnGround()) then
+		local tr = util.TraceLine({
+			start = client:GetPos(),
+			endpos = client:GetPos() - Vector(0, 0, 10),
+			mask = MASK_SOLID_BRUSHONLY
+		})
+
+		if (!tr.HitWorld) then
 			EchoNotify(client, "A good message is built on solid ground. You are in the air.")
 
 			return
