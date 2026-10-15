@@ -81,7 +81,7 @@ function PANEL:Init()
 
 	local reloadBind = string.upper(input.LookupBinding("+reload") or "r")
 	local createHint = vgui.Create("DLabel", self)
-	createHint:SetText("Press '" .. reloadBind .. "' to write an echo.")
+	createHint:SetText("Press '" .. reloadBind .. "' to echo.")
 	createHint:SizeToContents()
 	createHint:CenterHorizontal()
 	createHint:SetY(75)
@@ -283,7 +283,7 @@ function PANEL:Paint(width, height)
 	local dotSize = height / 1.5
 	local dotHSpacing = dotSize * (280 / 1920)
 	local dotBobAmp = dotSize * (50 / 1920)
-	local dotBaseY = ((height / 2) - 10) + (5 * breatheLayer)
+	local dotBaseY = ((height / 2) + 10) + (5 * breatheLayer)
 
 	surface.SetDrawColor(255, 255, 255, math.floor(5 * (1 - hoverLerp) + 3 * clickPulse))
 	surface.SetMaterial(gabenMode and echoGabenSimpleBlankMat or echoSimpleBlankMat)
@@ -310,11 +310,24 @@ function PANEL:Paint(width, height)
 		surface.DrawRect(0, 0, width, height)
 	end
 
-	local echoCount = #echoes
+	local showVoidEchoes = GetConVar("echoes_enablevoidechoes"):GetBool()
+	local showFloatingEchoes = GetConVar("echoes_enablefloatingechoes"):GetBool()
+	local echoCount, mapReadCount = 0, 0
+
+	for _, echo in ipairs(echoes) do
+		if ((echo.inVoid and !showVoidEchoes) or (echo.inAir and !showFloatingEchoes)) then continue end
+
+		echoCount = echoCount + 1
+
+		if (echo.read or echo.isOwner or echo.special) then
+			mapReadCount = mapReadCount + 1
+		end
+	end
+
 	local writeRep = math.Round((#writtenEchoes / globalEchoCount) * 100, 2)
 	local readPercent = globalEchoCount > 0 and math.Round((self.ownReadCount / globalEchoCount) * 100, 2) or 0
 
-	draw.SimpleText("There " .. (echoCount == 1 and "is" or "are") .. " currently " .. echoCount .. " echo" .. (echoCount == 1 and "" or "es") .. " on this map. You have read " .. readEchoCount .. " of them.", "DermaDefault", width / 2, height - 70, self.colorStats1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+	draw.SimpleText("There " .. (echoCount == 1 and "is" or "are") .. " currently " .. echoCount .. " echo" .. (echoCount == 1 and "" or "es") .. " on this map. You have read " .. mapReadCount .. " of them.", "DermaDefault", width / 2, height - 70, self.colorStats1, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 	draw.SimpleText("You have written " .. #writtenEchoes .. " echo" .. (#writtenEchoes == 1 and "" or "es") .. " across " .. self.ownMapCount .. (self.ownMapCount == 1 and " map. " or " different maps. " .. "You represent " .. writeRep .. "% of all echoes."), "DermaDefault", width / 2, height - 50, Color(200, 200, 200), TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 	draw.SimpleText("There are currently " .. globalEchoCount .. " echoes across " .. mapCount .. " maps from " .. userCount .. " users. You have read " .. self.ownReadCount .. " (" .. readPercent .. "%) of them.", "DermaDefault", width / 2, height - 30, self.colorStats3, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
 

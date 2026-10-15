@@ -130,7 +130,7 @@ else
 		-- Lookup table to currently active list of echoes
 		for _, echo in ipairs(echoes) do echoesByID[echo.id] = echo end
 
-		local requestID = net.ReadUInt(8)+1
+		local requestID = net.ReadUInt(8) + 1
 		local numIDs = net.ReadUInt(12)
 		local request = validateRequests[requestID]
 		local validatedEchoes = request.batch
