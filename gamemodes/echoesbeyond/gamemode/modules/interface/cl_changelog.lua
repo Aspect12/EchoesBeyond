@@ -11,10 +11,14 @@ function PANEL:Init()
 
 	changeLog = self
 
+
+	local menuBind = string.upper(input.LookupBinding("+menu") or "Q") -- temp for this changelog lol
+
 	local changelogText = [[
 		- Added new music.
-		- Added gaben mode party song, echo skins, and outro sounds.
 		- Added Time Travel setting.
+		- Added EchoLocator (ALT+]] .. menuBind .. [[).
+		- Added gaben mode party song, echo skins, and outro sounds.
 		- Made foreign echoes always appear blue.
 		- Improved echo text visibility.
 		- Hid floating echoes by default.

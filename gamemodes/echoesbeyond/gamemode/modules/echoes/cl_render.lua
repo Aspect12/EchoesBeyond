@@ -314,46 +314,6 @@ end
 
 local TRANSLATE_BASE_URL = "https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=auto&tl="
 
--- Maps Steam/GMod cl_language values to ISO 639-1 codes
-local steamLangToISO = {
-	english    = "en",
-	russian    = "ru",
-	german     = "de",
-	french     = "fr",
-	spanish    = "es",
-	latam      = "es",
-	portuguese = "pt",
-	brazilian  = "pt",
-	italian    = "it",
-	dutch      = "nl",
-	polish     = "pl",
-	czech      = "cs",
-	hungarian  = "hu",
-	roumanian  = "ro",
-	turkish    = "tr",
-	greek      = "el",
-	swedish    = "sv",
-	norwegian  = "no",
-	danish     = "da",
-	finnish    = "fi",
-	japanese   = "ja",
-	korean     = "ko",
-	koreana    = "ko",
-	schinese   = "zh-CN",
-	tchinese   = "zh-TW",
-	thai       = "th",
-	bulgarian  = "bg",
-	ukrainian  = "uk",
-	vietnamese = "vi",
-	arabic     = "ar",
-}
-
-local function GetTranslateTargetLang()
-	local steamLang = GetConVar("cl_language"):GetString():lower()
-
-	return steamLangToISO[steamLang] or "en"
-end
-
 local function UrlEncode(str)
 	return str:gsub("[^%w%-%.%_%~]", function(c)
 		return string.format("%%%02X", string.byte(c))
@@ -475,7 +435,7 @@ function TranslateEcho(echo)
 
 	HTTP({
 		method = "GET",
-		url = TRANSLATE_BASE_URL .. GetTranslateTargetLang() .. "&q=" .. UrlEncode(echo.originalText),
+		url = TRANSLATE_BASE_URL .. GetEchoTranslateTargetLang() .. "&q=" .. UrlEncode(echo.originalText),
 		success = function(code, body)
 			echo.isTranslating = false
 			echo.loading = false
@@ -556,7 +516,7 @@ hook.Add("PreDrawEffects", "echoes_render_PreDrawEffects", function(bDrawingDept
 	local curTimeSpeed = curTime * 1.5
 	local showDlights = GetConVar("echoes_dlights"):GetBool()
 	local drawColor = Color(0, 0, 0)
-	local targetLang = GetTranslateTargetLang()
+	local targetLang = GetEchoTranslateTargetLang()
 
 	surface.SetFont("EchoText") -- Set the font for text size calculations
 

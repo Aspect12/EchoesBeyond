@@ -58,3 +58,43 @@ function RemoveSigning(text)
 
 	return text
 end
+
+-- Maps Steam/GMod cl_language values to ISO 639-1 codes
+local steamLangToISO = {
+	english    = "en",
+	russian    = "ru",
+	german     = "de",
+	french     = "fr",
+	spanish    = "es",
+	latam      = "es",
+	portuguese = "pt",
+	brazilian  = "pt",
+	italian    = "it",
+	dutch      = "nl",
+	polish     = "pl",
+	czech      = "cs",
+	hungarian  = "hu",
+	roumanian  = "ro",
+	turkish    = "tr",
+	greek      = "el",
+	swedish    = "sv",
+	norwegian  = "no",
+	danish     = "da",
+	finnish    = "fi",
+	japanese   = "ja",
+	korean     = "ko",
+	koreana    = "ko",
+	schinese   = "zh-CN",
+	tchinese   = "zh-TW",
+	thai       = "th",
+	bulgarian  = "bg",
+	ukrainian  = "uk",
+	vietnamese = "vi",
+	arabic     = "ar",
+}
+
+function GetEchoTranslateTargetLang()
+	local steamLang = GetConVar("cl_language"):GetString():lower()
+
+	return steamLangToISO[steamLang] or "en"
+end
