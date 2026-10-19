@@ -21,7 +21,7 @@ hook.Add("InitPostEntity", "intro_InitPostEntity", function()
 
 		local breatheLayer = math.sin(CurTime() * 1.5)
 
-		surface.SetDrawColor(255, 255, 255, 5)
+		surface.SetDrawColor(255, 255, 255, 10)
 		surface.SetMaterial(echoMat)
 		surface.DrawTexturedRectRotated(width / 2, height / 2 + 5 * breatheLayer, height / 1.5, height / 1.5, 0)
 	end

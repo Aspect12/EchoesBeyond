@@ -24,6 +24,7 @@ function PANEL:Init()
 		- Hid floating echoes by default.
 		- Made personal & special Echoes count as read.
 		- Updated text highlight color in entry UI.
+		- Improved settings menu. (Ty EB+!)
 		- Expanded false-positive profanity filter list.
 		- Fixed map searching error.
 		- Improved map menu performance.

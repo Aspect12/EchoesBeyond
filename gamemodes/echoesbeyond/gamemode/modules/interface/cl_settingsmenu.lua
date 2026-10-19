@@ -1,23 +1,42 @@
 
--- The settings menu
 local vignette = Material("echoesbeyond/vignette.png", "smooth")
 local settingsMat = Material("echoesbeyond/settings.png", "smooth")
 
 local PANEL = {}
-local y = 100
+local lastOpenedTab = 1
 
-local function CreateCheckbox(text, convar)
-	local checkbox = vgui.Create("DCheckBoxLabel", settingsMenu)
+local tabNames = {"General", "Gameplay", "Visual", "Advanced"}
+local tabButtons = {}
+local tabPanels = {}
+local tabY = {}
+local tabStartY = 90
+local tabHeight = 30
+
+local function CreateCheckbox(tab, text, convar)
+	local checkbox = vgui.Create("DCheckBoxLabel", tabPanels[tab])
 	checkbox:SetText(text)
 	checkbox:SetValue(convar:GetBool())
 	checkbox:SizeToContents()
-	checkbox:SetPos(50, y)
+	checkbox:SetPos(50, tabY[tab])
+	checkbox:SetTextColor(Color(200, 200, 200))
 	checkbox.OnChange = function(self, value)
 		EchoSound("button_click")
 		convar:SetBool(value)
 	end
+	checkbox.Button.Paint = function(this, width, height)
+		surface.SetDrawColor(this:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
+		surface.DrawRect(0, 0, width, height)
+		surface.SetDrawColor(100, 100, 100)
+		surface.DrawOutlinedRect(0, 0, width, height)
 
-	y = y + 25
+		if (!this:GetChecked()) then return end
+
+		surface.SetDrawColor(220, 220, 220)
+		surface.DrawLine(3, height / 2, width * 0.4, height - 4)
+		surface.DrawLine(width * 0.4, height - 4, width - 3, 3)
+	end
+
+	tabY[tab] = tabY[tab] + 25
 end
 
 local timeUnits = {
@@ -29,7 +48,6 @@ local timeUnits = {
 	{"second", 1}
 }
 
--- Describes a unix timestamp relative to now, e.g. "5 minutes ago"
 local function FormatTimeAgo(value, min, max)
 	if (value >= max - echoTimeTolerance) then return "Now (Live)" end
 	if (value <= min + echoTimeTolerance) then return "First Echo Time" end
@@ -46,14 +64,14 @@ local function FormatTimeAgo(value, min, max)
 	end
 end
 
-local function CreateSlider(text, convar, min, max, decimals, formatter)
-	local slider = vgui.Create("DNumSlider", settingsMenu)
+local function CreateSlider(tab, text, convar, min, max, decimals, formatter)
+	local parent = tabPanels[tab]
+	local slider = vgui.Create("DNumSlider", parent)
 	slider:SetText(text)
 	slider:SetMin(min)
 	slider:SetMax(max)
 	slider:SetDecimals(decimals)
 
-	-- Replace the raw number in the text box with a readable description
 	if (formatter) then
 		local valueChanged = slider.ValueChanged
 
@@ -69,21 +87,31 @@ local function CreateSlider(text, convar, min, max, decimals, formatter)
 	end
 
 	slider:SetValue(convar:GetInt())
-	slider:SetWide(settingsMenu:GetWide() - 100)
-	slider:SetPos(50, y)
-	slider.OnValueChanged = function(self, value)
+	slider:SetWide(parent:GetWide() - 100)
+	slider:SetPos(50, tabY[tab])
+	slider.OnValueChanged = function(_, value)
 		convar:SetInt(math.Round(value))
 	end
 
-	y = y + 25
+	tabY[tab] = tabY[tab] + slider:GetTall() + 5
+end
+
+local function SwitchToTab(index)
+	lastOpenedTab = index
+
+	for i, panel in ipairs(tabPanels) do
+		panel:SetVisible(i == index)
+	end
+
+	for i, button in ipairs(tabButtons) do
+		button.isActive = i == index
+	end
 end
 
 function PANEL:Init()
 	if (IsValid(settingsMenu)) then
 		settingsMenu:Remove()
 	end
-
-	y = 100
 
 	settingsMenu = self
 
@@ -93,7 +121,7 @@ function PANEL:Init()
 	self:MakePopup()
 	self:SetAlpha(0)
 
-	self:AlphaTo(255, 0.25)
+	self:AlphaTo(255, 0.5)
 	EchoSound("whoosh", nil, 0.75)
 
 	local title = vgui.Create("DLabel", self)
@@ -109,20 +137,67 @@ function PANEL:Init()
 	subTitle:CenterHorizontal()
 	subTitle:SetY(55)
 
-	CreateCheckbox("Enable music", GetConVar("echoes_music"))
-	CreateCheckbox("Show offensive Echoes", GetConVar("echoes_profanity"))
-	CreateCheckbox("Enable smooth view", GetConVar("echoes_smoothview"))
-	CreateCheckbox("Show read Echoes", GetConVar("echoes_showread"))
-	CreateCheckbox("Enable dynamic lights", GetConVar("echoes_dlights"))
-	CreateCheckbox("Flash game when a new Echo is made", GetConVar("echoes_windowflash"))
-	CreateCheckbox("Enable Echo 'read' system", GetConVar("echoes_readsys"))
-	CreateCheckbox("Hide author signatures", GetConVar("echoes_disablesigning"))
-	CreateCheckbox("Enable GabeN mode", GetConVar("echoes_gabenmode"))
-	CreateCheckbox("Enable void Echoes", GetConVar("echoes_enablevoidechoes"))
-	CreateCheckbox("Enable floating Echoes", GetConVar("echoes_enablefloatingechoes"))
+	tabButtons = {}
+	tabPanels = {}
+	tabY = {}
 
-	CreateSlider("Movement Speed", GetConVar("echoes_speed"), 1, 1000, 0)
-	CreateSlider("Render Distance", GetConVar("echoes_renderdist"), 10000, 100000000, 0)
+	for i = 1, #tabNames do
+		local content = vgui.Create("DPanel", self)
+		content:SetPos(0, tabStartY + tabHeight)
+		content:SetSize(self:GetWide(), self:GetTall() - (tabStartY + tabHeight))
+		content:SetPaintBackground(false)
+
+		tabPanels[i] = content
+		tabY[i] = 20
+	end
+
+	local totalTabsWidth = 0
+	local buttonSpacing = 2
+
+	for i, name in ipairs(tabNames) do
+		local button = vgui.Create("DButton", self)
+		button:SetText(name)
+		button:SetFont("TargetID")
+		button:SizeToContentsX(15)
+		button:SetColor(Color(175, 175, 175))
+		button:SetTall(tabHeight)
+		button.isActive = false
+		button.Paint = function(this, width, height)
+			surface.SetDrawColor((this.isActive or this:IsDown()) and Color(100, 100, 100) or this:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
+			surface.DrawRect(0, 0, width, height)
+		end
+		button.DoClick = function()
+			SwitchToTab(i)
+			EchoSound("button_click")
+		end
+
+		tabButtons[i] = button
+		totalTabsWidth = totalTabsWidth + button:GetWide()
+	end
+
+	totalTabsWidth = totalTabsWidth + (#tabButtons - 1) * buttonSpacing
+
+	local currentX = (self:GetWide() - totalTabsWidth) / 2
+	for _, button in ipairs(tabButtons) do
+		button:SetPos(currentX, tabStartY)
+		currentX = currentX + button:GetWide() + buttonSpacing
+	end
+
+	CreateCheckbox(1, "Enable music", GetConVar("echoes_music"))
+	CreateCheckbox(1, "Show read Echoes", GetConVar("echoes_showread"))
+	CreateCheckbox(1, "Show offensive Echoes", GetConVar("echoes_profanity"))
+	CreateCheckbox(1, "Flash game when a new Echo is made", GetConVar("echoes_windowflash"))
+
+	CreateCheckbox(2, "Enable Echo 'read' system", GetConVar("echoes_readsys"))
+	CreateCheckbox(2, "Enable GabeN mode", GetConVar("echoes_gabenmode"))
+	CreateCheckbox(2, "Enable void Echoes", GetConVar("echoes_enablevoidechoes"))
+	CreateCheckbox(2, "Enable floating Echoes", GetConVar("echoes_enablefloatingechoes"))
+	CreateSlider(2, "Movement Speed", GetConVar("echoes_speed"), 1, 1000, 0)
+
+	CreateCheckbox(3, "Enable smooth view", GetConVar("echoes_smoothview"))
+	CreateCheckbox(3, "Enable dynamic lights", GetConVar("echoes_dlights"))
+	CreateCheckbox(3, "Hide author signatures", GetConVar("echoes_disablesigning"))
+	CreateSlider(3, "Render Distance", GetConVar("echoes_renderdist"), 10000, 100000000, 0)
 
 	-- While viewing the present, keep the slider pinned to the current time
 	echoTimeMax = os.time()
@@ -133,63 +208,69 @@ function PANEL:Init()
 		timeConvar:SetInt(echoTimeMax)
 	end
 
-	CreateSlider("Echo Time Period", timeConvar, echoTimeMin, echoTimeMax, 0, FormatTimeAgo)
+	CreateSlider(4, "Echo Time Period", timeConvar, echoTimeMin, echoTimeMax, 0, FormatTimeAgo)
 
-	local deleteAll = vgui.Create("DButton", self)
-	deleteAll:SetSize(self:GetWide() * 0.5, 30)
-	deleteAll:SetText("Delete all data")
-	deleteAll:SetFont("CreditsText")
-	deleteAll:SetColor(Color(175, 175, 175))
-	deleteAll:CenterHorizontal()
-	deleteAll:SetY(self:GetTall() - 50)
-	deleteAll.Paint = function(this, width, height)
-		surface.SetDrawColor(this:IsDown() and Color(100, 100, 100) or this:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
-		surface.DrawRect(0, 0, width, height)
-	end
-	deleteAll.DoClick = function()
-		EchoesConfirm("Delete all data", "This will delete all of your data, per the GDPR's 'Right to Erasure'. This action is irreversible. Are you sure?", function()
-			http.Fetch("https://resonance.flatgrass.net/nuke", function(body, _, _, code)
-				if (code != 200) then
-					if (code == 401) then
-						EchoNotify("Your authentication token has expired. Please log in again.")
+	do
+		local content = tabPanels[4]
 
-						authToken = nil
-					else
-						EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
+		local deleteAll = vgui.Create("DButton", content)
+		deleteAll:SetSize(content:GetWide() * 0.5, 30)
+		deleteAll:SetText("Delete all data")
+		deleteAll:SetFont("CreditsText")
+		deleteAll:SetColor(Color(175, 175, 175))
+		deleteAll:CenterHorizontal()
+		deleteAll:SetY(content:GetTall() - 70)
+		deleteAll.Paint = function(this, width, height)
+			surface.SetDrawColor(this:IsDown() and Color(100, 100, 100) or this:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
+			surface.DrawRect(0, 0, width, height)
+		end
+		deleteAll.DoClick = function()
+			EchoesConfirm("Delete all data", "This will delete all of your data, per the EU's GDPR 'Right to Erasure'. This action is irreversible. Are you sure?", function()
+				http.Fetch("https://resonance.flatgrass.net/nuke", function(body, _, _, code)
+					if (code != 200) then
+						if (code == 401) then
+							EchoNotify("Your authentication token has expired. Please log in again.")
+
+							authToken = nil
+						else
+							EchoNotify("RESONANCE ERROR: " .. string.sub(body, 1, -2))
+						end
+
+						return
 					end
 
-					return
-				end
+					mainMenu:Close()
 
-				mainMenu:Close()
+					file.Delete("echoesbeyond/readechoes.txt")
+					file.Delete("echoesbeyond/authtoken.txt")
+					authToken = nil
+					writtenEchoes = {}
+					readEchoCount = 0
 
-				file.Delete("echoesbeyond/readechoes.txt")
-				file.Delete("echoesbeyond/authtoken.txt")
-				authToken = nil
-				writtenEchoes = {}
-				readEchoCount = 0
+					local newEchoes = {}
 
-				local newEchoes = {}
+					for i = 1, #echoes do
+						local echo = echoes[i]
+						if (echo.isOwner) then continue end
 
-				for i = 1, #echoes do
-					local echo = echoes[i]
-					if (echo.isOwner) then continue end
+						newEchoes[#newEchoes + 1] = echo
+					end
 
-					newEchoes[#newEchoes + 1] = echo
-				end
+					echoes = newEchoes
 
-				echoes = newEchoes
+					EchoNotify("All data has been deleted.")
 
-				EchoNotify("All data has been deleted.")
+					EchoSound("button_click")
+				end, function(error)
+					EchoNotify(error)
+				end, {authorization = authToken})
+			end)
 
-				EchoSound("button_click")
-			end, function(error)
-				EchoNotify(error)
-			end, {authorization = authToken})
-		end)
-
-		EchoSound("button_click")
+			EchoSound("button_click")
+		end
 	end
+
+	SwitchToTab(lastOpenedTab)
 end
 
 function PANEL:Paint(width, height)
@@ -226,7 +307,6 @@ end
 
 vgui.Register("echoSettingsMenu", PANEL, "EditablePanel")
 
--- Close when pressing escape
 hook.Add("OnPauseMenuShow", "settingsmenu_OnPauseMenuShow", function()
 	if (!IsValid(settingsMenu)) then return end
 

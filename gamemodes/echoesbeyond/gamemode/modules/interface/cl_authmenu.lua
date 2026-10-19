@@ -78,7 +78,7 @@ function PANEL:Init()
 	self.throbber.Paint = function(this, width, height)
 		local breatheLayer = math.sin(CurTime() * 1.5)
 
-		surface.SetDrawColor(255, 255, 255, 5)
+		surface.SetDrawColor(255, 255, 255, 10)
 		surface.SetMaterial(echoBlankMat)
 		surface.DrawTexturedRectRotated(width / 2, height / 2  + 5 * breatheLayer, width, height, 0)
 

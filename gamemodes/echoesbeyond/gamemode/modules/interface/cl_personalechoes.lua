@@ -55,10 +55,24 @@ function PANEL:Init()
 	self.showAll:SetValue(conVar:GetBool())
 	self.showAll:SizeToContents()
 	self.showAll:SetPos(15, 100)
+	self.showAll:SetTextColor(Color(200, 200, 200))
 	self.showAll.OnChange = function(this, value)
 		self:ListEchoes(self.searchBar:GetValue())
+		EchoSound("button_click")
 
 		conVar:SetBool(value)
+	end
+	self.showAll.Button.Paint = function(this, width, height)
+		surface.SetDrawColor(this:IsHovered() and Color(75, 75, 75) or Color(50, 50, 50))
+		surface.DrawRect(0, 0, width, height)
+		surface.SetDrawColor(100, 100, 100)
+		surface.DrawOutlinedRect(0, 0, width, height)
+
+		if (!this:GetChecked()) then return end
+
+		surface.SetDrawColor(220, 220, 220)
+		surface.DrawLine(3, height / 2, width * 0.4, height - 4)
+		surface.DrawLine(width * 0.4, height - 4, width - 3, 3)
 	end
 
 	self.searchBar = vgui.Create("DTextEntry", self)
