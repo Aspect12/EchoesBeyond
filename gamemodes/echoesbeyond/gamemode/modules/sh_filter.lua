@@ -124,6 +124,7 @@ local exemptWords = {
 	"keys",
 	"good",
 	"okay",
+	"open",
 	"get",
 	"off",
 	"and",

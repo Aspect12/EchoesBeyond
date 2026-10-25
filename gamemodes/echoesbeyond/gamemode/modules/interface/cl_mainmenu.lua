@@ -82,7 +82,7 @@ function PANEL:Init()
 
 	local walkBind, useBind = string.upper(input.LookupBinding("+walk") or "alt"), string.upper(input.LookupBinding("+use") or "e")
 	local translateHint = vgui.Create("DLabel", self)
-	translateHint:SetText("Press '" .. walkBind .. "+" .. useBind .. "' to translate an echo.")
+	translateHint:SetText("Press '" .. walkBind .. " + " .. useBind .. "' to translate an echo.")
 	translateHint:SizeToContents()
 	translateHint:CenterHorizontal()
 	translateHint:SetY(75)
